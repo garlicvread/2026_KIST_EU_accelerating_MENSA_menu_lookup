@@ -9,6 +9,7 @@ import tempfile
 from zoneinfo import ZoneInfo
 
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
+from scripts.notices import require_notice_coverage
 from scripts.translations import build_translations, model_config, validate_cache
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -97,6 +98,7 @@ def main():
             cache = read_json(ROOT / "site/data/translations.json")
             validate_menu(menu)
             validate_cache(cache)
+            require_notice_coverage(menu, cache)
             report = summarize(menu, cache)
         else:
             report = update()

@@ -12,7 +12,7 @@
         ]
       },
       "en": {
-        "name": "Wikingertopf (stew)",
+        "name": "Meatball stew",
         "components": [
           "potatoes boiled in salted water (organic)",
           "alternative side dish",
@@ -21,7 +21,7 @@
         ]
       },
       "ko": {
-        "name": "Wikingertopf (스튜)",
+        "name": "고기완자 스튜",
         "components": [
           "소금물에 삶은 감자 (유기농)",
           "대체 사이드 메뉴",
@@ -31,7 +31,8 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "a7bed3afe3b64b58935d240a837dade6b039bf60068db26f203ebab4fca15c1c": {
       "source": {
@@ -45,7 +46,7 @@
         ]
       },
       "en": {
-        "name": "KlimaTeller: Sweet potato curry",
+        "name": "Sweet potato curry",
         "components": [
           "Bread roll",
           "Mixed leaf salad",
@@ -55,7 +56,7 @@
         ]
       },
       "ko": {
-        "name": "KlimaTeller: 고구마 커리",
+        "name": "고구마 커리",
         "components": [
           "작은 롤빵",
           "모둠 잎채소 샐러드",
@@ -66,7 +67,8 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "fb32bf90461deda47cbfd7775268125da9c200a54a2a6cab2754bbc0aef3817c": {
       "source": {
@@ -74,16 +76,17 @@
         "components": []
       },
       "en": {
-        "name": "mensaVital: Chicken breast steak with coconut curry sauce and rice",
+        "name": "Chicken breast steak with coconut curry sauce and rice",
         "components": []
       },
       "ko": {
-        "name": "mensaVital: 코코넛 커리 소스와 밥을 곁들인 닭가슴살 스테이크",
+        "name": "코코넛 커리 소스와 밥을 곁들인 닭가슴살 스테이크",
         "components": []
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "be562ce20c30499a3f8fa42da662e7bb2b44df04e5f415cabb3a53fb434d304f": {
       "source": {
@@ -216,16 +219,17 @@
         "components": []
       },
       "en": {
-        "name": "KlimaTeller: Chili cheese fries",
+        "name": "Chili cheese fries",
         "components": []
       },
       "ko": {
-        "name": "KlimaTeller: 칠리 치즈 감자튀김",
+        "name": "칠리 치즈 감자튀김",
         "components": []
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "dab68c0af7b449009f29ebefc81d514a51678687dcae1b9262ffd33f3eb572c8": {
       "source": {
@@ -300,16 +304,17 @@
         "components": []
       },
       "en": {
-        "name": "mensaVital: Tofu Goulash Szegediner style with herb potatoes",
+        "name": "Tofu Goulash Szegediner style with herb potatoes",
         "components": []
       },
       "ko": {
-        "name": "mensaVital: 세게드식 토푸 굴라쉬와 허브 감자",
+        "name": "세게드식 토푸 굴라쉬와 허브 감자",
         "components": []
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "c8dd5c0c4951af1cdbf16371d504652d3a8053b6473cb01378b4ed42325eb6c8": {
       "source": {
@@ -492,16 +497,17 @@
         "components": []
       },
       "en": {
-        "name": "mensaVital: Spicy sesame noodles, Eight Treasures style",
+        "name": "Spicy sesame noodles, Eight Treasures style",
         "components": []
       },
       "ko": {
-        "name": "mensaVital: 팔보 스타일 매콤한 참깨 국수",
+        "name": "팔보 스타일 매콤한 참깨 국수",
         "components": []
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "d462036047b80f4b9e6b361642b31c28f87cec74545a050e07aec05f691750a1": {
       "source": {
@@ -1076,16 +1082,17 @@
         "components": []
       },
       "en": {
-        "name": "mensaVital: Chicken tikka masala with basmati rice",
+        "name": "Chicken tikka masala with basmati rice",
         "components": []
       },
       "ko": {
-        "name": "mensaVital: 바스마티 쌀밥을 곁들인 치킨 티카 마살라",
+        "name": "바스마티 쌀밥을 곁들인 치킨 티카 마살라",
         "components": []
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "dede88d7cf7f1223f77193c5c19a32edd229094fe1086cf4dc788ad27fdfbb7f": {
       "source": {
@@ -1095,20 +1102,21 @@
         ]
       },
       "en": {
-        "name": "KlimaTeller: Vegan Asian-style coconut curry",
+        "name": "Vegan Asian-style coconut curry",
         "components": [
           "Chinese-style noodles"
         ]
       },
       "ko": {
-        "name": "KlimaTeller: 비건 아시아식 코코넛 커리",
+        "name": "비건 아시아식 코코넛 커리",
         "components": [
           "중국식 면 요리"
         ]
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "12bc8e48f0301f6a00be2ff0104d36de397e000e12feed48aedbfd36da9e2697": {
       "source": {
@@ -1197,20 +1205,21 @@
         ]
       },
       "en": {
-        "name": "KlimaTeller: Egg salad with chives",
+        "name": "Egg salad with chives",
         "components": [
           "French fries"
         ]
       },
       "ko": {
-        "name": "KlimaTeller: 차이브를 넣은 달걀 샐러드",
+        "name": "차이브를 넣은 달걀 샐러드",
         "components": [
           "감자튀김"
         ]
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "7f3b03c62519e009404a778b234af170a60c5fd90a13c43106294d2b220a5875": {
       "source": {
@@ -1458,7 +1467,7 @@
         ]
       },
       "en": {
-        "name": "Köttbullar (Swedish meatballs)",
+        "name": "Swedish meatballs",
         "components": [
           "cream sauce with mushrooms",
           "rice (organic)",
@@ -1467,7 +1476,7 @@
         ]
       },
       "ko": {
-        "name": "Köttbullar (스웨덴식 미트볼)",
+        "name": "스웨덴식 미트볼",
         "components": [
           "양송이버섯을 곁들인 크림 소스",
           "유기농 쌀밥",
@@ -1477,7 +1486,8 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v3",
+      "name_policy_version": "semantic-names-v1"
     },
     "12c7e1fe25c39b5c3cc4d7b42695b8b11788d964fd1c1e319cb51281989f71f8": {
       "source": {
@@ -2027,6 +2037,124 @@
       "origin": "editorial-draft",
       "model": "assistant-draft",
       "prompt_version": "menu-v3"
+    }
+  },
+  "notices": {
+    "Alkohol": {
+      "en": "Alcohol",
+      "ko": "알코올"
+    },
+    "Antioxidationsmittel": {
+      "en": "Antioxidant",
+      "ko": "산화방지제"
+    },
+    "Backtriebmittel": {
+      "en": "Raising agent",
+      "ko": "팽창제"
+    },
+    "Ei": {
+      "en": "Egg",
+      "ko": "달걀"
+    },
+    "Erdnüsse": {
+      "en": "Peanuts",
+      "ko": "땅콩"
+    },
+    "Farbstoff": {
+      "en": "Colouring",
+      "ko": "착색료"
+    },
+    "Fisch": {
+      "en": "Fish",
+      "ko": "생선"
+    },
+    "Fisch aus nachhaltigem Fang": {
+      "en": "Sustainably caught fish",
+      "ko": "지속 가능한 방식으로 어획한 생선"
+    },
+    "Geflügel": {
+      "en": "Poultry",
+      "ko": "가금류"
+    },
+    "Gerste": {
+      "en": "Barley",
+      "ko": "보리"
+    },
+    "Geschmacksverstärker": {
+      "en": "Flavour enhancer",
+      "ko": "향미증진제"
+    },
+    "Hafer": {
+      "en": "Oats",
+      "ko": "귀리"
+    },
+    "Knoblauch": {
+      "en": "Garlic",
+      "ko": "마늘"
+    },
+    "Konservierungsstoff": {
+      "en": "Preservative",
+      "ko": "보존료"
+    },
+    "Milch und Laktose": {
+      "en": "Milk and lactose",
+      "ko": "우유 및 유당"
+    },
+    "Roggen": {
+      "en": "Rye",
+      "ko": "호밀"
+    },
+    "Schwefeldioxid / Sulfite": {
+      "en": "Sulphur dioxide / sulphites",
+      "ko": "이산화황 / 아황산염"
+    },
+    "Schweinefleisch": {
+      "en": "Pork",
+      "ko": "돼지고기"
+    },
+    "Sellerie": {
+      "en": "Celery",
+      "ko": "셀러리"
+    },
+    "Senf": {
+      "en": "Mustard",
+      "ko": "겨자"
+    },
+    "Sesamsamen": {
+      "en": "Sesame seeds",
+      "ko": "참깨"
+    },
+    "Soja": {
+      "en": "Soy",
+      "ko": "대두"
+    },
+    "Süßungsmittel": {
+      "en": "Sweetener",
+      "ko": "감미료"
+    },
+    "Weizen": {
+      "en": "Wheat",
+      "ko": "밀"
+    },
+    "aus zum Teil fein zerkleinertem Fleisch": {
+      "en": "Partly made from finely minced meat",
+      "ko": "일부는 잘게 다진 고기로 제조됨"
+    },
+    "biologisches Esses": {
+      "en": "Organic food",
+      "ko": "유기농 식품"
+    },
+    "geschwefelt": {
+      "en": "Treated with sulphites",
+      "ko": "아황산염 처리됨"
+    },
+    "vegan": {
+      "en": "Vegan",
+      "ko": "비건"
+    },
+    "vegetarisch": {
+      "en": "Vegetarian",
+      "ko": "채식"
     }
   }
 }

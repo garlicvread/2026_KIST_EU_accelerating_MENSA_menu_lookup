@@ -51,10 +51,12 @@ jobs:
         run: |
           python -m scripts.update_menu --validate-only
           python -c "from pathlib import Path; from scripts.update_menu import read_json, require_current_coverage; require_current_coverage(read_json(Path('site/data/menu.json')))"
+      - name: Build versioned Pages assets
+        run: python -m scripts.build_site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: .tmp/pages
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4

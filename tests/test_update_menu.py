@@ -4,12 +4,53 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from scripts.update_menu import write_snapshot, require_current_coverage, update
+from scripts.update_menu import write_snapshot, require_current_coverage, update, main
+from scripts.local_refresh import RefreshJob
+from scripts.translations import build_translations
 from scripts.menu_source import parse_menu
 from test_menu_source import page, meal
 
 
 class SnapshotTests(unittest.TestCase):
+    def test_unknown_notice_during_update_preserves_both_published_files(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            directory = root / "site" / "data"
+            previous = parse_menu(page(date="21.09.2099"))
+            cache = build_translations(previous, {}, {}, None)
+            write_snapshot(directory, previous, cache)
+            before = {p.name: p.read_bytes() for p in directory.iterdir()}
+            changed = page(date="21.09.2099").replace("Weizen", "New unreviewed source label")
+            with self.assertRaisesRegex(ValueError, "New unreviewed source label"):
+                update(root, html=changed)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
+
+    def test_validate_only_requires_current_notice_coverage(self):
+        menu = parse_menu(page())
+        with patch("scripts.update_menu.read_json", side_effect=[menu, {"schema_version": 1, "entries": {}}]), \
+                patch("sys.argv", ["update_menu", "--validate-only"]):
+            with self.assertRaisesRegex(SystemExit, "[Nn]otice.*[Ww]eizen|[Nn]otice.*[Ss]ellerie"):
+                main()
+
+    def test_worker_requires_current_notice_coverage_independent_of_dish_cache(self):
+        menu = parse_menu(page())
+        phrases = {name: {"en": "Dish", "ko": "요리"} for name in
+                   ["Vegan: Ägyptisches Kushari", "Reis", "Soße & Gemüse"]}
+        cache = build_translations(menu, {}, phrases, None)
+        cache.pop("notices", None)
+        with self.assertRaisesRegex(ValueError, "[Nn]otice"):
+            RefreshJob.validate_complete(menu, cache)
+
+    def test_worker_rejects_notice_wording_that_bypasses_the_reviewed_glossary(self):
+        menu = parse_menu(page())
+        phrases = {name: {"en": "Dish", "ko": "요리"} for name in
+                   ["Vegan: Ägyptisches Kushari", "Reis", "Soße & Gemüse"]}
+        cache = build_translations(menu, {}, phrases, None)
+        RefreshJob.validate_complete(menu, cache)
+        cache["notices"]["Weizen"]["en"] = "Wheat-free"
+        with self.assertRaisesRegex(ValueError, "[Nn]otice.*glossary"):
+            RefreshJob.validate_complete(menu, cache)
+
     def test_price_loss_during_refresh_preserves_published_snapshot(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

@@ -72,7 +72,13 @@ Prices come only from the exact source meal identified by date, counter and Germ
 
 Future source entries without a price block provide a source-price link. No price is borrowed from another dish or guessed by the model. The source PDF does not contain prices and is not a fallback.
 
+Ingredient, allergen and additive labels use a reviewed bilingual glossary in `data/notice-translations.json`. Every meal and side-dish notice is paired with its exact German original in Korean/English views. The weekly refresh checks notice coverage even when the dish translation is cached; an unknown label blocks publication and enters the existing retry/notification path until its glossary translation is reviewed.
+
 The model receives dish names and components only, never prices or allergen notices. Native Ollama requests are loopback-only, disable thinking, constrain JSON with a schema and require normal completion. Unknown output shapes or truncated responses fail closed. The existing optional OpenAI-compatible provider remains available for manual use but is not used by the queued local worker.
+
+Translated titles describe the food in the selected language. The `mensaVital` balanced-menu brand and `KlimaTeller` low-carbon label remain in the exact German subtitle, rather than being copied into Korean/English dish titles. A reviewed naming policy applies to cached, editorial and new model translations; validation rejects unresolved occurrences before publication. `Wikingertopf` is rendered as “Meatball stew” / “고기완자 스튜”, and `Köttbullar` as “Swedish meatballs” / “스웨덴식 미트볼”. These are culinary name translations, not additions to the source ingredient inventory. In particular, the viewer does not infer cream, vegetables or meat species from a generic recipe.
+
+Naming references: [mensaVital definition](https://www.mensavital.de/mensavital/ueber-mensavital/die-marke-mensavital), [Saarland KlimaTeller explanation](https://www.stw-saarland.de/nachhaltig/), and [EDEKA’s Wikingertopf recipe](https://www.edeka.de/rezeptwelt/rezepte/wikingertopf/).
 
 ## Development and manual deployment
 

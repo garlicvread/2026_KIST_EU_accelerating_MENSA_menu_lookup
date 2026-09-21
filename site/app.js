@@ -4,13 +4,13 @@ const GROUPS = ['student', 'staff', 'guest'];
 const LOCALES = { ko: 'ko-KR', en: 'en-GB', de: 'de-DE' };
 const COPY = {
   en: {
-    skip: 'Skip to menus', language: 'Language', eyebrow: 'YOUR CAMPUS LUNCH, AT A GLANCE', title: 'What’s for lunch?', heroNote: 'A good lunch. A little less deciding.', view: 'Menu view', dayView: 'By day', weekView: 'The whole week', schedule: 'Weekly refresh', navigation: 'Menu dates', previousWeek: 'Previous available week', nextWeek: 'Next available week', today: 'Today', chooseDate: 'Choose a date', allDates: 'All published dates', priceGroup: 'Prices for', student: 'Students', staff: 'Staff', guest: 'Guests', loading: 'Getting the menu ready…', footerTitle: 'A little clarity for lunchtime.', source: 'Original menu ↗', disclaimer: 'An independent menu viewer. Meals and prices may change; check the original menu for the latest details.', translationDisclaimer: 'Translations are a guide. Ingredient and allergen notices stay in the original German.', thisWeek: 'This week', nextWeekLabel: 'Next week', publishedWeek: 'Published week', weekTitle: 'The week at a glance', todayMenu: 'On the menu today', futureMenu: 'A little planning ahead', pastMenu: 'Past menu', dishes: 'dishes', details: 'Sides · ingredients / allergens', components: 'Sides & components', notices: 'Original ingredient & allergen notices', noNotices: 'No notices supplied in this source entry.', original: 'German original', fallback: 'Original German · translation unavailable', checkPrice: 'Check price ↗', checkPriceAria: 'Check the price on the original menu', vegan: 'Vegan', vegetarian: 'Vegetarian', empty: 'No meals are published for this date.', pastNotice: 'You are viewing a past menu. It is not today’s offering.', expiredNotice: 'All available menus are in the past. Check the original menu for current information.', staleNotice: 'This snapshot is more than a week old. Check the original menu for updates.', translationsFailed: 'Translations could not be loaded. The German menu is still available.', coverage: 'Published dates', updated: 'Last successful update', berlin: 'Berlin time', errorTitle: 'The menu is taking a break.', errorBody: 'We couldn’t load a valid menu right now. Try again, or visit the original menu.', retry: 'Try again', openDay: 'View day', todayUnavailable: 'Today is not published; showing the next available menu.', latestPast: 'Showing the latest available past menu.'
+    skip: 'Skip to menus', language: 'Language', title: 'Mensa menu', view: 'Menu view', dayView: 'By day', weekView: 'The whole week', navigation: 'Menu dates', previousWeek: 'Previous available week', nextWeek: 'Next available week', today: 'Today', chooseDate: 'Choose a date', allDates: 'All published dates', priceGroup: 'Prices for', student: 'Students', staff: 'Staff', guest: 'Guests', loading: 'Getting the menu ready…', source: 'Original menu ↗', thisWeek: 'This week', nextWeekLabel: 'Next week', publishedWeek: 'Published week', weekTitle: 'Weekly menu', todayMenu: 'On the menu today', pastMenu: 'Past menu', componentDetails: 'Component details', notices: 'Ingredients · allergens · additives', original: 'German original', fallback: 'Original German · translation unavailable', checkPrice: 'Check price ↗', checkPriceAria: 'Check the price on the original menu', vegan: 'Vegan', vegetarian: 'Vegetarian', empty: 'No meals are published for this date.', pastNotice: 'You are viewing a past menu. It is not today’s offering.', expiredNotice: 'All available menus are in the past. Check the original menu for current information.', staleNotice: 'This snapshot is more than a week old. Check the original menu for updates.', translationsFailed: 'Translations could not be loaded. The German menu is still available.', errorTitle: 'Menu unavailable', errorBody: 'We couldn’t load a valid menu right now. Try again, or visit the original menu.', retry: 'Try again', openDay: 'View day', todayUnavailable: 'Today is not published; showing the next available menu.', latestPast: 'Showing the latest available past menu.'
   },
   ko: {
-    skip: '메뉴로 바로 이동', language: '언어', eyebrow: '캠퍼스의 점심을 한눈에', title: '점심, 뭐 먹지?', heroNote: '맛있는 점심. 조금 더 가벼운 고민.', view: '메뉴 보기 방식', dayView: '하루씩 보기', weekView: '한 주 보기', schedule: '주 1회 갱신', navigation: '메뉴 날짜', previousWeek: '이전 식단 주간', nextWeek: '다음 식단 주간', today: '오늘', chooseDate: '날짜 선택', allDates: '공개된 모든 날짜', priceGroup: '가격 기준', student: '학생', staff: '교직원', guest: '방문객', loading: '메뉴를 불러오는 중…', footerTitle: '점심 고민을 조금 더 가볍게.', source: '원본 식단표 ↗', disclaimer: '비공식 메뉴 안내. 메뉴와 가격은 변경될 수 있으며, 최신 정보는 원본 식단표에서 확인.', translationDisclaimer: '번역은 이해를 돕기 위한 안내. 식재료·알레르기 정보는 독일어 원문을 유지.', thisWeek: '이번 주', nextWeekLabel: '다음 주', publishedWeek: '공개된 주간 식단', weekTitle: '한 주 한눈에', todayMenu: '오늘의 점심', futureMenu: '미리 보는 점심', pastMenu: '지난 식단', dishes: '개 메뉴', details: '구성 · 식재료 / 알레르기', components: '구성 및 곁들임', notices: '식재료·알레르기 원문 정보', noNotices: '해당 원본 항목에 별도 표시 정보 없음.', original: '독일어 원문', fallback: '독일어 원문 · 번역 준비 중', checkPrice: '가격 확인 ↗', checkPriceAria: '원본 식단표에서 가격 확인', vegan: '비건', vegetarian: '채식', empty: '이 날짜에 공개된 메뉴가 없음.', pastNotice: '지난 날짜의 식단이며 오늘 제공되는 메뉴가 아님.', expiredNotice: '공개된 메뉴가 모두 지난 날짜의 식단. 최신 메뉴는 원본 식단표에서 확인.', staleNotice: '마지막 수집 후 일주일 이상 경과. 원본 식단표에서 최신 정보 확인.', translationsFailed: '번역을 불러오지 못해 독일어 원문으로 표시.', coverage: '공개된 식단', updated: '마지막 정상 갱신', berlin: '베를린 시간', errorTitle: '메뉴를 잠시 불러올 수 없음', errorBody: '유효한 식단을 불러오지 못함. 다시 시도하거나 원본 식단표에서 확인.', retry: '다시 시도', openDay: '하루 보기', todayUnavailable: '오늘 식단이 없어 다음 공개 날짜로 이동.', latestPast: '가장 최근에 공개된 지난 식단으로 이동.'
+    skip: '메뉴로 바로 이동', language: '언어', title: '멘자 식단', view: '메뉴 보기 방식', dayView: '하루씩 보기', weekView: '한 주 보기', navigation: '메뉴 날짜', previousWeek: '이전 식단 주간', nextWeek: '다음 식단 주간', today: '오늘', chooseDate: '날짜 선택', allDates: '공개된 모든 날짜', priceGroup: '가격 기준', student: '학생', staff: '교직원', guest: '방문객', loading: '메뉴를 불러오는 중…', source: '원본 식단표 ↗', thisWeek: '이번 주', nextWeekLabel: '다음 주', publishedWeek: '공개된 주간 식단', weekTitle: '주간 식단', todayMenu: '오늘의 점심', pastMenu: '지난 식단', componentDetails: '구성품별 정보', notices: '식재료 · 알레르기 · 첨가물', original: '독일어 원문', fallback: '독일어 원문 · 번역 준비 중', checkPrice: '가격 확인 ↗', checkPriceAria: '원본 식단표에서 가격 확인', vegan: '비건', vegetarian: '채식', empty: '이 날짜에 공개된 메뉴가 없음.', pastNotice: '지난 날짜의 식단이며 오늘 제공되는 메뉴가 아님.', expiredNotice: '공개된 메뉴가 모두 지난 날짜의 식단. 최신 메뉴는 원본 식단표에서 확인.', staleNotice: '마지막 수집 후 일주일 이상 경과. 원본 식단표에서 최신 정보 확인.', translationsFailed: '번역을 불러오지 못해 독일어 원문으로 표시.', errorTitle: '메뉴를 잠시 불러올 수 없음', errorBody: '유효한 식단을 불러오지 못함. 다시 시도하거나 원본 식단표에서 확인.', retry: '다시 시도', openDay: '하루 보기', todayUnavailable: '오늘 식단이 없어 다음 공개 날짜로 이동.', latestPast: '가장 최근에 공개된 지난 식단으로 이동.'
   },
   de: {
-    skip: 'Zum Speiseplan', language: 'Sprache', eyebrow: 'DEIN CAMPUS-MITTAGESSEN AUF EINEN BLICK', title: 'Was gibt’s zu Mittag?', heroNote: 'Gutes Essen. Ein bisschen weniger Grübeln.', view: 'Ansicht', dayView: 'Tagesansicht', weekView: 'Wochenansicht', schedule: 'Wöchentliche Aktualisierung', navigation: 'Menüdaten', previousWeek: 'Vorherige verfügbare Woche', nextWeek: 'Nächste verfügbare Woche', today: 'Heute', chooseDate: 'Datum wählen', allDates: 'Alle veröffentlichten Tage', priceGroup: 'Preise für', student: 'Studierende', staff: 'Bedienstete', guest: 'Gäste', loading: 'Der Speiseplan wird geladen…', footerTitle: 'Mehr Überblick für die Mittagspause.', source: 'Original-Speiseplan ↗', disclaimer: 'Unabhängige Menüansicht. Speisen und Preise können sich ändern. Aktuelle Angaben stehen im Original-Speiseplan.', translationDisclaimer: 'Übersetzungen dienen der Orientierung. Zutaten- und Allergenhinweise bleiben im deutschen Original.', thisWeek: 'Diese Woche', nextWeekLabel: 'Nächste Woche', publishedWeek: 'Veröffentlichte Woche', weekTitle: 'Die Woche im Überblick', todayMenu: 'Heute auf dem Speiseplan', futureMenu: 'Vorfreude auf die Mittagspause', pastMenu: 'Vergangener Speiseplan', dishes: 'Gerichte', details: 'Beilagen · Zutaten / Allergene', components: 'Beilagen & Bestandteile', notices: 'Originalhinweise zu Zutaten & Allergenen', noNotices: 'Keine Hinweise in diesem Quelleintrag.', original: 'Deutsches Original', fallback: 'Deutsches Original · Übersetzung nicht verfügbar', checkPrice: 'Preis prüfen ↗', checkPriceAria: 'Preis im Original-Speiseplan prüfen', vegan: 'Vegan', vegetarian: 'Vegetarisch', empty: 'Für diesen Tag sind keine Gerichte veröffentlicht.', pastNotice: 'Dieser Speiseplan liegt in der Vergangenheit und gilt nicht für heute.', expiredNotice: 'Alle verfügbaren Speisepläne liegen in der Vergangenheit. Aktuelle Angaben stehen im Original-Speiseplan.', staleNotice: 'Dieser Stand ist über eine Woche alt. Bitte den Original-Speiseplan prüfen.', translationsFailed: 'Übersetzungen konnten nicht geladen werden. Das deutsche Original ist weiterhin verfügbar.', coverage: 'Veröffentlichter Zeitraum', updated: 'Letzte erfolgreiche Aktualisierung', berlin: 'Berliner Zeit', errorTitle: 'Der Speiseplan macht kurz Pause.', errorBody: 'Der Speiseplan konnte gerade nicht geladen werden. Bitte erneut versuchen oder den Original-Speiseplan öffnen.', retry: 'Erneut versuchen', openDay: 'Tag ansehen', todayUnavailable: 'Heute ist kein Menü veröffentlicht; der nächste verfügbare Tag wird angezeigt.', latestPast: 'Der zuletzt veröffentlichte vergangene Speiseplan wird angezeigt.'
+    skip: 'Zum Speiseplan', language: 'Sprache', title: 'Speiseplan', view: 'Ansicht', dayView: 'Tagesansicht', weekView: 'Wochenansicht', navigation: 'Menüdaten', previousWeek: 'Vorherige verfügbare Woche', nextWeek: 'Nächste verfügbare Woche', today: 'Heute', chooseDate: 'Datum wählen', allDates: 'Alle veröffentlichten Tage', priceGroup: 'Preise für', student: 'Studierende', staff: 'Bedienstete', guest: 'Gäste', loading: 'Der Speiseplan wird geladen…', source: 'Original-Speiseplan ↗', thisWeek: 'Diese Woche', nextWeekLabel: 'Nächste Woche', publishedWeek: 'Veröffentlichte Woche', weekTitle: 'Wochenplan', todayMenu: 'Heute auf dem Speiseplan', pastMenu: 'Vergangener Speiseplan', componentDetails: 'Bestandteile', notices: 'Zutaten · Allergene · Zusatzstoffe', original: 'Deutsches Original', fallback: 'Deutsches Original · Übersetzung nicht verfügbar', checkPrice: 'Preis prüfen ↗', checkPriceAria: 'Preis im Original-Speiseplan prüfen', vegan: 'Vegan', vegetarian: 'Vegetarisch', empty: 'Für diesen Tag sind keine Gerichte veröffentlicht.', pastNotice: 'Dieser Speiseplan liegt in der Vergangenheit und gilt nicht für heute.', expiredNotice: 'Alle verfügbaren Speisepläne liegen in der Vergangenheit. Aktuelle Angaben stehen im Original-Speiseplan.', staleNotice: 'Dieser Stand ist über eine Woche alt. Bitte den Original-Speiseplan prüfen.', translationsFailed: 'Übersetzungen konnten nicht geladen werden. Das deutsche Original ist weiterhin verfügbar.', errorTitle: 'Speiseplan nicht verfügbar', errorBody: 'Der Speiseplan konnte gerade nicht geladen werden. Bitte erneut versuchen oder den Original-Speiseplan öffnen.', retry: 'Erneut versuchen', openDay: 'Tag ansehen', todayUnavailable: 'Heute ist kein Menü veröffentlicht; der nächste verfügbare Tag wird angezeigt.', latestPast: 'Der zuletzt veröffentlichte vergangene Speiseplan wird angezeigt.'
   }
 };
 
@@ -70,6 +70,17 @@ export function translatedMeal(meal, cache, language) {
   if (entry?.source?.name_de !== meal.name_de || JSON.stringify(entry?.source?.components) !== JSON.stringify(originalComponents)) return original;
   if (!translation || typeof translation.name !== 'string' || !translation.name.trim() || !Array.isArray(translation.components) || translation.components.length !== originalComponents.length || !translation.components.every(item => typeof item === 'string' && item.trim())) return original;
   return { name: translation.name, components: translation.components, translated: true };
+}
+
+export function translatedNotices(notices, cache, language) {
+  const dictionary = cache?.notices;
+  return notices.map(original => {
+    const fallback = { original, text: original, translated: false };
+    if (!['en', 'ko'].includes(language) || !dictionary || typeof dictionary !== 'object' || Array.isArray(dictionary) || !Object.hasOwn(dictionary, original)) return fallback;
+    const entry = dictionary[original];
+    if (!entry || typeof entry !== 'object' || Array.isArray(entry) || Object.keys(entry).length !== 2 || !['en', 'ko'].every(lang => Object.hasOwn(entry, lang) && typeof entry[lang] === 'string' && entry[lang].trim())) return fallback;
+    return { original, text: entry[language], translated: true };
+  });
 }
 
 function validateMealPrices(meal, date) {
@@ -136,6 +147,18 @@ function startApp() {
     $('price-group').value = state.group;
   }
 
+  function noticeList(notices, className) {
+    const list = element('ul', `notice-list ${className}`);
+    for (const notice of translatedNotices(notices, state.translations, state.language)) {
+      const item = element('li', 'notice-pair');
+      item.append(element('span', 'notice-translation', notice.text, { lang: notice.translated ? state.language : 'de' }));
+      if (notice.translated) item.append(element('span', 'notice-original', notice.original, { lang: 'de' }));
+      else if (state.language !== 'de') item.append(element('span', 'notice-fallback', t('fallback'), { lang: state.language }));
+      list.append(item);
+    }
+    return list;
+  }
+
   function mealCard(meal, titleTag = 'h3') {
     const translated = translatedMeal(meal, state.translations, state.language);
     const article = element('article', 'meal-card');
@@ -159,25 +182,33 @@ function startApp() {
     article.append(top, titleRow);
     if (translated.translated) article.append(element('p', 'original-title', meal.name_de, { lang: 'de' }));
     else if (state.language !== 'de') article.append(element('span', 'original-label', t('fallback')));
-    if (translated.components.length) article.append(element('p', 'components-preview', translated.components.join(' · '), { lang: translated.translated ? state.language : 'de' }));
-    const details = element('details', 'meal-details');
-    details.append(element('summary', '', t('details')));
-    const detail = element('div', 'detail-content');
+    if (meal.notices.length) {
+      const notices = element('div', 'meal-notice-group', null, { 'aria-label': t('notices') });
+      notices.append(noticeList(meal.notices, 'meal-notices'));
+      article.append(notices);
+    }
     if (meal.components.length) {
-      detail.append(element('span', 'detail-label', t('components')));
+      const details = element('details', 'meal-details');
+      details.append(element('summary', '', `${t('componentDetails')} · ${meal.components.length}`));
+      const detail = element('div', 'detail-content');
       const list = element('ul', 'component-list');
       meal.components.forEach((component, index) => {
-        const item = element('li', '', translated.components[index], { lang: translated.translated ? state.language : 'de' });
-        if (translated.translated) item.append(element('span', 'component-original', component.name_de, { lang: 'de' }));
-        if (component.notices.length) item.append(element('span', 'component-notices', component.notices.join(' · '), { lang: 'de' }));
+        const item = element('li', 'component-group');
+        const heading = element('div', 'component-heading');
+        heading.append(element('span', 'component-name', translated.components[index], { lang: translated.translated ? state.language : 'de' }));
+        if (translated.translated) heading.append(element('span', 'component-original', component.name_de, { lang: 'de' }));
+        item.append(heading);
+        if (component.notices.length) {
+          const notices = element('div', 'component-notice-group');
+          notices.append(element('span', 'detail-label', t('notices')), noticeList(component.notices, 'component-notices'));
+          item.append(notices);
+        }
         list.append(item);
       });
       detail.append(list);
+      details.append(detail);
+      article.append(details);
     }
-    detail.append(element('span', 'detail-label', t('notices')));
-    detail.append(element('p', 'meal-notices', meal.notices.length ? meal.notices.join(' · ') : t('noNotices'), meal.notices.length ? { lang: 'de' } : {}));
-    details.append(detail);
-    article.append(details);
     return article;
   }
 
@@ -207,20 +238,35 @@ function startApp() {
     $('date-picker').value = state.selectedDate;
   }
 
+  function renderError() {
+    $('navigation').hidden = true;
+    $('menu-toolbar').hidden = true;
+    $('freshness-note').hidden = true;
+    $('translation-note').hidden = true;
+    $('menu-content').setAttribute('aria-busy', 'false');
+    const error = element('div', 'error-state', null, { role: 'alert' });
+    error.append(element('h2', '', t('errorTitle')), element('p', '', t('errorBody')));
+    const retry = element('button', 'retry-button', t('retry'), { type: 'button' });
+    retry.addEventListener('click', load);
+    error.append(retry, sourceLink(t('source')));
+    $('menu-content').replaceChildren(error);
+  }
+
   function render(announce = false) {
+    try { renderContent(announce); }
+    catch (error) {
+      console.error('Menu rendering failed', error);
+      state.loading = false;
+      state.error = true;
+      renderError();
+    }
+  }
+
+  function renderContent(announce) {
     applyLanguage();
     document.querySelectorAll('[data-view]').forEach(button => { button.setAttribute('aria-pressed', String(button.dataset.view === state.view)); });
     if (state.loading) return;
-    if (state.error) {
-      $('menu-content').replaceChildren();
-      const error = element('div', 'error-state', null, { role: 'alert' });
-      error.append(element('h2', '', t('errorTitle')), element('p', '', t('errorBody')));
-      const retry = element('button', 'retry-button', t('retry'), { type: 'button' });
-      retry.addEventListener('click', load);
-      error.append(retry, sourceLink(t('source')));
-      $('menu-content').append(error);
-      return;
-    }
+    if (state.error) { renderError(); return; }
     const today = berlinToday();
     const weekList = weeks();
     const week = weekList[state.weekIndex];
@@ -228,7 +274,6 @@ function startApp() {
     renderNavigation(weekList, today);
     $('navigation').hidden = false;
     $('menu-toolbar').hidden = false;
-    $('selection-kicker').textContent = state.view === 'week' ? `${week.days.reduce((sum, item) => sum + item.meals.length, 0)} ${t('dishes')}` : day.date < today ? t('pastMenu') : day.date === today ? t('todayMenu') : t('futureMenu');
     $('menu-heading').textContent = state.view === 'week' ? t('weekTitle') : dateLabel(day.date, { weekday: 'long', month: 'short', day: 'numeric' });
     const freshness = menuFreshness(state.menu, { selectedDate: day.date, view: state.view, today });
     $('freshness-note').hidden = !(freshness.expired || freshness.past || freshness.stale);
@@ -258,9 +303,6 @@ function startApp() {
       });
       $('menu-content').append(grid);
     }
-    $('coverage').textContent = `${t('coverage')}: ${rangeLabel([{ date: state.menu.coverage.start }, { date: state.menu.coverage.end }])}`;
-    const fetched = new Intl.DateTimeFormat(LOCALES[state.language], { timeZone: 'Europe/Berlin', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(state.menu.source.fetched_at));
-    $('updated').textContent = `${t('updated')}: ${fetched} · ${t('berlin')}`;
     if (announce) $('live-status').textContent = `${$('menu-heading').textContent}. ${t(state.group)}.`;
   }
 

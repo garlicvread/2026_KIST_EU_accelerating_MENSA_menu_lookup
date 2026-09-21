@@ -14,7 +14,8 @@ import time
 import urllib.request
 
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
-from scripts.translations import build_translations, validate_cache, PROMPT_VERSION
+from scripts.notices import require_notice_coverage
+from scripts.translations import build_translations, validate_cache, reusable_translation
 from scripts.update_menu import read_json, require_current_coverage, write_snapshot, summarize
 from scripts.refresh_queue import (load_state, save_state, reconcile, failed, completed,
                                    exclusive_lock, resource_status, BusyError, BERLIN)
@@ -80,9 +81,7 @@ def translation_needed(menu, cache):
     for day in menu['days']:
         for meal in day['meals']:
             entry = cache['entries'].get(meal['translation_key'])
-            if not entry or entry['prompt_version'] != PROMPT_VERSION:
-                return True
-            if entry['origin'] == 'model' and entry['model'] != MODEL:
+            if not reusable_translation(entry, MODEL):
                 return True
     return False
 
@@ -217,6 +216,7 @@ class RefreshJob:
     def validate_complete(menu, cache):
         validate_menu(menu)
         validate_cache(cache)
+        require_notice_coverage(menu, cache)
         if any(m['translation_key'] not in cache['entries'] for d in menu['days'] for m in d['meals']):
             raise ValueError('A menu translation is missing; refusing partial publication')
 

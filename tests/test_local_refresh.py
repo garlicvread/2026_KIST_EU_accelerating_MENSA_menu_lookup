@@ -12,7 +12,7 @@ from contextlib import redirect_stdout
 from scripts import local_refresh as worker
 from scripts.local_refresh import process_queue, translation_needed, RefreshJob, REMOTE
 from scripts.refresh_queue import load_state, save_state, reconcile, exclusive_lock
-from scripts.translations import PROMPT_VERSION
+from scripts.translations import PROMPT_VERSION, build_translations
 
 NOW = datetime(2026, 9, 21, 10, tzinfo=timezone.utc)
 SHA = 'a' * 40
@@ -107,6 +107,29 @@ class LocalRefreshTests(unittest.TestCase):
         cache={'entries':{'x':{'origin':'editorial-draft','model':'assistant-draft','prompt_version':PROMPT_VERSION}}}
         self.assertFalse(translation_needed(menu,cache))
         self.assertTrue(translation_needed(menu,{'entries':{}}))
+
+    def test_current_migrated_snapshot_does_not_start_a_model(self):
+        root = Path(__file__).resolve().parents[1]
+        menu = json.loads((root / 'site/data/menu.json').read_text())
+        previous = json.loads((root / 'site/data/translations.json').read_text())
+        migrated = build_translations(menu, previous, {}, None)
+        self.assertFalse(translation_needed(menu, migrated))
+
+    def test_worker_reuses_compatible_generations_but_refreshes_changed_inputs(self):
+        menu = {'days': [{'meals': [{'translation_key': 'current-source'}]}]}
+        for origin, model, prompt, key, needed in (
+            ('model', worker.MODEL, 'menu-v3', 'current-source', False),
+            ('model', worker.MODEL, PROMPT_VERSION, 'current-source', False),
+            ('editorial-draft', 'assistant-draft', 'menu-v3', 'current-source', False),
+            ('reviewed-draft', 'reviewer', 'menu-v3', 'current-source', False),
+            ('model', 'older-model', 'menu-v3', 'current-source', True),
+            ('model', worker.MODEL, 'menu-v2', 'current-source', True),
+            ('editorial-draft', 'assistant-draft', 'menu-v2', 'current-source', True),
+            ('model', worker.MODEL, 'menu-v3', 'changed-source', True),
+        ):
+            with self.subTest(origin=origin, model=model, prompt=prompt, key=key):
+                cache = {'entries': {key: {'origin': origin, 'model': model, 'prompt_version': prompt}}}
+                self.assertEqual(translation_needed(menu, cache), needed)
 
     def test_real_porcelain_allows_only_generated_snapshot_changes(self):
         with TemporaryDirectory() as folder:
