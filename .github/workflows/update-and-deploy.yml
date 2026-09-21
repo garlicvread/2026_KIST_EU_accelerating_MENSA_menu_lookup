@@ -1,0 +1,72 @@
+name: Weekly menu and Pages
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'
+      timezone: Europe/Berlin
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: Fetch the source before publishing (turn off for UI-only deployment)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mensa-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Regression tests
+        run: |
+          python -m unittest discover -s tests -v
+          node --test tests/test_ui.mjs
+      - name: Collect and validate before replacing snapshots
+        if: github.event_name == 'schedule' || inputs.refresh
+        env:
+          MENU_TRANSLATION_URL: ${{ vars.MENU_TRANSLATION_URL }}
+          MENU_TRANSLATION_MODEL: ${{ vars.MENU_TRANSLATION_MODEL }}
+          MENU_TRANSLATION_API_KEY: ${{ secrets.MENU_TRANSLATION_API_KEY }}
+        run: python -m scripts.update_menu
+      - name: Validate deployment data
+        run: python -m scripts.update_menu --validate-only
+      - name: Persist validated snapshots
+        run: |
+          git add site/data/menu.json site/data/translations.json
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Refresh validated Mensa menu'
+            git push origin HEAD:main
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Explain rejected update
+        if: failure()
+        run: |
+          echo 'Update/deployment failed. The existing public Pages deployment remains unchanged. Inspect the failed step before retrying; do not bypass price validation.' >> "$GITHUB_STEP_SUMMARY"

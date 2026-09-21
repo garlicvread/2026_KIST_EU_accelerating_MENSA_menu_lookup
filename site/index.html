@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#246347">
+  <meta name="description" content="A little clarity for lunchtime. Browse the Saarbrücken Mensa menu in English, Korean, and German.">
+  <title>Mensa Saarbrücken · Lunch, made simple</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#menu-content" data-i18n="skip">Skip to menus</a>
+  <div class="app-shell">
+    <header class="site-header">
+      <div class="brand-row">
+        <a class="brand" href="./" aria-label="Mensa Saarbrücken"><span class="brand-mark" aria-hidden="true">m.</span><span class="wordmark">MENSA <span>SAARBRÜCKEN</span></span></a>
+        <label class="language-picker"><span class="sr-only" data-i18n="language">Language</span><span class="language-symbol" aria-hidden="true">文</span><select id="language"><option value="ko" lang="ko">한국어</option><option value="en" lang="en">English</option><option value="de" lang="de">Deutsch</option></select></label>
+      </div>
+      <div class="hero">
+        <div><p class="eyebrow" data-i18n="eyebrow">YOUR CAMPUS LUNCH, AT A GLANCE</p><h1 data-i18n="title">What’s for lunch?</h1><p class="location">Saarbrücken <span aria-hidden="true">·</span> Campus D4.1</p></div>
+        <div class="hero-note" aria-hidden="true"><svg viewBox="0 0 100 100" fill="none"><circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="22"/><path d="M9 17v18c0 5 9 5 9 0V17M13.5 17v67M88 17c-8 8-10 22-4 28h4m0-28v67"/></svg><span data-i18n="heroNote">A good lunch.<br>A little less deciding.</span></div>
+      </div>
+      <div class="header-bottom"><div class="view-switch" role="group" data-i18n-aria="view"><button type="button" data-view="day" aria-pressed="true" data-i18n="dayView">By day</button><button type="button" data-view="week" aria-pressed="false" data-i18n="weekView">The whole week</button></div><span class="schedule-note" data-i18n="schedule">Updated every Monday</span></div>
+    </header>
+    <main id="main">
+      <section id="navigation" class="navigation" hidden data-i18n-aria="navigation">
+        <div class="week-navigation"><div class="week-arrows"><button id="previous-week" type="button" class="icon-button" data-i18n-aria="previousWeek">←</button><div><p class="week-label" id="week-label"></p><p class="week-range" id="week-range"></p></div><button id="next-week" type="button" class="icon-button" data-i18n-aria="nextWeek">→</button></div><button type="button" id="today-button" class="quiet-button" data-i18n="today">Today</button></div>
+        <div class="day-strip" id="day-strip" role="group" data-i18n-aria="chooseDate"></div>
+        <label class="date-picker"><span data-i18n="allDates">All published dates</span><select id="date-picker"></select></label>
+      </section>
+      <div id="menu-toolbar" class="menu-toolbar" hidden><div><p class="section-kicker" id="selection-kicker"></p><h2 id="menu-heading"></h2></div><label class="price-picker"><span data-i18n="priceGroup">Prices for</span><select id="price-group"><option value="student" data-i18n="student">Students</option><option value="staff" data-i18n="staff">Staff</option><option value="guest" data-i18n="guest">Guests</option></select></label></div>
+      <div id="freshness-note" class="notice-banner" hidden></div>
+      <div id="translation-note" class="translation-note" hidden></div>
+      <div id="menu-content" class="menu-content" tabindex="-1" aria-labelledby="menu-heading" aria-busy="true"><div class="loading-state" role="status"><span class="loading-dot" aria-hidden="true"></span><p data-i18n="loading">Getting the menu ready…</p></div></div>
+      <p id="live-status" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+    </main>
+    <footer class="site-footer"><div class="footer-top"><div><p class="footer-brand" data-i18n="footerTitle">A little clarity for lunchtime.</p><p id="coverage"></p><p id="updated"></p></div><a class="source-link" href="https://www.stw-saarland.de/gastro/mensa-saarbruecken/" target="_blank" rel="noopener noreferrer" data-i18n="source">Original menu ↗</a></div><div class="footer-bottom"><p data-i18n="disclaimer">An independent menu viewer. Meals and prices may change; check the original menu for the latest details.</p><p data-i18n="translationDisclaimer">Translations are a guide. Ingredient and allergen notices stay in the original German.</p></div></footer>
+  </div>
+  <noscript><div class="noscript-message">JavaScript is needed to browse the menus. <a href="https://www.stw-saarland.de/gastro/mensa-saarbruecken/">Open the original Saarbrücken menu ↗</a></div></noscript>
+</body>
+</html>
