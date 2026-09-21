@@ -44,6 +44,40 @@ def provider(content, redirect=False, completion="stop"):
         thread.join()
 
 
+@contextmanager
+def ollama_provider(response, redirect=False):
+    calls = []
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self):
+            calls.append({"path": self.path, "headers": dict(self.headers),
+                          "body": json.loads(self.rfile.read(int(self.headers["Content-Length"])))})
+            if redirect:
+                self.send_response(307)
+                self.send_header("Location", "/other")
+                self.end_headers()
+                return
+            body = response if isinstance(response, bytes) else json.dumps(response).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        yield {"provider": "ollama", "url": f"http://127.0.0.1:{server.server_port}/api/chat",
+               "model": "gemma4:e4b", "key": ""}, calls
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join()
+
+
 def sample_meal(name="Schupfnudeln", sides=("Gemüse",)):
     source = {"name_de": name, "components": list(sides)}
     key = hashlib.sha256(json.dumps(source, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
@@ -134,6 +168,84 @@ class TranslationTests(unittest.TestCase):
                 with provider(json.dumps(result), completion=completion) as (config, _):
                     with self.assertRaises(ValueError):
                         request_translation(source_for(self.meal), config)
+
+    def test_ollama_configuration_is_explicit_and_loopback_only(self):
+        env = {"MENU_TRANSLATION_PROVIDER": "ollama", "MENU_TRANSLATION_URL": "http://127.0.0.1:11434/api/chat",
+               "MENU_TRANSLATION_MODEL": "gemma4:e4b"}
+        self.assertEqual(model_config(env).get("provider"), "ollama")
+        for url in ("https://example.org/api/chat", "http://192.168.1.8:11434/api/chat",
+                    "http://127.0.0.1:11434/v1/chat/completions"):
+            with self.subTest(url=url), self.assertRaises(ValueError):
+                model_config({**env, "MENU_TRANSLATION_URL": url})
+        for provider_name in ("unknown",):
+            with self.assertRaises(ValueError):
+                model_config({**env, "MENU_TRANSLATION_PROVIDER": provider_name})
+
+    def test_native_ollama_http_request_disables_thinking_and_constrains_the_schema(self):
+        result = {"en": {"name": "Potato dumplings", "components": ["Vegetables"]},
+                  "ko": {"name": "감자 경단", "components": ["채소"]}}
+        response = {"done": True, "done_reason": "stop", "message": {"content": json.dumps(result)}}
+        with ollama_provider(response) as (config, calls):
+            try:
+                cache = build_translations(self.menu, {}, {}, config)
+            except ValueError as exc:
+                self.fail(f"Valid native response must be accepted: {exc}")
+            build_translations(self.menu, cache, {}, config)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(calls[0]["path"], "/api/chat")
+        payload = calls[0]["body"]
+        self.assertEqual(set(payload), {"model", "messages", "stream", "think", "format", "options", "keep_alive"})
+        self.assertEqual(payload["model"], "gemma4:e4b")
+        self.assertIs(payload["stream"], False)
+        self.assertIs(payload["think"], False)
+        self.assertEqual(payload["options"], {"temperature": 0, "num_ctx": 8192, "num_predict": 4096})
+        self.assertEqual(payload["keep_alive"], "5m")
+        self.assertEqual([message["role"] for message in payload["messages"]], ["system", "user"])
+        self.assertEqual(json.loads(payload["messages"][1]["content"]), source_for(self.meal))
+        self.assertNotIn("Authorization", calls[0]["headers"])
+        text_schema = {"type": "string", "minLength": 1, "maxLength": 1000}
+        part_schema = {"type": "object", "additionalProperties": False, "required": ["name", "components"],
+                       "properties": {"name": text_schema, "components": {
+                           "type": "array", "items": text_schema, "minItems": 1, "maxItems": 1}}}
+        self.assertEqual(payload["format"], {"type": "object", "additionalProperties": False,
+                         "required": ["en", "ko"], "properties": {"en": part_schema, "ko": part_schema}})
+        self.assertEqual(cache["entries"][self.meal["translation_key"]]["ko"], result["ko"])
+
+    def test_native_ollama_requires_explicit_normal_completion(self):
+        content = json.dumps({"en": {"name": "Dish", "components": ["Side"]},
+                              "ko": {"name": "요리", "components": ["곁들임"]}})
+        for completion in ({"done": False, "done_reason": "stop"}, {"done": 1, "done_reason": "stop"},
+                           {"done": True, "done_reason": "length"}, {"done": True}, {"done_reason": "stop"}):
+            with self.subTest(completion=completion):
+                with ollama_provider({**completion, "message": {"content": content}}) as (config, _):
+                    with self.assertRaises(ValueError):
+                        request_translation(source_for(self.meal), config)
+
+    def test_native_ollama_rejects_truncated_json_and_schema_mismatch(self):
+        responses = [b'{"done":true,"message":',
+                     {"done": True, "done_reason": "stop", "message": {"content": '{"en":'}},
+                     {"done": True, "done_reason": "stop", "message": {"content": json.dumps({
+                         "en": {"name": "Dish", "components": []},
+                         "ko": {"name": "요리", "components": []}})}},
+                     {"done": True, "done_reason": "stop", "message": {"content": json.dumps({
+                         "en": {"name": "Dish", "components": ["Side"], "prices": {"student": 100}},
+                         "ko": {"name": "요리", "components": ["곁들임"]}})}}]
+        for response in responses:
+            with self.subTest(response=response):
+                with ollama_provider(response) as (config, _):
+                    with self.assertRaises(ValueError):
+                        request_translation(source_for(self.meal), config)
+
+    def test_native_ollama_never_follows_redirects(self):
+        with ollama_provider({}, redirect=True) as (config, calls):
+            with self.assertRaises(ValueError):
+                request_translation(source_for(self.meal), config)
+        self.assertEqual(len(calls), 1)
+
+    def test_native_ollama_checks_loopback_at_request_boundary(self):
+        with self.assertRaisesRegex(ValueError, "loopback"):
+            request_translation(source_for(self.meal), {
+                "provider": "ollama", "url": "https://example.invalid/api/chat", "model": "gemma4:e4b", "key": ""})
 
 
 if __name__ == "__main__":

@@ -12,26 +12,26 @@
         ]
       },
       "en": {
-        "name": "Wikingertopf stew",
+        "name": "Wikingertopf (stew)",
         "components": [
-          "Boiled organic potatoes",
-          "Alternative side dish",
-          "Carrot salad",
-          "Panna cotta"
+          "potatoes boiled in salted water (organic)",
+          "alternative side dish",
+          "carrot salad",
+          "panna cotta"
         ]
       },
       "ko": {
-        "name": "비킹어토프 스튜",
+        "name": "Wikingertopf (스튜)",
         "components": [
-          "소금물에 삶은 유기농 감자",
-          "대체 곁들임 메뉴",
+          "소금물에 삶은 감자 (유기농)",
+          "대체 사이드 메뉴",
           "당근 샐러드",
           "판나코타"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "a7bed3afe3b64b58935d240a837dade6b039bf60068db26f203ebab4fca15c1c": {
       "source": {
@@ -66,7 +66,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "fb32bf90461deda47cbfd7775268125da9c200a54a2a6cab2754bbc0aef3817c": {
       "source": {
@@ -83,7 +83,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "be562ce20c30499a3f8fa42da662e7bb2b44df04e5f415cabb3a53fb434d304f": {
       "source": {
@@ -94,22 +94,22 @@
         ]
       },
       "en": {
-        "name": "Daily special: Turkey strips in pepper sauce",
+        "name": "Daily Special: Sliced turkey in pepper sauce",
         "components": [
-          "Rice",
-          "While supplies last"
+          "rice",
+          "While stocks last!"
         ]
       },
       "ko": {
-        "name": "오늘의 메뉴: 후추 소스로 조리한 칠면조 살코기",
+        "name": "오늘의 메뉴: 소스를 곁들인 칠면조 고기(페퍼게슈네첼테스)",
         "components": [
-          "쌀밥",
-          "준비된 수량 소진 시까지"
+          "밥",
+          "재고 소진 시까지!"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "acf76a73bd6f42b153485c80a612e41fa98ac60e6dde9bdf292f6a6f4941c0d3": {
       "source": {
@@ -126,7 +126,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "d20ce414e67214e554b176d4876778e5ee1f049dbdef1255f620c146e4dbad96": {
       "source": {
@@ -191,7 +191,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "f20789bb8333cbdff77059b431514c212304f775fa41e0bbd5c4e6be71bddbdd": {
       "source": {
@@ -208,7 +208,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "2cb1e2c9d12f594b61c8629852c4fc83b416c7fb9653c59816bedcf046570b05": {
       "source": {
@@ -225,7 +225,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "dab68c0af7b449009f29ebefc81d514a51678687dcae1b9262ffd33f3eb572c8": {
       "source": {
@@ -241,32 +241,32 @@
         ]
       },
       "en": {
-        "name": "House-made chicken-style pea-protein patty",
+        "name": "Homemade chicken-style patty made from pea protein",
         "components": [
-          "Tomato sauce with vegetables",
-          "Rice",
-          "Alternative side dish",
-          "Mixed leaf salad",
-          "Clear salad dressing",
-          "White salad dressing",
-          "Fruit"
+          "vegetable tomato sauce",
+          "rice",
+          "alternative side dish",
+          "mixed leaf salad",
+          "clear salad dressing",
+          "white salad dressing",
+          "fruit"
         ]
       },
       "ko": {
         "name": "완두콩 단백질로 만든 수제 치킨 스타일 패티",
         "components": [
-          "채소를 넣은 토마토 소스",
-          "쌀밥",
-          "대체 곁들임 메뉴",
+          "채소 토마토 소스",
+          "밥",
+          "대체 사이드 메뉴",
           "모둠 잎채소 샐러드",
-          "맑은 샐러드 드레싱",
+          "투명한 샐러드 드레싱",
           "화이트 샐러드 드레싱",
           "과일"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "c62a21d708b4f33fa9461de67fa1b51f7a302b81fe5999860c2dea3ba430c696": {
       "source": {
@@ -292,7 +292,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "2e9efca8563762ff716cbdb655ad8a7c6f8ce81b6d2ac26fc1d77084f4bc0e84": {
       "source": {
@@ -300,16 +300,16 @@
         "components": []
       },
       "en": {
-        "name": "mensaVital: Szegedin-style tofu goulash with herb potatoes",
+        "name": "mensaVital: Tofu Goulash Szegediner style with herb potatoes",
         "components": []
       },
       "ko": {
-        "name": "mensaVital: 허브 감자를 곁들인 세게드식 두부 굴라시",
+        "name": "mensaVital: 세게드식 토푸 굴라쉬와 허브 감자",
         "components": []
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "c8dd5c0c4951af1cdbf16371d504652d3a8053b6473cb01378b4ed42325eb6c8": {
       "source": {
@@ -365,7 +365,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "55a4bb85fec4444d0513b2c8e5434e6b8e87304b13d46937cb4fc4a243b0abe8": {
       "source": {
@@ -382,7 +382,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "4ce9dd77e5454766809d29872e57f175b2260d4e63f9a26debb5395342d1e828": {
       "source": {
@@ -417,7 +417,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "cec8adc92656ee31445c655082f775b5462e099ab18d33dc1616f19fb5141f59": {
       "source": {
@@ -455,7 +455,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "d58b14ff87b83789a7d9fb500451f1373c443d838555f0e95c127ef0214ad93b": {
       "source": {
@@ -484,7 +484,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "434e1b4eb3d22eb99d02cddafefbba6ecaab5495397c15af8915aa3711494fa7": {
       "source": {
@@ -501,7 +501,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "d462036047b80f4b9e6b361642b31c28f87cec74545a050e07aec05f691750a1": {
       "source": {
@@ -557,7 +557,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "62c1dcc61023c5c638bbb52d56955653dd9c0b6e03b7e3d9bdc40e8d0823e322": {
       "source": {
@@ -583,7 +583,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "164a8864aedf761120e5c3171d1c5fb1b469fc3c8b1f7ca9bd542dd16b022aa6": {
       "source": {
@@ -609,7 +609,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "cb39a8e75910c5b449e71eeddd10975460b9e7822fca9992e8347431a8961439": {
       "source": {
@@ -650,7 +650,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "530592a023a2695b2407320719c2941924f5feac419ffc968dbe0fe68f5feb39": {
       "source": {
@@ -679,7 +679,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "7d9ece3147096a2767473b9a473dd4ef88ac831eda5f5ade4d6e26ea327342fb": {
       "source": {
@@ -690,22 +690,22 @@
         ]
       },
       "en": {
-        "name": "Baked white-fish fillet (Seelachs) in a rice crust",
+        "name": "Cooked saithe (Seelachs) fillet with rice coating",
         "components": [
           "Tirolienne sauce",
-          "Fried potato slices"
+          "Cooked potato chips"
         ]
       },
       "ko": {
-        "name": "쌀옷을 입혀 구운 흰살생선 필레(Seelachs)",
+        "name": "쌀 코팅을 입혀 조리한 세일락스(대구과 생선) 필레",
         "components": [
           "티롤리엔 소스",
-          "얇게 썰어 튀긴 감자"
+          "조리한 칩 감자"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "c87d37c527ff0abd5c4664c99e891969f32f924d34b9f90c5826d365a7e68890": {
       "source": {
@@ -722,7 +722,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "cc406c304e7c133e3d86f78c927439a6c4d55882fb68ffd50d0b20ab559b3f29": {
       "source": {
@@ -739,7 +739,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "b4d36dda8ed944e069cd6ccfe35be3c6af725829ecb737a87dd89f113c9a006a": {
       "source": {
@@ -795,7 +795,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "259f5571661957e4f4cdb35959cb7ee74ab6d5a3b41e554e4944e564312bded6": {
       "source": {
@@ -818,7 +818,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "cf9060fa392e911aef17f3b23655470da8237f9953b04740f8824914e5c9244f": {
       "source": {
@@ -833,24 +833,24 @@
       "en": {
         "name": "Breaded pork schnitzel",
         "components": [
-          "Hunter-style mushroom sauce",
-          "French fries",
-          "Cabbage salad",
-          "Chocolate pudding"
+          "mushroom sauce",
+          "french fries",
+          "coleslaw",
+          "chocolate pudding"
         ]
       },
       "ko": {
         "name": "빵가루를 입힌 돼지고기 슈니첼",
         "components": [
-          "사냥꾼 스타일 버섯 소스",
+          "버섯 소스",
           "감자튀김",
           "양배추 샐러드",
           "초콜릿 푸딩"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "d97153ac6763e8fed535c5ba8c367087f54f26774f000c934f1269e34d06243e": {
       "source": {
@@ -882,7 +882,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "90ccec23d596084c0012b7eb830fcbc81f8f2f4a2fc9d22b1d232ef18355e547": {
       "source": {
@@ -908,7 +908,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "6df85045be60a6e4ddf84d3d1e742318aca53b80f5c44657b82ab5c76a900a31": {
       "source": {
@@ -925,7 +925,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "8a6a0d4a720c0639c104271dcd8fddd89c3d4b1069747685e8186ebe7f9d3d15": {
       "source": {
@@ -981,7 +981,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "f77cff3c90a67c424fb66fdc7ff7dee629b449d6e9208bf45746fdda3f152c6b": {
       "source": {
@@ -998,7 +998,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "ddcf5e5e50fc9d44467f45ef7a0c7d7eb82f057c1d29eb4e3b5f86f42a0d09fa": {
       "source": {
@@ -1036,7 +1036,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "41fffa613067dcd818dd1f8f612b7789001497706f67f34abce578849bf0b31e": {
       "source": {
@@ -1068,7 +1068,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "e55345e565eae0062d343d01dda2f594e2399d795cc9e1491395125b1b416f88": {
       "source": {
@@ -1085,7 +1085,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "dede88d7cf7f1223f77193c5c19a32edd229094fe1086cf4dc788ad27fdfbb7f": {
       "source": {
@@ -1108,7 +1108,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "12bc8e48f0301f6a00be2ff0104d36de397e000e12feed48aedbfd36da9e2697": {
       "source": {
@@ -1164,7 +1164,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "f616f1b2bc479abe3f6e4fba7f82fb66a303f80f20bafb71c7f9fa124da9c51b": {
       "source": {
@@ -1187,7 +1187,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "6724bfe3e5acf3c2d8fe7fefc67309b03490efa4a6ebac2400e22eeb366ac8a1": {
       "source": {
@@ -1210,7 +1210,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "7f3b03c62519e009404a778b234af170a60c5fd90a13c43106294d2b220a5875": {
       "source": {
@@ -1242,7 +1242,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "a11c5093925ff7b02b58514a0807971bf7152b54e335cd6793136ff19def4c01": {
       "source": {
@@ -1277,7 +1277,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "6ddd4a77b827d3955f1123178b394b43fab42ebd4edf1f8ed6b5f50779a34ac8": {
       "source": {
@@ -1294,7 +1294,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "eb1e11770866bca2f103d072b6b87f41c642ba758fe93bcfb98470ac41c31355": {
       "source": {
@@ -1311,7 +1311,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "03cb49bf92541653b1bfe051d304bd81e5ab46c4f2fdebc662c43844b0041ee1": {
       "source": {
@@ -1328,7 +1328,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "e6adab1875e31000032cb49ba070380d5a78052c1bebb1502b37b24ee33e0d0c": {
       "source": {
@@ -1384,7 +1384,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "e0b5f6ee42be271e035737affe923acd5ff720e4087e086c16770185dcc8e3f7": {
       "source": {
@@ -1410,7 +1410,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "2443bcf612da2b5acfaf8a00599abc8e936dbd9cf5ee93f935359286950c9433": {
       "source": {
@@ -1445,7 +1445,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "84dd85ec1622d02740602613e0d168f83885dc4d4fc6cbdb00948ba385c2d5e3": {
       "source": {
@@ -1458,26 +1458,26 @@
         ]
       },
       "en": {
-        "name": "Swedish meatballs (köttbullar)",
+        "name": "Köttbullar (Swedish meatballs)",
         "components": [
-          "Cream sauce with button mushrooms",
-          "Organic rice",
-          "Carrot salad with peas",
-          "Rice pudding with cinnamon and sugar"
+          "cream sauce with mushrooms",
+          "rice (organic)",
+          "carrot salad with peas",
+          "rice pudding with cinnamon and sugar"
         ]
       },
       "ko": {
-        "name": "스웨덴식 미트볼(셰트불라르)",
+        "name": "Köttbullar (스웨덴식 미트볼)",
         "components": [
-          "양송이버섯 크림소스",
+          "양송이버섯을 곁들인 크림 소스",
           "유기농 쌀밥",
-          "완두콩을 넣은 당근 샐러드",
-          "계피와 설탕을 곁들인 우유 쌀푸딩"
+          "완두콩을 곁들인 당근 샐러드",
+          "계피와 설탕을 곁들인 쌀 푸딩"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "12c7e1fe25c39b5c3cc4d7b42695b8b11788d964fd1c1e319cb51281989f71f8": {
       "source": {
@@ -1500,7 +1500,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "e6b74fbfad77933bc9e6e66528474a418a55db5ec8c438821d57a14a2b63df0f": {
       "source": {
@@ -1517,7 +1517,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "4d89f68bf9bf737f5207c50568b90fbb855d2038548db48417afa8d63a924c7f": {
       "source": {
@@ -1534,7 +1534,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "b23d48e275728aae8d42e5746c99c4dd49b022bfb9e6f3ecc07135e1d8c2fd88": {
       "source": {
@@ -1590,7 +1590,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "e3069e97a04f090777aca384c6963d6676861055463422565851bc3afc818ef5": {
       "source": {
@@ -1613,7 +1613,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "6f17a4422916cc36e7bc8c4f7f7ada62949eec3726ced07f177355f00c207e85": {
       "source": {
@@ -1645,7 +1645,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "e21ca419b7aab6210d03b13149fd5cc3e022f78d4a8214323edddc0e6f876bbb": {
       "source": {
@@ -1683,7 +1683,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "c5dd6d2d67e426004a56f068103ad51f80b42014bdff1d86a19b96c518f38d4d": {
       "source": {
@@ -1718,7 +1718,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "96604d5115e577aaafdb18102bd402b1ef15c48cc1286a8c1ec9dba02ad4a17a": {
       "source": {
@@ -1735,7 +1735,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "3baf1721e2d8519023f6dcd1abe2f54c4d446fa1796833b18888cecd54cbbd85": {
       "source": {
@@ -1752,7 +1752,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "9d8f7073c84fb7edeb83d85e5b16a4edd2724096f4d63e2171c255c0131a5951": {
       "source": {
@@ -1808,7 +1808,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "019ca245dba6847377b297b0ca2de9838752057e5335c908c6b48eee4080bce3": {
       "source": {
@@ -1825,7 +1825,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "d2f57bd2c95421704edab4b8541d6a0553c35786e3e24f924fe86c7e31976f78": {
       "source": {
@@ -1860,7 +1860,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "5654c9162de8c0451b769e73c861cead9f605b4fdc59c0bf116049adc493999d": {
       "source": {
@@ -1892,7 +1892,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "d558f4d907e6f32a2945cab753c4c744d54d4b0af34ac7094d5bfe5aab2a8f37": {
       "source": {
@@ -1921,7 +1921,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "fac64bc013fb7e4f2a275bafbf8aba1584fb83a5b5aebd27848cacc0cd0477eb": {
       "source": {
@@ -1932,22 +1932,22 @@
         ]
       },
       "en": {
-        "name": "Vegan: Breaded beetroot fritters",
+        "name": "Vegan: Breaded beetroot patties",
         "components": [
-          "Vegan: Garlic and herb dip",
-          "Boiled organic potatoes"
+          "Vegan: Garlic herb dip",
+          "Potatoes boiled in salted water (organic)"
         ]
       },
       "ko": {
         "name": "비건: 빵가루를 입힌 비트 패티",
         "components": [
-          "비건: 마늘·허브 딥",
-          "소금물에 삶은 유기농 감자"
+          "비건: 마늘 허브 딥",
+          "소금물에 삶은 감자 (유기농)"
         ]
       },
-      "origin": "editorial-draft",
-      "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v3"
     },
     "19c56feb57bc1ea2664a08adac0616fa6fc4a0a41e7498891a3b1c3403ea1119": {
       "source": {
@@ -2003,7 +2003,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     },
     "684bf2c26a691f97e16708d41e4417269d2bf1a73aeaaf213534f7db93a5687d": {
       "source": {
@@ -2026,7 +2026,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v1"
+      "prompt_version": "menu-v3"
     }
   }
 }

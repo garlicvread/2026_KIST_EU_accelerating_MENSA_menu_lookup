@@ -1,15 +1,13 @@
-name: Weekly menu and Pages
+name: Validated menu and Pages
+run-name: Publish menu ${{ inputs.snapshot_sha }}
 
 on:
-  schedule:
-    - cron: '17 9 * * 1'
-      timezone: Europe/Berlin
   workflow_dispatch:
     inputs:
-      refresh:
-        description: Fetch the source before publishing (turn off for UI-only deployment)
-        type: boolean
-        default: true
+      snapshot_sha:
+        description: Validated main-branch commit to publish
+        type: string
+        required: true
 
 permissions:
   contents: read
@@ -22,9 +20,9 @@ jobs:
   publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     permissions:
-      contents: write
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -34,6 +32,14 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: main
+          fetch-depth: 0
+      - name: Verify requested snapshot belongs to main
+        env:
+          SNAPSHOT_SHA: ${{ inputs.snapshot_sha }}
+        run: |
+          [[ "$SNAPSHOT_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          git merge-base --is-ancestor "$SNAPSHOT_SHA" origin/main
+          git checkout --detach "$SNAPSHOT_SHA"
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
@@ -41,24 +47,10 @@ jobs:
         run: |
           python -m unittest discover -s tests -v
           node --test tests/test_ui.mjs
-      - name: Collect and validate before replacing snapshots
-        if: github.event_name == 'schedule' || inputs.refresh
-        env:
-          MENU_TRANSLATION_URL: ${{ vars.MENU_TRANSLATION_URL }}
-          MENU_TRANSLATION_MODEL: ${{ vars.MENU_TRANSLATION_MODEL }}
-          MENU_TRANSLATION_API_KEY: ${{ secrets.MENU_TRANSLATION_API_KEY }}
-        run: python -m scripts.update_menu
-      - name: Validate deployment data
-        run: python -m scripts.update_menu --validate-only
-      - name: Persist validated snapshots
+      - name: Validate the locally prepared snapshot
         run: |
-          git add site/data/menu.json site/data/translations.json
-          if ! git diff --cached --quiet; then
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'Refresh validated Mensa menu'
-            git push origin HEAD:main
-          fi
+          python -m scripts.update_menu --validate-only
+          python -c "from pathlib import Path; from scripts.update_menu import read_json, require_current_coverage; require_current_coverage(read_json(Path('site/data/menu.json')))"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -66,7 +58,7 @@ jobs:
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4
-      - name: Explain rejected update
+      - name: Explain rejected deployment
         if: failure()
         run: |
-          echo 'Update/deployment failed. The existing public Pages deployment remains unchanged. Inspect the failed step before retrying; do not bypass price validation.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Deployment failed. The previous public Pages deployment remains unchanged. The local queue retains the request for inspection/retry.' >> "$GITHUB_STEP_SUMMARY"
