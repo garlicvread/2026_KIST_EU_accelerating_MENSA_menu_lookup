@@ -2037,6 +2037,1130 @@
       "origin": "editorial-draft",
       "model": "assistant-draft",
       "prompt_version": "menu-v3"
+    },
+    "64f813a4e365078b4c648a9167de3289a1270e77b3fb4d5e3c8f1b8bc05afa59": {
+      "source": {
+        "name_de": "Köttbullar",
+        "components": [
+          "Rahmsoße mit Champignons",
+          "Reis",
+          "Karottensalat mit Erbsen",
+          "Schokoladenpudding"
+        ]
+      },
+      "en": {
+        "name": "Swedish meatballs",
+        "components": [
+          "Cream sauce with button mushrooms",
+          "Rice",
+          "Carrot salad with peas",
+          "Chocolate pudding"
+        ]
+      },
+      "ko": {
+        "name": "스웨덴식 미트볼",
+        "components": [
+          "양송이버섯 크림소스",
+          "쌀밥",
+          "완두콩을 넣은 당근 샐러드",
+          "초콜릿 푸딩"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "bfa9e57f6cf94c5ef9c25c7a2dc90d580393ea9329b86d6b487aa5c2817f8b43": {
+      "source": {
+        "name_de": "Rigatoni (biologischer Anbau)",
+        "components": [
+          "Grünkernbolognaise",
+          "Geriebener Käse",
+          "Karottensalat",
+          "Panna Cotta"
+        ]
+      },
+      "en": {
+        "name": "Organic rigatoni pasta",
+        "components": [
+          "Green spelt (Grünkern) Bolognese sauce",
+          "Grated cheese",
+          "Carrot salad",
+          "Panna cotta"
+        ]
+      },
+      "ko": {
+        "name": "유기농 리가토니 파스타",
+        "components": [
+          "풋스펠트밀(그륀케른) 볼로네제 소스",
+          "간 치즈",
+          "당근 샐러드",
+          "판나코타"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "31eb389ad02279a0e40248c9a7a112d3c88932ca4ec2e2e8aa6dd09078483ade": {
+      "source": {
+        "name_de": "Gebackenes Seelachsfilet",
+        "components": [
+          "Remouladensoße",
+          "Petersilienkartoffel (aus biologischem Anbau)",
+          "Bunter Weißkrautsalat",
+          "Schokoladenpudding"
+        ]
+      },
+      "en": {
+        "name": "Baked white-fish fillet (Seelachs)",
+        "components": [
+          "Remoulade sauce",
+          "Organic parsley potatoes",
+          "Mixed white cabbage salad",
+          "Chocolate pudding"
+        ]
+      },
+      "ko": {
+        "name": "구운 흰살생선 필레(Seelachs)",
+        "components": [
+          "레물라드 소스",
+          "파슬리를 곁들인 유기농 감자",
+          "양배추 모둠 샐러드",
+          "초콜릿 푸딩"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "391c7a47691a64e79fc1e9ee34a154b353549144b8462490798e2c2520841844": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weisskraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Karotten",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Lollo Bianco",
+          "Lollo Rosso",
+          "Radicchio",
+          "Klare Salatsoße"
+        ]
+      },
+      "en": {
+        "name": "Salad buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumbers",
+          "Sliced onion rings",
+          "Carrots",
+          "Mixed bell peppers",
+          "Sweetcorn",
+          "Chili peppers",
+          "Lollo Bianco lettuce",
+          "Lollo Rosso lettuce",
+          "Radicchio",
+          "Clear salad dressing"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "양배추",
+          "오이",
+          "링 모양으로 썬 양파",
+          "당근",
+          "모둠 파프리카",
+          "옥수수",
+          "고추",
+          "롤로 비앙코 상추",
+          "롤로 로소 적상추",
+          "라디키오",
+          "맑은 샐러드 드레싱"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "4e026ae641566a281de77a73da17aa1710a53c7460973aacbe6c4ec20eadcea2": {
+      "source": {
+        "name_de": "Paniertes Schnitzel vom Schwein",
+        "components": [
+          "Ketchup",
+          "Pommes Frites",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Breaded pork schnitzel",
+        "components": [
+          "Ketchup",
+          "French fries",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "빵가루를 입힌 돼지고기 슈니첼",
+        "components": [
+          "케첩",
+          "감자튀김",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "맑은 샐러드 드레싱",
+          "과일(유기농 사과)"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "f5409c98c5a7e8d724c393743dc838c7b02c101d9755d5760fadb8e218b13e4d": {
+      "source": {
+        "name_de": "Pfannengyros vom Schwein mit Knoblauchsoße",
+        "components": [
+          "Pommes Frites",
+          "Krautsalat",
+          "Vanillepudding"
+        ]
+      },
+      "en": {
+        "name": "Pan-fried pork gyros with garlic sauce",
+        "components": [
+          "French fries",
+          "Coleslaw",
+          "Vanilla pudding"
+        ]
+      },
+      "ko": {
+        "name": "마늘 소스를 곁들인 돼지고기 팬-프라이드 기로스",
+        "components": [
+          "감자튀김",
+          "코울슬로",
+          "바닐라 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "a769cb2a53548e950e1f044637998b313d33e0e7e7cee6dad68be4e7cd18c31f": {
+      "source": {
+        "name_de": "KlimaTeller: Rigatoni (biologischer Anbau) mit Kürbis-Currysoße",
+        "components": [
+          "Geriebener Käse",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße",
+          "Klare Salatsoße",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Rigatoni (organic) with pumpkin curry sauce",
+        "components": [
+          "Grated cheese",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "단호박 커리 소스를 곁들인 리가토니 (유기농)",
+        "components": [
+          "강판에 간 치즈",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "클리어 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "da7107599887ba878868475221e68b3aff0773771c008ddc65e25ce526ced762": {
+      "source": {
+        "name_de": "Tagesessen: Vietnamesische Nudel-Bowl mit gebratenem Tofu",
+        "components": [
+          "Solange der Vorrat reicht!"
+        ]
+      },
+      "en": {
+        "name": "Vietnamese Noodle Bowl with Fried Tofu",
+        "components": [
+          "While stocks last!"
+        ]
+      },
+      "ko": {
+        "name": "구운 두부를 곁들인 베트남식 누들 볼",
+        "components": [
+          "재고 소진 시까지!"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "56909c502912a28725da760c7ff85b4dcf61fcc91e98abeaa3f188338ed31700": {
+      "source": {
+        "name_de": "mensaVital: Chicken „Tikka Masala“ mit Basmatireis",
+        "components": []
+      },
+      "en": {
+        "name": "Chicken Tikka Masala with Basmati Rice",
+        "components": []
+      },
+      "ko": {
+        "name": "치킨 티카 마살라와 바스마티 쌀밥",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "2cb5faeef29534db71f4a40e43677ce35e20c39955c1dddf60ba085ce106675b": {
+      "source": {
+        "name_de": "Vegan: Asiatische Kokos-Curry-Pfanne",
+        "components": [
+          "Nudeln „Chinesische Art“"
+        ]
+      },
+      "en": {
+        "name": "Vegan Asian Coconut Curry Pan",
+        "components": [
+          "Chinese-style noodles"
+        ]
+      },
+      "ko": {
+        "name": "비건 아시아식 코코넛 커리 볶음",
+        "components": [
+          "중국식 면"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "e613891ddae3a3d116c90e5f529f3ea551a32063e71cf249f05a7283e1c6c5ab": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weißkraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Karotten",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Lollo Bianco",
+          "Lollo Rosso",
+          "Radicchio",
+          "Klare Salatsoße",
+          "Limetten-Joghurt-Dressing",
+          "Kräuter und Hülsenfrüchte"
+        ]
+      },
+      "en": {
+        "name": "Salad Buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumber",
+          "Onion rings",
+          "Carrots",
+          "Mixed bell pepper",
+          "Corn",
+          "Peperoni",
+          "Lollo Bianco lettuce",
+          "Lollo Rosso lettuce",
+          "Radicchio",
+          "Clear salad dressing",
+          "Lime yogurt dressing",
+          "Herbs and legumes"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "양배추",
+          "오이",
+          "양파링",
+          "당근",
+          "모둠 파프리카",
+          "옥수수",
+          "페페로니",
+          "롤로 비앙코 상추",
+          "롤로 로소 상추",
+          "라디키오",
+          "투명 샐러드 드레싱",
+          "라임 요거트 드레싱",
+          "허브 및 콩류"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "bec688b4681be8518dc9be46e657d8297ff2d50b8b4e37726d7722115c173913": {
+      "source": {
+        "name_de": "Wurstsalat nach „Art des Hauses“",
+        "components": [
+          "Pommes Frites"
+        ]
+      },
+      "en": {
+        "name": "House-style sausage salad",
+        "components": [
+          "French fries"
+        ]
+      },
+      "ko": {
+        "name": "하우스 스타일 소시지 샐러드",
+        "components": [
+          "감자튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "849f977508752896fcaf94e50ba6829454748b59266a69584168bfca7086fd43": {
+      "source": {
+        "name_de": "Schnittlauch-Eiersalat",
+        "components": [
+          "Pommes Frites"
+        ]
+      },
+      "en": {
+        "name": "Chive Egg Salad",
+        "components": [
+          "French Fries"
+        ]
+      },
+      "ko": {
+        "name": "차이브 계란 샐러드",
+        "components": [
+          "감자튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "cef901594c683735ceb7069b1bbe4d6260fedda5bcf1f6afae0c03841760a67e": {
+      "source": {
+        "name_de": "Rotkohl-Quinoa-Salat",
+        "components": [
+          "Vegan: Sesam-Karotten-Knusperstick"
+        ]
+      },
+      "en": {
+        "name": "Red Cabbage and Quinoa Salad",
+        "components": [
+          "Vegan: Sesame Carrot Crisps"
+        ]
+      },
+      "ko": {
+        "name": "적양배추 퀴노아 샐러드",
+        "components": [
+          "비건: 참깨 당근 크리스프"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "0f4fbdd88902d165f726551223d149adcacf53346b9a03457b76683c8213321e": {
+      "source": {
+        "name_de": "Backfischburger",
+        "components": [
+          "Scharfer-Senf-Dip"
+        ]
+      },
+      "en": {
+        "name": "Fried Fish Burger",
+        "components": [
+          "Spicy Mustard Dip"
+        ]
+      },
+      "ko": {
+        "name": "생선튀김 버거",
+        "components": [
+          "매콤한 머스터드 딥 소스"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "4fa8d37ba55caf119e10ed2ddcab7930e32fec796b9aeb7202198f0d7f3428ad": {
+      "source": {
+        "name_de": "Vegan: Tortillas mit Curryreissalat",
+        "components": []
+      },
+      "en": {
+        "name": "Vegan Tortillas with Curry Rice Salad",
+        "components": []
+      },
+      "ko": {
+        "name": "비건 토르티야와 커리 쌀 샐러드",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "e1aa1f8d9b5f473c400c69044e089b13b1745cd97ddbb2733a5e0a1d6bdc94dc": {
+      "source": {
+        "name_de": "Kartoffel-Möhren-Kichererbsen-Eintopf",
+        "components": [
+          "Brötchen",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Potato, Carrot and Chickpea Stew",
+        "components": [
+          "Bread roll",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "감자 당근 병아리콩 스튜",
+        "components": [
+          "빵",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일 (유기농 사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "d808c31559f4040ec1ddc4c0d4033769367385e9b4c190b5679f2f0dfc13706c": {
+      "source": {
+        "name_de": "Jägerpfanne",
+        "components": [
+          "Reis (aus biologischem Anbau)",
+          "Vitaminsalat",
+          "Bananenquark"
+        ]
+      },
+      "en": {
+        "name": "Hunter's Pan",
+        "components": [
+          "organic rice",
+          "vitamin salad",
+          "banana quark"
+        ]
+      },
+      "ko": {
+        "name": "예거판네 (사냥꾼식 볶음요리)",
+        "components": [
+          "유기농 쌀밥",
+          "비타민 샐러드",
+          "바나나 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "37317158dedbf9ee380831f4399ffdeb0edee2dd8dbc0d6ac2829620f89bbc43": {
+      "source": {
+        "name_de": "Hähnchenstreifen in Rucolasoße mit Bandnudeln",
+        "components": []
+      },
+      "en": {
+        "name": "Chicken strips in arugula sauce with ribbon noodles",
+        "components": []
+      },
+      "ko": {
+        "name": "루콜라 소스를 곁들인 닭고기 스트립과 넓은 면",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "1c094578fa67a970109de3d6607f124a39d48851206402ffb805045a50f33675": {
+      "source": {
+        "name_de": "Spaghetti (aus biologischem Anbau)",
+        "components": [
+          "Vegan: Soja Bolognaise",
+          "Vegan: Geriebener Käse"
+        ]
+      },
+      "en": {
+        "name": "Spaghetti (organic)",
+        "components": [
+          "Vegan: Soy Bolognaise",
+          "Vegan: Grated cheese"
+        ]
+      },
+      "ko": {
+        "name": "스파게티 (유기농)",
+        "components": [
+          "비건: 소이 볼로네제",
+          "비건: 갈은 치즈"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "d62784d7ea12826f4413ce0b91544168d1f9ddb3abaecbcd67081d372ca2a4f7": {
+      "source": {
+        "name_de": "Bratwurst",
+        "components": [
+          "Currysoße",
+          "Pommes Frites"
+        ]
+      },
+      "en": {
+        "name": "Fried Sausage",
+        "components": [
+          "curry sauce",
+          "french fries"
+        ]
+      },
+      "ko": {
+        "name": "브라트부르스트(구운 소시지)",
+        "components": [
+          "커리 소스",
+          "감자튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "5a2dd29acd787279f9131f5de4f13f892bf2d4b1bcdbdfb43af8ea66e8aab62d": {
+      "source": {
+        "name_de": "Vegan: Gebratene Bratwurst",
+        "components": [
+          "Currysoße",
+          "Pommes Frites"
+        ]
+      },
+      "en": {
+        "name": "Vegan Fried Bratwurst",
+        "components": [
+          "curry sauce",
+          "french fries"
+        ]
+      },
+      "ko": {
+        "name": "비건 구운 브라트부르스트",
+        "components": [
+          "커리 소스",
+          "감자튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "f9a1983231b2029732f4552be8f2827818a74b970e035e111d52d7caaffc67f1": {
+      "source": {
+        "name_de": "Gemüsespätzle",
+        "components": [
+          "Gurken-Bohnen-Tomatensalat",
+          "Pfirsich-Joghurtcreme"
+        ]
+      },
+      "en": {
+        "name": "Vegetable Spätzle",
+        "components": [
+          "Cucumber, bean and tomato salad",
+          "Peach yogurt cream"
+        ]
+      },
+      "ko": {
+        "name": "채소 슈페츨레",
+        "components": [
+          "오이, 콩, 토마토 샐러드",
+          "복숭아 요거트 크림"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "9aa6f99981ac2a6cc62da33df3b4cf7f7842a4ed9fd27a4a4063f69f2c3bbbc7": {
+      "source": {
+        "name_de": "Veganer Cornflakes Taler Chicken Style",
+        "components": [
+          "Chili-Kräuterdip",
+          "Pommes Frites",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Vegan Cornflakes-crusted Chicken-style Patty",
+        "components": [
+          "chili herb dip",
+          "french fries",
+          "mixed leaf salad",
+          "white salad dressing",
+          "clear salad dressing",
+          "fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "비건 콘플렉스 치킨 스타일 패티",
+        "components": [
+          "칠리 허브 딥",
+          "감자튀김",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "투명 샐러드 드레싱",
+          "과일 (유기농 사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "a2543562d97d3555a165365d196be1e85827fd274098fabc3e788cba714eb8de": {
+      "source": {
+        "name_de": "Pizza Griechischer Art",
+        "components": []
+      },
+      "en": {
+        "name": "Greek-style Pizza",
+        "components": []
+      },
+      "ko": {
+        "name": "그리스식 피자",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "5de1060e272b4fd3609aaf903c70458beec6734a7c0ef7555cd8be0616a8bcac": {
+      "source": {
+        "name_de": "Spaghetti Primavera",
+        "components": []
+      },
+      "en": {
+        "name": "Spaghetti Primavera",
+        "components": []
+      },
+      "ko": {
+        "name": "스파게티 프리마베라",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "2a6caa3e242c46ea917fd00488ac5d060035d78b83662bbb9ec82fe17a4940b4": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weisskraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Romasalat",
+          "Kopfsalat",
+          "Klare Salatsoße",
+          "Cocktailsoße",
+          "Kräuter"
+        ]
+      },
+      "en": {
+        "name": "Salad Buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumber",
+          "Onion rings",
+          "Mixed bell pepper",
+          "Corn",
+          "Peperoni",
+          "Romaine lettuce",
+          "Lettuce",
+          "Clear salad dressing",
+          "Cocktail sauce",
+          "Herbs"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "화이트 양배추",
+          "오이",
+          "양파 링",
+          "모둠 파프리카",
+          "옥수수",
+          "페페로니",
+          "로메인 상추",
+          "양상추",
+          "투명 샐러드 드레싱",
+          "칵테일 소스",
+          "허브"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "9c595ae6b494fa252990000e097cf471f8974e777d5e1644f4734662965a20d2": {
+      "source": {
+        "name_de": "Quinoa-Kürbis-Bowl mit gerösteten Pinienkernen",
+        "components": [
+          "Vegan:Knoblauch-Kräuter-Dip"
+        ]
+      },
+      "en": {
+        "name": "Quinoa Pumpkin Bowl with roasted pine nuts",
+        "components": [
+          "Vegan: garlic herb dip"
+        ]
+      },
+      "ko": {
+        "name": "구운 잣을 곁들인 퀴노아 단호박 보울",
+        "components": [
+          "비건: 마늘 허브 딥"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "9319e3b712894536648370fe24f3e7983635023650654f8be078d4fe85f96b63": {
+      "source": {
+        "name_de": "Tomatenmakkaroni mit geriebenem Käse",
+        "components": [
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Tomato macaroni with grated cheese",
+        "components": [
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "강판에 간 치즈를 곁들인 토마토 마카로니",
+        "components": [
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일 (유기농 사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "ce242afc2047f2a6e6c2c4407c33f260b30b7ddd0dc52a7080f9b913aab310b0": {
+      "source": {
+        "name_de": "Cevapcici mit scharfer Gemüsesoße",
+        "components": [
+          "Pommes Frites",
+          "Salat Esterhazy",
+          "Sahnepudding"
+        ]
+      },
+      "en": {
+        "name": "Cevapcici with spicy vegetable sauce",
+        "components": [
+          "French fries",
+          "Esterhazy salad",
+          "Cream pudding"
+        ]
+      },
+      "ko": {
+        "name": "매콤한 채소 소스를 곁들인 체바프치치",
+        "components": [
+          "감자튀김",
+          "에스테르하지 샐러드",
+          "크림 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "4d3c9d6b071dc30921c6d22bdd17df8685b9d38cff4ca774f1b602039672e241": {
+      "source": {
+        "name_de": "ZiS: Spezialitätentag",
+        "components": []
+      },
+      "en": {
+        "name": "ZiS: Specialty Day",
+        "components": []
+      },
+      "ko": {
+        "name": "ZiS: 스페셜 메뉴의 날",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "449b2c314e559b69df141ea6b08d6a918007aef82ab3ddc909029c93493c5e9f": {
+      "source": {
+        "name_de": "Hamburger Italian Bastard",
+        "components": []
+      },
+      "en": {
+        "name": "Hamburger Italian Bastard",
+        "components": []
+      },
+      "ko": {
+        "name": "햄버거 이탈리안 바스타드",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "873bfa8a6533e2ee2de9ae95bcb00072726ff87639785f38dd73e69ff649a393": {
+      "source": {
+        "name_de": "Vegan: Rote-Beete Sandwich",
+        "components": [
+          "Vegan: Kräuter-Dip"
+        ]
+      },
+      "en": {
+        "name": "Vegan Beetroot Sandwich",
+        "components": [
+          "Vegan herb dip"
+        ]
+      },
+      "ko": {
+        "name": "비건 비트루트 샌드위치",
+        "components": [
+          "비건 허브 딥 소스"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "d61f6dd5f62ecfb357d87db7dfdc92d00b1351569f29c355a0c7552ff5387c1b": {
+      "source": {
+        "name_de": "Linsen-Gemüse-Chili",
+        "components": [
+          "Vollkornnudeln",
+          "Gurkensalat Toskana",
+          "Stracciatella-Bananen-Sahnequark"
+        ]
+      },
+      "en": {
+        "name": "Lentil and Vegetable Chili",
+        "components": [
+          "whole grain noodles",
+          "Tuscany cucumber salad",
+          "stracciatella banana cream quark"
+        ]
+      },
+      "ko": {
+        "name": "렌틸콩 야채 칠리",
+        "components": [
+          "통곡물 파스타",
+          "토스카나식 오이 샐러드",
+          "스트라차텔라 바나나 크림 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "ba08fcabcd17d199071d637f80b662799454e5064c1eba1f582601f4daedc8f9": {
+      "source": {
+        "name_de": "Hähnchenbrustfilet Toscana",
+        "components": [
+          "Paprikarahmsoße",
+          "Reis (aus biologischem Anbau)",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Toscana-style chicken breast fillet",
+        "components": [
+          "pepper cream sauce",
+          "organic rice",
+          "mixed leaf salad",
+          "clear salad dressing",
+          "white salad dressing",
+          "organic fruit (apples)"
+        ]
+      },
+      "ko": {
+        "name": "토스카나식 닭가슴살 필레",
+        "components": [
+          "파프리카 크림 소스",
+          "유기농 쌀밥",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "유기농 과일 (사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "ca7b92e31143294711eb07c59c9bf809c8a653b02ad3b81f918fd7fea1fac6d7": {
+      "source": {
+        "name_de": "Fish and chips",
+        "components": [
+          "Aiolisoße"
+        ]
+      },
+      "en": {
+        "name": "Fish and chips",
+        "components": [
+          "Aioli sauce"
+        ]
+      },
+      "ko": {
+        "name": "피쉬 앤 칩스",
+        "components": [
+          "아이올리 소스"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "9a9c48b496a0632b2bc6d2926f64b5bf35b338ac90f05b472c74a3be0bd24169": {
+      "source": {
+        "name_de": "Vegan: Kanadische Poutine",
+        "components": []
+      },
+      "en": {
+        "name": "Vegan Canadian Poutine",
+        "components": []
+      },
+      "ko": {
+        "name": "비건 캐나다식 푸틴",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "f64b9e5e41154c324fbcf1d5f16032d088233d62177926a650c43ee669072393": {
+      "source": {
+        "name_de": "Kaisergemüse mit gebackenem Tofu und Vollkornpasta",
+        "components": [
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Stracciatella-Quark"
+        ]
+      },
+      "en": {
+        "name": "Imperial vegetables with cooked tofu and whole grain pasta",
+        "components": [
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Stracciatella quark"
+        ]
+      },
+      "ko": {
+        "name": "조리한 두부와 통곡물 파스타를 곁들인 임페리얼 야채",
+        "components": [
+          "모둠 잎채소 샐러드",
+          "투명한 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "스트라차텔라 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "fee1376ea92a7f4f716bedb49bc6ca679513c95736170888fa141d2b435ddce6": {
+      "source": {
+        "name_de": "Puten Cordon-bleu",
+        "components": [
+          "Rahmsoße",
+          "Kartoffelkroketten"
+        ]
+      },
+      "en": {
+        "name": "Turkey Cordon Bleu",
+        "components": [
+          "cream sauce",
+          "potato croquettes"
+        ]
+      },
+      "ko": {
+        "name": "칠면조 코르동 블루",
+        "components": [
+          "크림 소스",
+          "감자 크로켓"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
+    },
+    "136c1d2609c4f20adf51df2c21e561448a87c1f2a463a1ab5e3ba8b6bc2690eb": {
+      "source": {
+        "name_de": "Vegan: Süßkartoffel-Gnocchi-Pfanne mit Tomaten und Basilikum",
+        "components": []
+      },
+      "en": {
+        "name": "Vegan Sweet Potato Gnocchi Pan with Tomatoes and Basil",
+        "components": []
+      },
+      "ko": {
+        "name": "비건 고구마 뇨끼 팬 요리 (토마토와 바질 곁들임)",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4"
     }
   },
   "notices": {
@@ -2155,6 +3279,14 @@
     "vegetarisch": {
       "en": "Vegetarian",
       "ko": "채식"
+    },
+    "Kaschunüsse": {
+      "en": "Cashew nuts",
+      "ko": "캐슈넛"
+    },
+    "Phosphat": {
+      "en": "Phosphate",
+      "ko": "인산염"
     }
   }
 }
