@@ -16,6 +16,7 @@ PROMPT_VERSION = "menu-v4"
 # v4 changes title guidance; the deterministic name policy also repairs v3 titles.
 SUPPORTED_PROMPT_VERSIONS = frozenset({"menu-v3", PROMPT_VERSION})
 NAME_POLICY_VERSION = "semantic-names-v1"
+COMPONENT_POLICY_VERSION = "semantic-components-v1"
 MAX_RESPONSE_BYTES = 100_000
 
 # Exact sources only: qualifiers such as vegan must never be discarded by an override.
@@ -23,7 +24,18 @@ MAX_RESPONSE_BYTES = 100_000
 REVIEWED_DISH_NAMES = {
     "Wikingertopf": {"en": "Meatball stew", "ko": "고기완자 스튜"},
     "Köttbullar": {"en": "Swedish meatballs", "ko": "스웨덴식 미트볼"},
+    "Kaisergemüse mit gebackenem Tofu und Vollkornpasta": {
+        "en": "Mixed vegetables with cooked tofu and whole-grain pasta",
+        "ko": "조리한 두부와 통곡물 파스타를 곁들인 모둠 채소",
+    },
+    "Veganer Cornflakes Taler Chicken Style": {
+        "en": "Vegan cornflake-crusted chicken-style patty",
+        "ko": "콘플레이크를 입힌 비건 치킨 스타일 패티",
+    },
 }
+# German Peperoni names peppers, not the similarly named English sausage.
+# https://www.edeka.de/wissen/kuechenwissen/lebensmittellexikon/peperoni/
+REVIEWED_COMPONENT_NAMES = {"Peperoni": {"en": "Chili peppers", "ko": "고추"}}
 _CAMPAIGN_PREFIX = re.compile(r"^(?:(?:mensaVital|KlimaTeller)\s*:\s*)+", re.IGNORECASE)
 _OPAQUE_TITLE_LABEL = re.compile(r"mensaVital|KlimaTeller|Wikingertopf|Köttbullar", re.IGNORECASE)
 
@@ -75,6 +87,23 @@ def _apply_name_policy(entry):
         entry["name_policy_version"] = NAME_POLICY_VERSION
 
 
+def _semantic_component(name, source_name, lang):
+    reviewed = REVIEWED_COMPONENT_NAMES.get(source_name)
+    return reviewed[lang] if reviewed else name
+
+
+def _apply_component_policy(entry):
+    changed = False
+    for lang in ("en", "ko"):
+        for index, source_name in enumerate(entry["source"]["components"]):
+            name = _semantic_component(entry[lang]["components"][index], source_name, lang)
+            if name != entry[lang]["components"][index]:
+                entry[lang]["components"][index] = name
+                changed = True
+    if changed:
+        entry["component_policy_version"] = COMPONENT_POLICY_VERSION
+
+
 def reusable_translation(entry, model=None):
     """Check generation compatibility after structural validation and name migration."""
     return bool(entry) and entry["prompt_version"] in SUPPORTED_PROMPT_VERSIONS and (
@@ -102,6 +131,9 @@ def validate_cache(cache, *, allow_legacy_names=False):
             for lang in ("en", "ko"):
                 if entry[lang]["name"] != _semantic_name(entry[lang]["name"], source, lang):
                     raise ValueError("Translation title does not follow the reviewed name policy")
+                for source_name, name in zip(source["components"], entry[lang]["components"]):
+                    if name != _semantic_component(name, source_name, lang):
+                        raise ValueError("Translation component does not follow the reviewed name policy")
         if entry.get("origin") not in ("editorial-draft", "reviewed-draft", "model"):
             raise ValueError("Translation provenance is missing")
         if not _text(entry.get("model")) or not _text(entry.get("prompt_version")):
@@ -230,6 +262,7 @@ def build_translations(menu, previous, phrases, config, translate=None):
     # Migrate retained entries too: an interrupted snapshot update may still need them.
     for entry in cache["entries"].values():
         _apply_name_policy(entry)
+        _apply_component_policy(entry)
     # Fixed source labels must be reviewed even if every dish is already cached.
     # Retain old labels so an interruption between snapshot replacements remains safe.
     cache.setdefault("notices", {}).update(translated_notices(menu))
@@ -255,5 +288,6 @@ def build_translations(menu, previous, phrases, config, translate=None):
             validate_result(result, source)
             cache["entries"][key] = {"source": source, **result, "origin": origin, "model": model, "prompt_version": PROMPT_VERSION}
             _apply_name_policy(cache["entries"][key])
+            _apply_component_policy(cache["entries"][key])
     validate_cache(cache)
     return cache

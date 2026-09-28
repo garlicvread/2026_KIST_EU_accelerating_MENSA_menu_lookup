@@ -324,6 +324,14 @@ class SemanticNamePolicyTests(unittest.TestCase):
             ("Wikingertopf", "Wikingertopf (stew)", "Wikingertopf (스튜)", "Meatball stew", "고기완자 스튜"),
             ("Köttbullar", "Köttbullar (Swedish meatballs)", "Köttbullar (스웨덴식 미트볼)",
              "Swedish meatballs", "스웨덴식 미트볼"),
+            ("Kaisergemüse mit gebackenem Tofu und Vollkornpasta",
+             "Imperial vegetables with cooked tofu and whole grain pasta",
+             "조리한 두부와 통곡물 파스타를 곁들인 임페리얼 야채",
+             "Mixed vegetables with cooked tofu and whole-grain pasta",
+             "조리한 두부와 통곡물 파스타를 곁들인 모둠 채소"),
+            ("Veganer Cornflakes Taler Chicken Style",
+             "Vegan Cornflakes-crusted Chicken-style Patty", "비건 콘플렉스 치킨 스타일 패티",
+             "Vegan cornflake-crusted chicken-style patty", "콘플레이크를 입힌 비건 치킨 스타일 패티"),
         ):
             with self.subTest(source=source_name):
                 meal = sample_meal(source_name)
@@ -341,6 +349,46 @@ class SemanticNamePolicyTests(unittest.TestCase):
                 self.assertEqual(menu, original_menu)
                 self.assertEqual(previous, original_cache)
                 validate_cache(cache)
+
+    def test_reviewed_component_migrates_cached_source_without_retranslating_other_foods(self):
+        meal = sample_meal("Salatbuffet", sides=("Gurken", "Peperoni", "Pepperoni-Salami"))
+        meal["components"][1]["notices"] = ["Senf"]
+        menu = {"days": [{"meals": [meal]}]}
+        previous = self.legacy_cache(meal, "Salad buffet", "샐러드 뷔페")
+        entry = previous["entries"][meal["translation_key"]]
+        entry["en"]["components"] = ["Cucumber", "Peperoni", "Pepperoni sausage"]
+        entry["ko"]["components"] = ["오이", "페페로니", "페퍼로니 소시지"]
+        original_menu, original_cache = copy.deepcopy(menu), copy.deepcopy(previous)
+        cache = build_translations(menu, previous, {}, None,
+                                   translate=lambda *args: self.fail("Review must not run inference"))
+        expected = copy.deepcopy(entry)
+        expected["en"]["components"][1] = "Chili peppers"
+        expected["ko"]["components"][1] = "고추"
+        expected["component_policy_version"] = "semantic-components-v1"
+        self.assertEqual(cache["entries"][meal["translation_key"]], expected)
+        self.assertEqual(menu, original_menu)
+        self.assertEqual(previous, original_cache)
+        self.assertEqual(build_translations(menu, cache, {}, None), cache)
+        validate_cache(cache)
+
+    def test_reviewed_component_applies_to_new_model_output(self):
+        meal = sample_meal("Salatbuffet", sides=("Peperoni",))
+        result = {"en": {"name": "Salad buffet", "components": ["Peperoni"]},
+                  "ko": {"name": "샐러드 뷔페", "components": ["페페로니"]}}
+        cache = build_translations({"days": [{"meals": [meal]}]}, {}, {}, {"model": "fixture"},
+                                   translate=lambda *args: copy.deepcopy(result))
+        entry = cache["entries"][meal["translation_key"]]
+        self.assertEqual(entry["en"]["components"], ["Chili peppers"])
+        self.assertEqual(entry["ko"]["components"], ["고추"])
+        self.assertEqual(entry["origin"], "model")
+        self.assertEqual(entry["model"], "fixture")
+        validate_cache(cache)
+
+    def test_publication_rejects_unreviewed_component_wording(self):
+        meal = sample_meal("Salatbuffet", sides=("Peperoni",))
+        previous = self.legacy_cache(meal, "Salad buffet", "샐러드 뷔페")
+        with self.assertRaisesRegex(ValueError, "[Cc]omponent.*reviewed"):
+            validate_cache(previous)
 
     def test_cached_brand_chains_are_removed_while_food_and_dietary_terms_survive(self):
         meal = sample_meal("KlimaTeller: Vegan: Curry")

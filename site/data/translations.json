@@ -2385,7 +2385,7 @@
           "Carrots",
           "Mixed bell pepper",
           "Corn",
-          "Peperoni",
+          "Chili peppers",
           "Lollo Bianco lettuce",
           "Lollo Rosso lettuce",
           "Radicchio",
@@ -2404,7 +2404,7 @@
           "당근",
           "모둠 파프리카",
           "옥수수",
-          "페페로니",
+          "고추",
           "롤로 비앙코 상추",
           "롤로 로소 상추",
           "라디키오",
@@ -2415,7 +2415,8 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "component_policy_version": "semantic-components-v1"
     },
     "bec688b4681be8518dc9be46e657d8297ff2d50b8b4e37726d7722115c173913": {
       "source": {
@@ -2724,7 +2725,7 @@
         ]
       },
       "en": {
-        "name": "Vegan Cornflakes-crusted Chicken-style Patty",
+        "name": "Vegan cornflake-crusted chicken-style patty",
         "components": [
           "chili herb dip",
           "french fries",
@@ -2735,7 +2736,7 @@
         ]
       },
       "ko": {
-        "name": "비건 콘플렉스 치킨 스타일 패티",
+        "name": "콘플레이크를 입힌 비건 치킨 스타일 패티",
         "components": [
           "칠리 허브 딥",
           "감자튀김",
@@ -2747,7 +2748,8 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "name_policy_version": "semantic-names-v1"
     },
     "a2543562d97d3555a165365d196be1e85827fd274098fabc3e788cba714eb8de": {
       "source": {
@@ -2810,7 +2812,7 @@
           "Onion rings",
           "Mixed bell pepper",
           "Corn",
-          "Peperoni",
+          "Chili peppers",
           "Romaine lettuce",
           "Lettuce",
           "Clear salad dressing",
@@ -2827,7 +2829,7 @@
           "양파 링",
           "모둠 파프리카",
           "옥수수",
-          "페페로니",
+          "고추",
           "로메인 상추",
           "양상추",
           "투명 샐러드 드레싱",
@@ -2837,7 +2839,8 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "component_policy_version": "semantic-components-v1"
     },
     "9c595ae6b494fa252990000e097cf471f8974e777d5e1644f4734662965a20d2": {
       "source": {
@@ -3098,7 +3101,7 @@
         ]
       },
       "en": {
-        "name": "Imperial vegetables with cooked tofu and whole grain pasta",
+        "name": "Mixed vegetables with cooked tofu and whole-grain pasta",
         "components": [
           "Mixed leaf salad",
           "Clear salad dressing",
@@ -3107,7 +3110,7 @@
         ]
       },
       "ko": {
-        "name": "조리한 두부와 통곡물 파스타를 곁들인 임페리얼 야채",
+        "name": "조리한 두부와 통곡물 파스타를 곁들인 모둠 채소",
         "components": [
           "모둠 잎채소 샐러드",
           "투명한 샐러드 드레싱",
@@ -3117,7 +3120,8 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "name_policy_version": "semantic-names-v1"
     },
     "fee1376ea92a7f4f716bedb49bc6ca679513c95736170888fa141d2b435ddce6": {
       "source": {
