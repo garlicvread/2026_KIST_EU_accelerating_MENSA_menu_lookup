@@ -88,10 +88,41 @@ class MenuSourceTests(unittest.TestCase):
         html = page(meal(prices="")).replace("<body>", f"<body><aside>{PRICES}</aside>")
         self.assertIsNone(self.first(self.parse(html))["prices"])
 
-    def test_second_meals_price_is_not_inherited(self):
-        records = self.parse(page(meal(prices="") + meal(name="Soup")))["days"][0]["meals"]
-        self.assertIsNone(records[0]["prices"])
-        self.assertEqual(records[1]["prices"]["student"], 350)
+    def test_single_trailing_price_applies_to_every_dish_in_counter(self):
+        records = self.parse(page(meal(name="Käsespätzle", prices="") +
+                                  meal(name="Vegan: Rote Bete Puffer", prices="") +
+                                  meal(name="Salatbuffet")))["days"][0]["meals"]
+        for record in records:
+            self.assertEqual(record["prices"], {"student": 350, "staff": 465, "guest": 535})
+            self.assertEqual(record["price_status"], "verified")
+        for record in records[:-1]:
+            self.assertEqual(record["price_source"]["scope"], "counter")
+            self.assertEqual(record["price_source"]["name"], "Salatbuffet")
+            self.assertEqual(record["price_source"]["raw"], records[-1]["price_source"]["raw"])
+
+    def test_nontrailing_or_multiple_price_blocks_keep_individual_prices(self):
+        for content in (meal(name="A") + meal(name="B", prices=""),
+                        meal(name="A") + meal(name="B", prices="") +
+                        meal(name="C", prices=PRICES.replace("3,50", "4,50"))):
+            with self.subTest(content=content):
+                records = self.parse(page(content))["days"][0]["meals"]
+                self.assertEqual(records[0]["prices"]["student"], 350)
+                self.assertIsNone(records[1]["prices"])
+                if len(records) == 3:
+                    self.assertEqual(records[-1]["prices"]["student"], 450)
+
+    def test_shared_price_provenance_cannot_cross_counter_or_change_owner(self):
+        original = self.parse(page(meal(name="A", prices="") + meal(name="B")))
+        for field, value in (("location", "Other counter"), ("source_name", "Unknown dish"),
+                             ("source_raw", "S: 4,50 | M: 4,65 | G: 5,35")):
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                menu = copy.deepcopy(original)
+                record = menu["days"][0]["meals"][0]
+                if field == "location":
+                    record[field] = value
+                else:
+                    record["price_source"][field.removeprefix("source_")] = value
+                collector.validate_menu(menu)
 
     def test_missing_price_group_fails(self):
         with self.assertRaises(ValueError):

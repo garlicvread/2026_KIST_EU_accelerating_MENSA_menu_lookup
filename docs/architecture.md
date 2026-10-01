@@ -25,7 +25,7 @@ flowchart TD
   Queue --> Schedule[schedule.py: 매일 9시·10시·11시 수집 판단]
   Runner --> Job[설정에 맞는 식단 갱신 작업]
   Job --> Service[RefreshService: 함수 호출 순서]
-  Service --> Source[menu_source: 원본 HTML 읽기]
+  Service --> Source[menu_source: 원본 HTML과 개별·공통 가격 읽기]
   Source --> Check[menu_contract: 메뉴와 가격 검사]
   Check --> Translate[번역 저장·재사용·필요한 모델 요청]
   Translate --> Complete[publication: 모든 표시 데이터 검사]
@@ -64,7 +64,7 @@ GitHub 실행을 요청하고 조회하는 `GitHubPublication`([`mensa/github_pu
 
 | 수정할 내용 | 담당 파일과 함수의 일 |
 | --- | --- |
-| 원본 페이지 형태 | [`scripts/menu_source.py`](../scripts/menu_source.py)가 HTML을 읽고 메뉴를 추출하며, 별도 항목 개수 검사와 대조합니다. |
+| 원본 페이지 형태 | [`scripts/menu_source.py`](../scripts/menu_source.py)가 HTML을 읽고 메뉴를 추출하며, 별도 항목 개수 검사와 대조합니다. 같은 판매대의 마지막 가격표가 하나뿐이면 나열된 메뉴들의 공통 가격으로 적용합니다. |
 | 날짜·ID·가격 규칙 | [`mensa/menu_contract.py`](../mensa/menu_contract.py)가 메뉴 형식과 같은 원본 가격의 정수 센트를 검사합니다. |
 | 번역 key·표현·재사용 | [`mensa/translation_contract.py`](../mensa/translation_contract.py)가 원문으로 key를 계산하고 번역 형식/표현/모델 버전을 검사합니다. |
 | 주의 표시·전체 게시 가능 여부 | [`mensa/notice_contract.py`](../mensa/notice_contract.py)와 [`publication.py`](../mensa/publication.py)가 검토 대응표와 모든 메뉴 번역을 검사합니다. |

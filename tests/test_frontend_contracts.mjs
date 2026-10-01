@@ -114,6 +114,32 @@ test('menu enforces ordered coverage and correlated price provenance', () => {
   assert.deepEqual(contracts.validateMenu(value), value);
 });
 
+test('shared counter prices retain the source owner and reject cross-counter associations', () => {
+  function sharedMenu() {
+    const value = menu();
+    const owner = value.days[0].meals[0];
+    const dish = structuredClone(owner);
+    dish.id = `2026-09-28-${'b'.repeat(64)}`;
+    dish.name_de = 'Käsespätzle';
+    dish.price_source.scope = 'counter';
+    value.days[0].meals.unshift(dish);
+    return value;
+  }
+  const value = sharedMenu();
+  assert.deepEqual(contracts.validateMenu(value), value);
+  rejected(contracts.validateMenu, sharedMenu, [
+    ['other counter', m => { m.days[0].meals[0].location = 'Elsewhere'; }],
+    ['wrong source owner', m => { m.days[0].meals[0].price_source.name = 'Unknown'; }],
+    ['unknown scope', m => { m.days[0].meals[0].price_source.scope = 'day'; }],
+    ['missing owner', m => { m.days[0].meals.pop(); }],
+    ['owner is not last', m => { m.days[0].meals.reverse(); }],
+    ['changed common price', m => {
+      m.days[0].meals[0].prices.student = 400;
+      m.days[0].meals[0].price_source.raw = 'S: 4,00 | M: 2,00 | G: 3,00';
+    }],
+  ]);
+});
+
 test('translations validate display source, bilingual components and exact notice mappings', () => {
   rejected(contracts.validateTranslations, cache, [
     ['schema boolean', c => { c.schema_version = true; }],

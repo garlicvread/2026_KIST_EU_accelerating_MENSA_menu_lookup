@@ -20,7 +20,7 @@ interface MealFields {
   readonly components: readonly Component[];
   readonly notices: readonly string[];
 }
-interface PriceSource { readonly date: string; readonly category: string; readonly name: string }
+interface PriceSource { readonly date: string; readonly category: string; readonly name: string; readonly scope?: 'counter' }
 export type Meal = MealFields & (
   | { readonly price_status: 'verified'; readonly prices: Prices; readonly price_source: PriceSource & { readonly raw: string } }
   | { readonly price_status: 'source_pending'; readonly prices: null; readonly price_source: PriceSource & { readonly raw: null } }
@@ -115,10 +115,14 @@ function meal(value: unknown, day: string, ids: Set<string>): Meal {
     location: sourceText(item.location, 'location'), name_de: name,
     components: array(item.components, 'components').map(component), notices: notices(item.notices),
   };
-  const provenance = fields(item.price_source, ['date', 'category', 'name', 'raw'], 'price provenance');
-  if (provenance.date !== day || provenance.category !== category || provenance.name !== name) return invalid('price source association');
-  const priceSource: PriceSource = { date: day, category, name };
-  if (item.price_status === 'source_pending' && item.prices === null && provenance.raw === null) {
+  const sourceRecord = record(item.price_source, 'price provenance');
+  const shared = Object.hasOwn(sourceRecord, 'scope');
+  const provenance = fields(sourceRecord, shared ? ['date', 'category', 'name', 'raw', 'scope'] : ['date', 'category', 'name', 'raw'], 'price provenance');
+  const sourceName = sourceText(provenance.name, 'price source name');
+  if (provenance.date !== day || provenance.category !== category ||
+      (shared ? provenance.scope !== 'counter' : sourceName !== name)) return invalid('price source association');
+  const priceSource: PriceSource = { date: day, category, name: sourceName, ...(shared ? { scope: 'counter' as const } : {}) };
+  if (!shared && item.price_status === 'source_pending' && item.prices === null && provenance.raw === null) {
     return { ...common, price_status: 'source_pending', prices: null, price_source: { ...priceSource, raw: null } };
   }
   if (item.price_status !== 'verified') return invalid('price status');
@@ -152,7 +156,26 @@ export function validateMenu(input: unknown): MenuSnapshot {
     const date = isoDate(day.date, 'day date');
     if (date <= previous) return invalid('ordered unique dates');
     previous = date;
-    return { date, meals: array(day.meals, 'meals').map(value => meal(value, date, ids)) };
+    const meals = array(day.meals, 'meals').map(value => meal(value, date, ids));
+    // 공통 가격의 원문과 마지막 메뉴를 확인하여 다른 판매대의 가격이 섞이지 않게 합니다.
+    const counters = new Map<string, Meal[]>();
+    for (const item of meals) {
+      const key = JSON.stringify([item.category, item.location]);
+      const group = counters.get(key) ?? []; group.push(item); counters.set(key, group);
+    }
+    for (const group of counters.values()) {
+      const shared = group.filter(item => item.price_source.scope === 'counter');
+      if (shared.length === 0) continue;
+      const owners = group.filter(item => item.price_status === 'verified' && item.price_source.scope === undefined);
+      const owner = owners[0];
+      if (owners.length !== 1 || owner !== group.at(-1) || owner?.price_status !== 'verified') return invalid('shared counter price owner');
+      for (const item of group) {
+        if (item.price_status !== 'verified' || item.prices.student !== owner.prices.student ||
+            item.prices.staff !== owner.prices.staff || item.prices.guest !== owner.prices.guest) return invalid('counter prices');
+      }
+      if (shared.some(item => item.price_source.name !== owner.name_de || item.price_source.raw !== owner.price_source.raw)) return invalid('shared price provenance');
+    }
+    return { date, meals };
   });
   if (days.length === 0 || days[0]?.date !== start || days[days.length - 1]?.date !== end) return invalid('coverage');
   return { schema_version: 1, source: { url: SOURCE_URL, fetched_at: timestamp(source.fetched_at), sha256: digest(source.sha256, 'source hash') }, coverage: { start, end }, days };

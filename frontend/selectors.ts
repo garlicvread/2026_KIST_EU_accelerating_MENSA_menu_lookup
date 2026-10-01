@@ -10,7 +10,7 @@ export function visibleMeals(day: MenuDay): readonly Meal[] {
       meal.category, meal.location, meal.name_de, meal.translation_key,
       meal.components.map(component => [component.name_de, component.notices]), meal.notices,
       meal.price_status, meal.prices === null ? null : [meal.prices.student, meal.prices.staff, meal.prices.guest],
-      [meal.price_source.date, meal.price_source.category, meal.price_source.name, meal.price_source.raw],
+      [meal.price_source.date, meal.price_source.category, meal.price_source.name, meal.price_source.raw, meal.price_source.scope],
     ]);
     if (seen.has(key)) return false;
     seen.add(key); return true;

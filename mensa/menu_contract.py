@@ -117,17 +117,39 @@ def _validate_schema(menu):
             _notice_list(meal["notices"])
             _require(meal["translation_key"] == _translation_key(meal["name_de"], meal["components"]), "Translation key mismatch")
             provenance = meal["price_source"]
-            _fields(provenance, "date category name raw", "price provenance")
-            _require((provenance["date"], provenance["category"], provenance["name"]) == identity,
+            _require(isinstance(provenance, dict), "Invalid price provenance")
+            shared = "scope" in provenance
+            _fields(provenance, "date category name raw" + (" scope" if shared else ""), "price provenance")
+            _require(not shared or provenance["scope"] == "counter", "Invalid price scope")
+            _string(provenance["name"], "price source name")
+            _require((provenance["date"], provenance["category"]) == identity[:2] and
+                     (shared or provenance["name"] == identity[2]),
                      "Price provenance does not match meal")
             if meal["prices"] is None:
-                _require(meal["price_status"] == "source_pending" and provenance["raw"] is None,
+                _require(not shared and meal["price_status"] == "source_pending" and provenance["raw"] is None,
                          "Pending price provenance mismatch")
             else:
                 _fields(meal["prices"], "student staff guest", "prices")
                 _require(meal["price_status"] == "verified", "Priced meal is not verified")
                 _require(all(type(value) is int for value in meal["prices"].values()), "Prices must be integer cents")
                 _require(meal["prices"] == _prices(provenance["raw"]), "Prices do not match raw source block")
+        # 공통 가격은 같은 날짜·판매대의 마지막 메뉴에 있는 단 하나의 가격표로 검증합니다.
+        # 다른 판매대의 값이나 여러 개의 개별 가격을 공통 가격으로 바꾸는 기록은 거부합니다.
+        counters = {}
+        for meal in day["meals"]:
+            counters.setdefault((meal["category"], meal["location"]), []).append(meal)
+        for meals in counters.values():
+            shared = [meal for meal in meals if meal["price_source"].get("scope") == "counter"]
+            if not shared:
+                continue
+            owners = [meal for meal in meals if meal["prices"] is not None and
+                      "scope" not in meal["price_source"]]
+            _require(len(owners) == 1 and owners[0] is meals[-1], "Invalid shared counter price owner")
+            owner = owners[0]
+            _require(all(meal["prices"] == owner["prices"] for meal in meals), "Counter prices disagree")
+            _require(all(meal["price_source"]["name"] == owner["name_de"] and
+                         meal["price_source"]["raw"] == owner["price_source"]["raw"] for meal in shared),
+                     "Shared price provenance does not match counter")
     _require(dates == sorted(set(dates)), "Days must be unique and ordered")
     _require(menu["coverage"] == {"start": dates[0], "end": dates[-1]}, "Coverage does not match extracted dates")
 

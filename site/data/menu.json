@@ -2,7 +2,7 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-01T22:55:50Z",
+    "fetched_at": "2026-10-01T23:17:05Z",
     "sha256": "a405321492062fbe74ef476f662033a4d0f9a75f74671d0ec4e78e33285693cc"
   },
   "coverage": {
@@ -892,13 +892,18 @@
             "Milch und Laktose",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-02",
             "category": "Wahlessen",
-            "name": "Käsespätzle",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -926,13 +931,18 @@
             "vegan",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-02",
             "category": "Wahlessen",
-            "name": "Vegan: Rote Bete Puffer paniert",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1172,13 +1182,18 @@
             "Milch und Laktose",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-05",
             "category": "Wahlessen",
-            "name": "mensaVital: KlimaTeller: Hähnchenstreifen in Rucolasoße mit Bandnudeln",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1205,13 +1220,18 @@
           "notices": [
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-05",
             "category": "Wahlessen",
-            "name": "KlimaTeller: Spaghetti (aus biologischem Anbau)",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1470,13 +1490,18 @@
             "Milch und Laktose",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-06",
             "category": "Wahlessen",
-            "name": "Pizza Griechischer Art",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1505,13 +1530,18 @@
             "Senf",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-06",
             "category": "Wahlessen",
-            "name": "KlimaTeller: Vegane Wraps Griechische Art mit Sojagyros",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1739,13 +1769,18 @@
             "Schweinefleisch",
             "Milch und Laktose"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Wahlessen",
-            "name": "Hoorische Saarländische Kartoffelspeise, Specksoße, Sauerkraut",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1772,13 +1807,18 @@
             "Sesamsamen",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Wahlessen",
-            "name": "Chicken Schnitzel Burger mit knackigem Salat",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -1805,13 +1845,18 @@
             "Hafer",
             "Dinkel"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Wahlessen",
-            "name": "KlimaTeller: Veggie Schnitzel Burger mit knackigem Salat",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -2053,13 +2098,18 @@
             "Senf",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Fish and chips",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -2076,13 +2126,18 @@
             "Milch und Laktose",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Flammkuchen Elsässer Art",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -2096,13 +2151,18 @@
             "Milch und Laktose",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Flammkuchen mit buntem Gemüse",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -2340,13 +2400,18 @@
             "Senf",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-09",
             "category": "Wahlessen",
-            "name": "Dönerwrap mit Aiolisoße",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -2362,13 +2427,18 @@
             "Schwefeldioxid / Sulfite",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-09",
             "category": "Wahlessen",
-            "name": "KlimaTeller: Vegan: Süßkartoffel-Gnocchi-Pfanne mit Tomaten und Basilikum",
-            "raw": null
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {

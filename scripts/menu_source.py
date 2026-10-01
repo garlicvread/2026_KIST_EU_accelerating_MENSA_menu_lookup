@@ -270,6 +270,7 @@ def _parse_menu(html, fetched_at):
             _require(location or category == "Information", "Empty counter location")
             meals = counter.by_class("meal")
             _require(meals, "Counter has no source meals")
+            counter_start = len(records)
             for source_meal in meals:
                 _require(_nearest(source_meal, lambda n: "counter" in n.classes) is counter,
                          "Orphan or nested meal")
@@ -331,6 +332,17 @@ def _parse_menu(html, fetched_at):
                         "components": components, "notices": notices, "prices": prices,
                         "price_status": "verified" if prices is not None else "source_pending",
                         "price_source": {"date": day, "category": category, "name": name, "raw": raw}})
+            counter_records = records[counter_start:]
+            # 같은 판매대의 메뉴 목록 끝에 가격표가 하나만 있으면 공통 가격으로 적용합니다.
+            # 여러 개의 가격표가 있으면 각 메뉴의 개별 가격을 유지합니다. 공통 가격의
+            # 원문이 실제로 붙어 있던 마지막 메뉴 이름과 적용 범위를 함께 기록합니다.
+            priced = [record for record in counter_records if record["prices"] is not None]
+            if len(counter_records) > 1 and len(priced) == 1 and priced[0] is counter_records[-1]:
+                source = priced[0]
+                for record in counter_records[:-1]:
+                    record["prices"] = dict(source["prices"])
+                    record["price_status"] = "verified"
+                    record["price_source"] = {**source["price_source"], "scope": "counter"}
         days.append({"date": day, "meals": records})
 
     # 읽은 구조의 종류별 수가 독립 집계와 달라지면 부분 결과를 거부합니다. Information도
