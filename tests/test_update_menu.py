@@ -1,4 +1,6 @@
 import json
+import io
+from contextlib import redirect_stdout
 from pathlib import Path
 import tempfile
 import unittest
@@ -11,13 +13,48 @@ from scripts.menu_source import parse_menu
 from test_menu_source import page, meal
 
 
+def complete_cache(menu):
+    texts = {text for day in menu["days"] for record in day["meals"]
+             for text in [record["name_de"], *[c["name_de"] for c in record["components"]]]}
+    phrases = {text: {"en": "Dish", "ko": "요리"} for text in texts}
+    return build_translations(menu, {}, phrases, None)
+
+
 class SnapshotTests(unittest.TestCase):
+
+    def test_validate_only_rejects_missing_second_current_meal_translation(self):
+        menu = parse_menu(page(meal() + meal(name="Second dish")))
+        cache = complete_cache(menu)
+        second = menu["days"][0]["meals"][1]
+        del cache["entries"][second["translation_key"]]
+        with patch("scripts.update_menu.read_json", side_effect=[menu, cache]), \
+                patch("sys.argv", ["update_menu", "--validate-only"]), redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(SystemExit, "Missing meal translation.*Second dish"):
+                main()
+
+    def test_incomplete_meal_cache_preserves_both_files_without_staging(self):
+        menu = parse_menu(page())
+        cache = complete_cache(menu)
+        cache["entries"].clear()
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            (directory / "menu.json").write_text('{"old": "menu"}')
+            (directory / "translations.json").write_text('{"old": "translations"}')
+            before = {p.name: p.read_bytes() for p in directory.iterdir()}
+            with self.assertRaisesRegex(ValueError, "Missing meal translation"):
+                write_snapshot(directory, menu, cache)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
+            absent = directory / "uncreated"
+            with self.assertRaisesRegex(ValueError, "Missing meal translation"):
+                write_snapshot(absent, menu, cache)
+            self.assertFalse(absent.exists())
+
     def test_unknown_notice_during_update_preserves_both_published_files(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             directory = root / "site" / "data"
             previous = parse_menu(page(date="21.09.2099"))
-            cache = build_translations(previous, {}, {}, None)
+            cache = complete_cache(previous)
             write_snapshot(directory, previous, cache)
             before = {p.name: p.read_bytes() for p in directory.iterdir()}
             changed = page(date="21.09.2099").replace("Weizen", "New unreviewed source label")
@@ -27,7 +64,9 @@ class SnapshotTests(unittest.TestCase):
 
     def test_validate_only_requires_current_notice_coverage(self):
         menu = parse_menu(page())
-        with patch("scripts.update_menu.read_json", side_effect=[menu, {"schema_version": 1, "entries": {}}]), \
+        cache = complete_cache(menu)
+        cache["notices"].pop("Weizen")
+        with patch("scripts.update_menu.read_json", side_effect=[menu, cache]), \
                 patch("sys.argv", ["update_menu", "--validate-only"]):
             with self.assertRaisesRegex(SystemExit, "[Nn]otice.*[Ww]eizen|[Nn]otice.*[Ss]ellerie"):
                 main()
@@ -56,7 +95,7 @@ class SnapshotTests(unittest.TestCase):
             root = Path(folder)
             directory = root / "site" / "data"
             previous = parse_menu(page())
-            cache = {"schema_version": 1, "entries": {}}
+            cache = complete_cache(previous)
             write_snapshot(directory, previous, cache)
             before = {p.name: p.read_bytes() for p in directory.iterdir()}
             with self.assertRaisesRegex(ValueError, "price|Price"):
@@ -67,7 +106,7 @@ class SnapshotTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             directory = Path(folder)
             menu = parse_menu(page())
-            cache = {"schema_version": 1, "entries": {}}
+            cache = complete_cache(menu)
             write_snapshot(directory, menu, cache)
             before = {p.name: p.read_bytes() for p in directory.iterdir()}
             import os
@@ -86,15 +125,6 @@ class SnapshotTests(unittest.TestCase):
             self.assertEqual(len(calls), 2)
             self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
 
-    def test_failed_validation_leaves_both_files_byte_identical(self):
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            (root / "menu.json").write_text('{"old": "menu"}')
-            (root / "translations.json").write_text('{"old": "translations"}')
-            before = {p.name: p.read_bytes() for p in root.iterdir()}
-            with self.assertRaises(ValueError):
-                write_snapshot(root, {"days": []}, {"entries": {}}, previous=None)
-            self.assertEqual(before, {p.name: p.read_bytes() for p in root.iterdir()})
 
     def test_expired_source_cannot_be_published_as_a_fresh_fetch(self):
         with self.assertRaises(ValueError):

@@ -1,98 +1,71 @@
 # Saarbrücken Mensa
 
-A mobile menu reader with daily/weekly views, Korean/English/German, student/staff/guest prices, German originals and source notices.
+이 웹사이트는 Saarbrücken 멘자의 독일어 식단을 한국어·영어·독일어로 보여 줍니다. 이용자는 하루/주간 보기를 선택하고 학생·교직원·방문객 가격, 독일어 원문, 곁들임 음식과 주의 표시를 확인할 수 있습니다.
 
-[Public menu](https://garlicvread.github.io/2026_KIST_EU_accelerating_MENSA_menu_lookup/) · [Original source](https://www.stw-saarland.de/gastro/mensa-saarbruecken/)
+[공개 식단](https://garlicvread.github.io/2026_KIST_EU_accelerating_MENSA_menu_lookup/) · [원본 식단](https://www.stw-saarland.de/gastro/mensa-saarbruecken/)
 
-This is an independent viewer. Menus and prices may change after collection.
+## 프로그램이 식단을 준비하고 보여 주는 방식
 
-## Local AI and durable refresh queue
+식단을 주기적으로 준비하는 Python 프로그램을 워커라고 부릅니다. 실행 명령은 [`scripts/local_refresh.py`](scripts/local_refresh.py)에 있습니다. 이 프로그램은 원본 웹페이지를 읽고 메뉴·가격을 검사한 뒤 요리 이름과 곁들임 음식을 번역합니다. 검사를 통과한 메뉴와 번역은 JSON 파일로 저장합니다.
 
-A local Mac worker handles collection and translation. GitHub holds the validated JSON and serves the static site. Visitors never connect to the Mac. No hosted inference account or API key is required.
+이용자의 브라우저는 미리 준비한 HTML/CSS/JavaScript와 JSON 파일을 읽습니다. 브라우저 요청에 맞춰 식단을 생성하는 웹 백엔드나 데이터베이스 엔진은 없습니다. Python 프로그램이 진행 중인 작업과 이미 완료한 번역도 JSON 파일로 저장합니다. 운영자는 이 진행 기록을 웹서버에 공개하지 않습니다.
 
-Every Monday at 09:17 Europe/Berlin a new weekly refresh becomes due. The local worker checks every 15 minutes and on login. If the computer was off, it reconstructs the most recent due request from the durable completion record; the request does not expire while offline. Multiple missed collection weeks become one request for the latest menu.
+처음 프로젝트를 맡은 유지보수자는 [시작 안내](docs/getting-started.md)와 [유지보수 설명서](docs/maintenance.md)를 읽어 주세요. 웹사이트에 변경을 반영하는 운영자는 [사이트 배포 안내](docs/deployment.md)를 확인해 주세요.
 
-The lightweight check does not load an AI model. It waits while available memory is below 32 GiB, one-minute CPU load exceeds 60% of the logical CPU count (minimum threshold 2), or the Mac is on battery. It cannot measure every competing GPU workload; these are conservative readiness gates, not a general resource scheduler.
+코드를 수정하는 유지보수자는 [구조 문서](docs/architecture.md)에서 담당 함수와 파일을 먼저 찾고, [데이터 설명](docs/data-contract.md)에서 메뉴·번역 파일의 필드와 검사 규칙을 확인해 주세요. 서버 계정·경로·자동 실행을 준비하는 운영자는 [운영 문서](docs/operations.md)의 설정과 실행 절차를 따라 주세요.
 
-When ready, it:
+## 로컬에서 코드와 화면 확인하기
 
-1. Takes an exclusive process lock and synchronizes a dedicated clean checkout.
-2. Fetches the source and applies price/coverage validation against the previous snapshot.
-3. Reuses translations with unchanged source text; starts local Ollama only if new text needs inference.
-4. Translates dish names and components with Gemma 4, checks both languages and component counts, then shuts down its own model process group.
-5. Commits only the validated menu/translation JSON and pushes to GitHub.
-6. Dispatches one Pages deployment pinned to that commit; acknowledges the queue item only after success.
-
-Collection failures keep the previous public site and queued request. Retries use 15/30/60-minute backoff, capped at six hours. Publication checkpoints retain the commit and GitHub run ID across interruption. A failed deployment is retried as the same GitHub run. Ambiguous dispatch waits before trying again. An already successful publication is acknowledged after interruption. An unpublished snapshot that expires while the Mac is offline is replaced by a fresh collection before deployment.
-
-GitHub Actions now only validates and deploys snapshots. It has a manual trigger and no separate weekly schedule or push trigger: the local queue owns the weekly refresh, avoiding duplicate jobs. Recovery or an explicitly requested manual update can create extra deployment attempts.
-
-## Local installation and status
-
-Python 3.12+, Git and authenticated GitHub CLI are required. The worker uses a dedicated `main` checkout at `~/Library/Application Support/Mensa/checkout`, a task-specific Ollama CLI at `runtime/ollama`, and model weights under `models/`. These paths are outside the public repository.
-
-The configured local model is `gemma4:31b`. The initial smaller E2B trial made culinary errors and was not published. The 31B model and a small culinary glossary are used for the operational path. Existing editorial drafts are retained; the cache records which entries were actually model-generated. JSON validation does not prove semantic accuracy, so the German source remains visible.
-
-After preparing the dedicated checkout, runtime and model, register the user LaunchAgent:
+유지보수자는 Python 3.12 이상과 `Europe/Berlin` 시간대 데이터를 준비해 주세요. 브라우저용 TypeScript 코드를 JavaScript로 바꾸는 컴파일러는 [package.json](package.json)과 잠금 파일에 TypeScript 7.0.2로 지정되어 있습니다. 다음 명령은 README와 package.json이 있는 프로젝트 최상위 폴더에서 실행해 주세요.
 
 ```sh
-cd "$HOME/Library/Application Support/Mensa/checkout"
-python3 -m scripts.install_local_worker
-```
-
-The installer registers `io.github.garlicvread.mensa-refresh` with `RunAtLoad` and a 900-second interval. It does not create a model service. The user must be logged into macOS for this user agent to run. The computer is never forcibly woken.
-
-Inspect queue and recent results:
-
-```sh
-cd "$HOME/Library/Application Support/Mensa/checkout"
-python3 -m scripts.local_refresh --status
-cat "$HOME/Library/Application Support/Mensa/last-result.json"
-```
-
-Queue state is `queue.json`; the process lock is `worker.lock`; bounded model logs and worker stdout/stderr are in `logs/`. A pending request has its period, phase, retry time, last error and publication identifiers. Do not delete these files to force an update: they prevent lost work and duplicate publication.
-
-A manual worker check uses the same resource and due-date rules:
-
-```sh
-python3 -m scripts.local_refresh
-```
-
-Disable the local worker without deleting its queue:
-
-```sh
-launchctl bootout "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
-```
-
-An optional Codex follow-up checks queue failures and overdue publication and alerts in the existing task. The worker itself runs independently of Codex; Codex notifications require the app's automation to run.
-
-## Price and translation integrity
-
-Prices come only from the exact source meal identified by date, counter and German name. The raw S/M/G block is retained and compared with integer cents both in collection and in the browser. Raw source inventories are reconciled with extracted records. Missing previous prices, partial price groups, suspicious losses, invalid model JSON and incomplete translations block publication.
-
-Future source entries without a price block provide a source-price link. No price is borrowed from another dish or guessed by the model. The source PDF does not contain prices and is not a fallback.
-
-Ingredient, allergen and additive labels use a reviewed bilingual glossary in `data/notice-translations.json`. Every meal and side-dish notice is paired with its exact German original in Korean/English views. The weekly refresh checks notice coverage even when the dish translation is cached; an unknown label blocks publication and enters the existing retry/notification path until its glossary translation is reviewed.
-
-The model receives dish names and components only, never prices or allergen notices. Native Ollama requests are loopback-only, disable thinking, constrain JSON with a schema and require normal completion. Unknown output shapes or truncated responses fail closed. The existing optional OpenAI-compatible provider remains available for manual use but is not used by the queued local worker.
-
-Translated titles describe the food in the selected language. The `mensaVital` balanced-menu brand and `KlimaTeller` low-carbon label remain in the exact German subtitle, rather than being copied into Korean/English dish titles. A reviewed naming policy applies to cached, editorial and new model translations; validation rejects unresolved occurrences before publication. `Wikingertopf` is rendered as “Meatball stew” / “고기완자 스튜”, and `Köttbullar` as “Swedish meatballs” / “스웨덴식 미트볼”. These are culinary name translations, not additions to the source ingredient inventory. In particular, the viewer does not infer cream, vegetables or meat species from a generic recipe.
-
-Naming references: [mensaVital definition](https://www.mensavital.de/mensavital/ueber-mensavital/die-marke-mensavital), [Saarland KlimaTeller explanation](https://www.stw-saarland.de/nachhaltig/), and [EDEKA’s Wikingertopf recipe](https://www.edeka.de/rezeptwelt/rezepte/wikingertopf/).
-
-## Development and manual deployment
-
-```sh
+npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
 python3 -m unittest discover -s tests -v
-node --test tests/test_ui.mjs
+npm test
 python3 -m scripts.update_menu --validate-only
-python3 -m http.server 8000 --bind 127.0.0.1 --directory site
 ```
 
-To deploy an already committed, validated snapshot explicitly:
+`npm test`는 TypeScript를 컴파일한 뒤 브라우저 코드의 테스트를 실행합니다. `npm run typecheck`는 파일을 만들지 않고 타입을 검사하며 `npm run compile`은 `dist/frontend/`에 JavaScript를 만듭니다. 마지막 Python 명령은 저장된 `site/data/menu.json`과 `translations.json`의 형식·원문 연결·번역 완전성을 검사합니다. 이 명령은 원본 웹페이지를 가져오지 않으며 식단 날짜가 오늘까지 유효한지는 별도로 검사해야 합니다.
+
+웹서버가 제공할 폴더는 사이트 생성 프로그램 [`scripts/build_site.py`](scripts/build_site.py)가 만듭니다. 다음 예제의 `.tmp/build-example`은 아직 없는 폴더 이름을 골라 사용해 주세요. 프로그램은 기존 파일을 보호하기 위해 출력 폴더가 이미 있으면 중단합니다. 기존 폴더를 지우지 말고 `.tmp/build-example-2`처럼 다른 이름을 선택해 주세요.
 
 ```sh
-gh workflow run update-and-deploy.yml --ref main -f snapshot_sha="$(git rev-parse HEAD)"
+npm run build -- --output .tmp/build-example
+python3 -m http.server 8000 --bind 127.0.0.1 --directory .tmp/build-example
 ```
 
-The workflow verifies that the requested commit belongs to `main`, runs tests and validation, and uploads only `site/`. See [data-contract.md](docs/data-contract.md) for schemas.
+`npm run build`는 컴파일과 사이트 생성을 차례로 실행합니다. 사이트 생성 프로그램은 `site/`의 HTML/CSS/favicon·메뉴/번역과 `dist/frontend/`의 JavaScript를 읽고 `.tmp/build-example/`에 게시용 파일을 만듭니다. 개발용 모델·로그·작업 기록은 이 폴더에 넣지 않습니다. 브라우저로 확인할 때는 `site/` 입력 폴더가 아니라 이 명령이 만든 출력 폴더를 제공해 주세요.
+
+사이트 생성 명령의 기본 출력 폴더는 `.tmp/pages`입니다. Python 명령 `python3 -m scripts.build_site`를 직접 사용하면 컴파일은 실행되지 않으므로 먼저 `npm run compile`을 실행해 주세요. 모든 입력/출력 옵션은 [운영 문서](docs/operations.md#명령별-옵션과-기본값)에 설명되어 있습니다.
+
+## 실제 식단 갱신과 상태 확인하기
+
+운영자는 Python 프로그램에 설정 파일 위치(`--config`) 또는 Mac 전용 작업 폴더(`--base`) 중 하나를 지정합니다. 설정 파일은 코드 폴더, 공개하지 않을 작업 기록 폴더, 웹사이트 폴더와 모델·메모리/CPU·게시 방법을 지정합니다. [상대 경로 예제](config/worker.example.toml)와 [Linux 예제](deploy/worker.example.toml)는 운영자가 실제 경로와 모델 값을 채울 출발점입니다.
+
+Linux 자동 실행 예제 [`deploy/mensa-refresh.service`](deploy/mensa-refresh.service)는 프로그램을 OS 계정 `mensa`로 실행하도록 지정합니다. 운영자가 같은 프로그램을 수동으로 실행할 때도 이 계정을 사용해 주세요. 다른 계정으로 작업 기록 파일을 만들면 `mensa`가 다음 자동 실행에서 파일을 읽거나 고치지 못할 수 있습니다. 대상 계정의 프로젝트 폴더에서 사용할 명령은 다음과 같습니다.
+
+```sh
+python3 -m scripts.local_refresh --config /etc/mensa/worker.toml --status
+python3 -m scripts.local_refresh --config /etc/mensa/worker.toml
+```
+
+`--status`를 받은 프로그램은 설정의 작업 기록 폴더에서 `queue.json`의 대기 수집 시각 작업과 `last-result.json`의 마지막 실행 결과를 출력합니다. 프로그램은 파일을 수정하지 않고, 첫 실행 전에도 작업 기록 폴더를 만들지 않습니다. `--status` 없이 실행하면 대기 작업을 처리하되 매일 09:00·10:00·11:00 Berlin 시간, 실패 후 대기 시간과 메모리/CPU 기준을 지킵니다. 수동 실행도 강제 갱신은 아닙니다. 원본 페이지가 주중에 추가하는 가격과 구성을 반영하기 위해 프로그램은 하루 세 번 수집하며, 메뉴 이름과 구성품이 같으면 저장된 번역을 재사용합니다. 웹사이트는 새 메뉴·번역으로 최신 식단을 교체하며, 수집할 때마다 같은 메뉴를 추가하지 않습니다. `queue.json`에는 중복 실행을 막기 위한 완료 수집 시각과 대기 작업만 기록합니다.
+
+Mac에서는 LaunchAgent라는 로그인 사용자용 자동 실행 기능을 사용합니다. 아래 명령은 해당 로그인 사용자가 실행해 주세요. `--base`의 폴더에는 `checkout/` 코드, `runtime/ollama` 실행 파일, `models/` 모델 파일, `logs/` 로그와 작업 기록이 들어갑니다.
+
+```sh
+python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
+python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa"
+```
+
+Mac 자동 실행 파일을 작성·등록하는 [`scripts/install_local_worker.py`](scripts/install_local_worker.py)는 로그인 시와 900초 간격으로 위 Python 프로그램을 실행하도록 설정합니다. 이 경로는 고정 모델 `gemma4:31b`와 GitHub 게시 대상을 사용합니다. 운영자는 모델 실행 파일과 가중치를 별도로 준비해야 합니다.
+
+## 원본 데이터와 공개 파일을 다룰 때의 기준
+
+원본 수집 함수는 같은 메뉴가 반복되어도 각 발생에 다른 ID를 붙여 `menu.json`에 모두 남깁니다. 화면의 메뉴 선택 함수는 같은 날짜 안에서 ID 이외의 모든 내용이 같은 항목만 한 번 보여 줍니다. 일간·주간 화면 모두 이 규칙을 사용합니다.
+
+가격 검사 함수는 같은 날짜·분류·독일어 이름의 원본 S/M/G 금액과 학생/교직원/방문객의 정수 센트 가격을 대조합니다. 번역 모델은 가격이나 알레르기 표시를 만들지 않습니다. 주의 표시의 번역은 사람이 검토한 `data/notice-translations.json`에서 가져옵니다. 이용자는 정확한 독일어 이름과 주의 표시를 함께 확인해야 합니다.
+
+완성된 웹사이트에는 같은 식단의 `menu.json`과 `translations.json`을 함께 넣습니다. `data/current.json`은 이용자에게 보여 줄 두 파일의 폴더를 지정합니다. 실패 후 이미 완료한 번역이나 GitHub 게시 번호를 잊지 않도록 운영자는 작업 기록을 삭제하지 말고 [복구 절차](docs/operations.md#실패-확인과-재시도)를 따라 주세요.
+
+GitHub의 [`update-and-deploy.yml`](.github/workflows/update-and-deploy.yml)은 운영자가 지정한 main 커밋을 검사하고 사이트를 만들어 Pages에 게시합니다. 이 파일에는 push/주간 자동 실행 일정이 없습니다. Python 프로그램이 하루 세 번의 식단 갱신 작업을 판단하며 Linux timer나 Mac LaunchAgent는 그 프로그램을 실행할 기회만 제공합니다. 저장소 라이선스는 아직 결정되지 않았습니다.

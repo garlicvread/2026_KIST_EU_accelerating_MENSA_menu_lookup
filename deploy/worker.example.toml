@@ -1,0 +1,28 @@
+# 이 파일은 배포 설정을 지정하는 예시입니다. 실제 배포 준비와 구분하기 위해 안내드리며, systemd 작업 유닛이나 모델을 설치하거나 호스트를 검증하지 않습니다.
+# 메뉴 갱신 작업이 실제 설치한 모델을 사용하도록 운영자는 활성화하기 전에 이 파일을 /etc/mensa/worker.toml로 복사하고 모델 식별자를 바꾸어 주세요.
+# 아래 경로는 절대 경로입니다. 작업 파일이 서로 침범하지 않도록 운영자는 저장소 복제본, 비공개 작업 기록, 웹사이트 디렉터리를 겹치지 않게 지정해 주세요.
+[paths]
+checkout_dir = "/opt/mensa/worker-checkout"
+state_dir = "/var/lib/mensa/private"
+public_dir = "/srv/www/mensa"
+
+[inference]
+mode = "managed"
+provider = "ollama"
+# 운영자는 실제 사용할 모델을 지정하도록 아래 자리 표시자를 바꾸어 주세요. 이 값들은 개인용 기본 모델을 정하거나 모델 가중치를 확인하는 증거가 아닙니다.
+model = "replace-with-provisioned-model"
+revision = "replace-with-provisioned-revision"
+binary = "/var/lib/mensa/private/runtime/bin/ollama"
+models_dir = "/var/lib/mensa/private/runtime/models"
+log_dir = "/var/lib/mensa/private/runtime/logs"
+
+[resources]
+# 아래 값은 서버 자원 사용 기준의 예시입니다. 실제 호스트에서 실행할 수 있는지 판단하려면 운영자는 Linux, cgroup과 자원 제어 기능, GPU의 적합성을 검증해 주세요.
+platform = "linux"
+min_available_bytes = 8589934592
+max_load_per_cpu = 0.75
+
+[publication]
+mode = "directory"
+# mensa-refresh.service의 웹사이트 쓰기 권한은 기존 /srv/www/mensa/data로 제한됩니다. HTML과 정적 리소스는 별도로 게시해야 합니다.
+# 갱신 작업이 게시 데이터를 읽을 수 있도록 운영자는 먼저 완전한 정적 웹사이트를 게시하고 작업 실행 계정이 소유하며 읽을 수 있는 데이터 파일을 준비해 주세요.

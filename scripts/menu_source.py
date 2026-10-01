@@ -1,21 +1,29 @@
-"""Collect the public Saarbrücken menu without guessing missing source data.
+"""공개 Saarbrücken 식단의 HTML을 받아 날짜별 메뉴 스냅샷으로 변환합니다.
 
-The DOM extraction and a separate token inventory must agree before a snapshot
-can be returned. This intentionally fails closed when the source shape changes.
+fetch_html은 네트워크 접근을 담당하고, parse_menu는 전달된 문자열만 해석합니다.
+파서는 같은 날짜·판매대·이름의 반복 항목도 각각 보존하며, 추출한 구조의 종류별 수와
+별도로 센 원본 토큰 수를 비교하여 누락을 검사합니다. 메뉴 형식과 이전 공개 메뉴의 손실 검사는 mensa.menu_contract가
+담당하며, 이 모듈은 파일 저장·번역·공개를 수행하지 않습니다.
 """
 
 from collections import Counter
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 import hashlib
 from html.parser import HTMLParser
-import json
 import re
 import time
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+# 수집 스크립트가 사용하는 계약 함수와 기존 scripts.menu_source 호출자의 가져오기
+# 경로를 함께 제공합니다. 스키마·가격·식별자 규칙은 mensa.menu_contract에서 관리합니다.
+from mensa.menu_contract import (
+    SOURCE_URL, PRICE_PATTERN, validate_menu,
+    _require, _text, _digest, _translation_key, _meal_id, _source_date, _iso_date,
+    _prices, _fields, _string, _notice_list, _validate_schema, _validate_previous,
+)
 
-SOURCE_URL = "https://www.stw-saarland.de/gastro/mensa-saarbruecken/"
+
 FETCH_TIMEOUT = 20
 FETCH_ATTEMPTS = 3
 MAX_SOURCE_BYTES = 5_000_000
@@ -24,56 +32,15 @@ TRACKED_CLASSES = frozenset(("meal", "open-feedback", "counter", "component-item
                              "component-name", "component-notices", "meal-notices", "notices"))
 PRICE_MARKER = re.compile(r"\bPreise\s*:", re.IGNORECASE)
 GROUP_MARKER = re.compile(r"\b[SMG]\s*:")
-PRICE_PATTERN = re.compile(r"S:\s*(\d+)[,.](\d{2})\s*\|\s*M:\s*(\d+)[,.](\d{2})\s*\|\s*G:\s*(\d+)[,.](\d{2})")
-
-
-def _require(condition, message):
-    if not condition:
-        raise ValueError(message)
-
-
-def _text(value):
-    return " ".join(value.split())
-
-
-def _digest(value):
-    payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
-def _translation_key(name, components):
-    return _digest({"name_de": name, "components": [item["name_de"] for item in components]})
-
-
-def _meal_id(day, category, name, occurrence=1):
-    base = day + "-" + _digest({"date": day, "category": category, "name": name})
-    return base if occurrence == 1 else f"{base}-{occurrence}"
-
-
-def _source_date(value):
-    _require(isinstance(value, str) and re.fullmatch(r"\d{2}\.\d{2}\.\d{4}", value),
-             "Missing or invalid source day metadata")
-    return datetime.strptime(value, "%d.%m.%Y").date().isoformat()
-
-
-def _iso_date(value):
-    _require(isinstance(value, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", value), "Invalid ISO date")
-    date.fromisoformat(value)
-    return value
-
-
-def _prices(raw):
-    _require(isinstance(raw, str), "Price block is not text")
-    matched = PRICE_PATTERN.fullmatch(raw)
-    _require(matched is not None, "Malformed, partial, or duplicate S/M/G price block")
-    groups = matched.groups()
-    amounts = [int(groups[i]) * 100 + int(groups[i + 1]) for i in range(0, 6, 2)]
-    _require(all(0 < value <= 100_000 for value in amounts), "Price outside valid range")
-    return dict(zip(("student", "staff", "guest"), amounts))
 
 
 def fetch_html(url=SOURCE_URL):
-    """Fetch UTF-8 source with at most three 20-second network attempts."""
+    """허용된 SOURCE_URL에서 UTF-8 HTML 문자열을 가져오며, 실패하면 ValueError를 발생시킵니다.
+
+    요청마다 20초 제한을 적용하고 최대 세 번 시도하며 재시도 사이에는 대기합니다.
+    다른 주소로의 응답, HTML 이외의 형식, 빈 본문·과도한 크기·잘못된 UTF-8을 거부하여
+    파서가 다른 문서나 손상된 원본을 메뉴로 받아들이지 않도록 합니다.
+    """
     _require(url == SOURCE_URL, "Unexpected menu source URL")
     request = Request(url, headers={"User-Agent": "SaarbrueckenMensaMenu/1.0 (+public menu collector)",
                                     "Accept": "text/html", "Accept-Encoding": "identity"})
@@ -94,6 +61,12 @@ def fetch_html(url=SOURCE_URL):
 
 
 class _Node:
+    """HTML 요소의 속성·부모·자식·닫힘 여부를 보관하는 파서 내부 트리입니다.
+
+    all과 by_class는 자손만 조회하고, text는 자식 순서대로 문자열을 합칩니다.
+    원본의 계층과 문구를 유지하며 공백 정규화는 해당 값을 해석하는 단계에서 수행합니다.
+    """
+
     def __init__(self, tag, attrs=None, parent=None):
         self.tag = tag
         self.attrs = {key: value if value is not None else "" for key, value in (attrs or [])}
@@ -116,6 +89,13 @@ class _Node:
 
 
 class _DOM(HTMLParser):
+    """HTML 이벤트를 _Node 트리로 만들고 종료 태그 또는 빈 요소의 닫힘 상태를 표시합니다.
+
+    중복 속성은 즉시 거부합니다. 종료 태그가 상위 요소와 맞으면 열린 자손을 스택에서
+    제거하되 자손을 닫힌 것으로 표시하지 않아, 이후 메뉴 구조 검사가 잘린 요소를
+    발견할 수 있게 합니다. HTML 전체의 문법 검증은 이 클래스의 책임이 아닙니다.
+    """
+
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.root = _Node("root")
@@ -145,7 +125,12 @@ class _DOM(HTMLParser):
 
 
 class _RawInventory(HTMLParser):
-    """Count raw tokens, independently of DOM selectors and extraction loops."""
+    """DOM 조회와 별도로 구조 클래스·메타데이터·가격 표시의 등장 횟수를 셉니다.
+
+    구조 클래스와 메타데이터는 문서 전체에서 세고, 가격 표시는 판매대 또는 메뉴 요소
+    안에서만 셉니다. 추출 루프가 읽지 못한 요소도 집계하여 종류별 누락을 드러냅니다.
+    텍스트 전체의 일치나 모든 종류의 HTML 변경을 판별하는 검사는 아닙니다.
+    """
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -180,6 +165,7 @@ class _RawInventory(HTMLParser):
 
 
 def _nearest(node, predicate):
+    """node 자신을 제외한 조상 중 predicate를 처음 만족하는 요소 또는 None을 반환합니다."""
     parent = node.parent
     while parent is not None:
         if predicate(parent):
@@ -189,19 +175,27 @@ def _nearest(node, predicate):
 
 
 def _one(nodes, message):
+    """필수 요소가 정확히 하나일 때만 반환하여 임의의 첫 항목으로 모호함을 숨기지 않습니다."""
     _require(len(nodes) == 1, message)
     return nodes[0]
 
 
 def _notices(node):
-    # The publisher uses runs of NBSPs between notices; spaces within a notice
-    # ("Milch und Laktose") are significant and must not split that notice.
+    """안내 요소의 문구를 구분자별로 나누고 공백을 정리한 문자열 목록을 반환합니다."""
+    # 원본 사이트는 안내 문구 사이에 NBSP를 연속해서 넣습니다. _notices는 문구 내부의
+    # 공백("Milch und Laktose")에 의미가 있으므로 이 공백으로 문구를 나누지 않습니다.
     values = re.split(r"\xa0{2,}|\n+|\s*\|\s*", node.text())
     return [_text(value) for value in values if _text(value)]
 
 
 def parse_menu(html, fetched_at=None):
-    """Extract all source meals; raise ValueError instead of partial output."""
+    """HTML 문자열에서 검증된 메뉴 사전을 반환하고 잘못된 원본은 ValueError로 거부합니다.
+
+    fetched_at으로 수집 시간을 전달할 수 있으며, 값이 없으면 현재 UTC 시간을 기록합니다.
+    반환값에는 원본 문자열의 SHA256과 추출 날짜 범위가 포함됩니다. Information 항목은
+    구조 검사에 포함하지만 식사 목록에서 제외합니다. 파일이나 네트워크에 접근하지 않으며,
+    이전 메뉴와의 손실 비교는 호출자가 validate_menu에 previous를 전달하여 수행합니다.
+    """
     _require(isinstance(html, str) and html.strip(), "Empty HTML source")
     try:
         return _parse_menu(html, fetched_at)
@@ -210,6 +204,7 @@ def parse_menu(html, fetched_at=None):
 
 
 def _parse_menu(html, fetched_at):
+    """두 파서의 결과를 대조하며 날짜·판매대·요리·구성품·가격을 메뉴 계약에 맞게 추출합니다."""
     dom, inventory = _DOM(), _RawInventory()
     dom.feed(html)
     dom.close()
@@ -220,6 +215,8 @@ def _parse_menu(html, fetched_at):
                 or node.attrs.get("id", "").startswith(("day-", "tab-day-"))]
     _require(all(node.closed for node in relevant), "Truncated or malformed menu structure")
 
+    # 탭의 날짜와 패널의 상호 참조가 일대일이어야 메뉴를 그 날짜에 귀속할 수 있습니다.
+    # 같은 수의 탭·패널만으로는 빠진 날짜나 서로 바뀐 연결을 배제할 수 없습니다.
     tabs = [node for node in nodes if node.attrs.get("id", "").startswith("tab-day-")]
     panels = [node for node in nodes if node.attrs.get("id", "").startswith("day-")]
     _require(tabs and panels and len(tabs) == len(panels), "Missing day tab/panel coverage")
@@ -242,6 +239,7 @@ def _parse_menu(html, fetched_at):
     extracted_counts = Counter()
 
     def consume(node):
+        """읽은 원본 요소를 한 번만 집계하고 중첩 구조의 중복 추출을 거부합니다."""
         _require(node not in consumed, "Overlapping or duplicate menu structures")
         _require(node.closed, "Unclosed source data element")
         consumed.add(node)
@@ -257,6 +255,8 @@ def _parse_menu(html, fetched_at):
         counters = panel.by_class("counter")
         _require(counters, "Day has no menu counters")
         for counter in counters:
+            # 자손 조회만으로는 중첩된 다른 판매대의 항목도 포함될 수 있으므로 가장 가까운
+            # 소유 요소를 확인합니다. 메뉴와 구성품에도 같은 소유 관계 검사를 적용합니다.
             _require(_nearest(counter, lambda n: n in panels) is panel, "Orphan counter")
             consume(counter)
             heading = _one([node for node in counter.children if isinstance(node, _Node) and node.tag == "h3"],
@@ -306,6 +306,8 @@ def _parse_menu(html, fetched_at):
                 _require(len(price_nodes) <= 1, "Duplicate price block")
                 raw = None
                 prices = None
+                # 가격 표시가 없으면 미확인 상태를 보존합니다. 표시가 있으면 S/M/G 전체를
+                # _prices가 검증하므로 일부 금액만 채우거나 누락 가격을 추측하지 않습니다.
                 if price_nodes:
                     label = price_nodes[0]
                     block = label.parent
@@ -319,6 +321,8 @@ def _parse_menu(html, fetched_at):
                     extracted_counts["price-markers"] += 1
                     extracted_counts["price-groups"] += 3
                 if category != "Information":
+                    # 동일한 요리가 여러 번 등장해도 원본 항목을 합치지 않습니다. 등장 순서로
+                    # 고유 ID를 만들고, 이름·구성품이 같은 항목은 번역 키를 공유하게 합니다.
                     identity_occurrences[(day, category, name)] += 1
                     records.append({
                         "id": _meal_id(day, category, name, identity_occurrences[(day, category, name)]),
@@ -329,8 +333,9 @@ def _parse_menu(html, fetched_at):
                         "price_source": {"date": day, "category": category, "name": name, "raw": raw}})
         days.append({"date": day, "meals": records})
 
-    # This comparison uses the raw event inventory rather than the DOM query
-    # population, catching renamed, orphaned, and unconsumed source structures.
+    # 읽은 구조의 종류별 수가 독립 집계와 달라지면 부분 결과를 거부합니다. Information도
+    # 집계하므로 식사 목록에서 제외한 항목이 원본 누락처럼 취급되지 않습니다. 이 대조는
+    # 추적 대상 토큰의 범위를 검사하며, 원본 바이트의 동일성이나 모든 변경을 보장하지 않습니다.
     _require(extracted_counts == inventory.counts,
              f"Source inventory mismatch: raw={dict(inventory.counts)}, extracted={dict(extracted_counts)}")
     days.sort(key=lambda item: item["date"])
@@ -342,99 +347,3 @@ def _parse_menu(html, fetched_at):
         "coverage": {"start": days[0]["date"], "end": days[-1]["date"]}, "days": days}
     validate_menu(result)
     return result
-
-
-def _fields(value, required, label):
-    _require(isinstance(value, dict) and set(value) == set(required.split()), f"Invalid {label} fields")
-
-
-def _string(value, label):
-    _require(isinstance(value, str) and bool(value.strip()) and value == _text(value), f"Invalid {label}")
-
-
-def _notice_list(value):
-    _require(isinstance(value, list), "Notices must be a list")
-    for notice in value:
-        _string(notice, "notice")
-
-
-def validate_menu(menu, previous=None):
-    """Validate schema, source provenance, identities, and previous-data guards."""
-    try:
-        _validate_schema(menu)
-        if previous is not None:
-            _validate_schema(previous)
-            _validate_previous(menu, previous)
-    except (TypeError, KeyError, IndexError, OverflowError, RecursionError) as exc:
-        raise ValueError(f"Invalid menu data: {exc}") from exc
-
-
-def _validate_schema(menu):
-    _fields(menu, "schema_version source coverage days", "menu")
-    _require(type(menu["schema_version"]) is int and menu["schema_version"] == 1, "Unsupported schema version")
-    source = menu["source"]
-    _fields(source, "url fetched_at sha256", "source")
-    _require(source["url"] == SOURCE_URL, "Unexpected source URL")
-    _require(isinstance(source["sha256"], str) and re.fullmatch(r"[0-9a-f]{64}", source["sha256"]), "Invalid source hash")
-    _require(isinstance(source["fetched_at"], str), "Invalid fetch timestamp")
-    timestamp = datetime.fromisoformat(source["fetched_at"].replace("Z", "+00:00"))
-    _require(timestamp.tzinfo is not None, "Fetch timestamp needs timezone")
-    _fields(menu["coverage"], "start end", "coverage")
-    _require(isinstance(menu["days"], list) and menu["days"], "No menu days")
-    dates, identities, ids = [], Counter(), set()
-    for day in menu["days"]:
-        _fields(day, "date meals", "day")
-        current_date = _iso_date(day["date"])
-        dates.append(current_date)
-        _require(isinstance(day["meals"], list), "Meals must be a list")
-        for meal in day["meals"]:
-            _fields(meal, "id translation_key category location name_de components notices prices price_status price_source", "meal")
-            for name in ("id", "translation_key", "category", "location", "name_de"):
-                _string(meal[name], name)
-            _require(meal["category"] != "Information", "Information is not a meal")
-            identity = (current_date, meal["category"], meal["name_de"])
-            _require(meal["id"] not in ids, "Duplicate meal ID")
-            identities[identity] += 1
-            ids.add(meal["id"])
-            _require(meal["id"] == _meal_id(*identity, identities[identity]), "Meal ID does not match source identity")
-            _require(isinstance(meal["components"], list), "Components must be a list")
-            for component in meal["components"]:
-                _fields(component, "name_de notices", "component")
-                _string(component["name_de"], "component name")
-                _notice_list(component["notices"])
-            _notice_list(meal["notices"])
-            _require(meal["translation_key"] == _translation_key(meal["name_de"], meal["components"]), "Translation key mismatch")
-            provenance = meal["price_source"]
-            _fields(provenance, "date category name raw", "price provenance")
-            _require((provenance["date"], provenance["category"], provenance["name"]) == identity,
-                     "Price provenance does not match meal")
-            if meal["prices"] is None:
-                _require(meal["price_status"] == "source_pending" and provenance["raw"] is None,
-                         "Pending price provenance mismatch")
-            else:
-                _fields(meal["prices"], "student staff guest", "prices")
-                _require(meal["price_status"] == "verified", "Priced meal is not verified")
-                _require(all(type(value) is int for value in meal["prices"].values()), "Prices must be integer cents")
-                _require(meal["prices"] == _prices(provenance["raw"]), "Prices do not match raw source block")
-    _require(dates == sorted(set(dates)), "Days must be unique and ordered")
-    _require(menu["coverage"] == {"start": dates[0], "end": dates[-1]}, "Coverage does not match extracted dates")
-
-
-def _validate_previous(menu, previous):
-    current_days = {day["date"]: day["meals"] for day in menu["days"]}
-    for old_day in previous["days"]:
-        if old_day["date"] not in current_days:
-            _require(not (menu["coverage"]["start"] <= old_day["date"] <= menu["coverage"]["end"]),
-                     "Previously covered day disappeared inside current range")
-            continue
-        old_meals = old_day["meals"]
-        current = current_days[old_day["date"]]
-        # A small correction is possible; losing over a quarter of a published
-        # day's meals is unsafe to publish automatically and needs review.
-        _require(len(current) >= len(old_meals) * 0.75, "Suspicious loss of source meals on overlapping day")
-        current_identities = {(meal["category"], meal["name_de"]) for meal in current}
-        current_priced = Counter((meal["category"], meal["name_de"]) for meal in current if meal["prices"] is not None)
-        old_priced = Counter((meal["category"], meal["name_de"]) for meal in old_meals if meal["prices"] is not None)
-        for identity, count in old_priced.items():
-            if identity in current_identities:
-                _require(current_priced[identity] >= count, "Previously published same-meal prices disappeared")

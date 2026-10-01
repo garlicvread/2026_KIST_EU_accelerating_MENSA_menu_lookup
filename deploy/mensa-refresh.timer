@@ -1,0 +1,12 @@
+# 이 타이머는 갱신 작업을 실행할 기회를 제공합니다. 실제 일별 실행 여부를 결정하도록 작업 대기열 코드가 Europe/Berlin 기준 매일 09:00·10:00·11:00의 예정 시각을 계산하고 놓친 여러 날의 작업을 합칩니다.
+[Unit]
+Description=Periodic opportunity to process the Mensa refresh queue
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=15min
+AccuracySec=1min
+Unit=mensa-refresh.service
+
+[Install]
+WantedBy=timers.target

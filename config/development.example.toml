@@ -1,0 +1,5 @@
+# 작업 실행 여부를 분명히 하기 위해 안내드립니다. 이 설정 파일을 읽는 동작만으로는 메뉴 갱신 작업이 활성화되거나 시작되지 않습니다.
+[paths]
+checkout_dir = "../checkout"
+state_dir = "../state"
+public_dir = "../public"

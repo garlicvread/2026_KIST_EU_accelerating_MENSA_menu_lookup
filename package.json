@@ -1,0 +1,14 @@
+{
+  "name": "mensa-browser",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "tsc --project tsconfig.json",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "build": "npm run compile && python3 -m scripts.build_site",
+    "test": "npm run compile && node --test tests/*.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

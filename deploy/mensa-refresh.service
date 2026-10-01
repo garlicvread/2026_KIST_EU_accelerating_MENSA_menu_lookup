@@ -1,0 +1,29 @@
+# 이 파일은 systemd 메뉴 갱신 작업의 예시입니다. 실제 작업을 실행할 수 있도록 운영자는 먼저 경로, Python, 모델, 공개 데이터 파일을 준비해 주세요.
+[Unit]
+Description=Mensa configured refresh worker
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=mensa
+Group=mensa
+WorkingDirectory=/opt/mensa/worker-checkout
+ExecStart=/usr/bin/python3.12 -m scripts.local_refresh --config /etc/mensa/worker.toml
+Environment=PYTHONDONTWRITEBYTECODE=1
+UMask=0077
+StateDirectory=mensa/private
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/mensa/private /srv/www/mensa/data
+NoNewPrivileges=true
+KillMode=control-group
+KillSignal=SIGTERM
+FinalKillSignal=SIGKILL
+SendSIGKILL=yes
+# 메뉴 갱신 코드는 개별 요청의 시간을 제한합니다. 전체 작업은 여러 메뉴를 처리할 수 있으므로 systemd는 시작 시간에 제한을 두지 않습니다.
+TimeoutStartSec=infinity
+# 작업 코드가 자신이 시작한 프로세스 그룹을 정리할 시간을 확보하도록 중지 제한을 설정합니다. 종료 요청(TERM) 뒤의 10초와 강제 종료(KILL) 뒤의 5초 대기를 포함합니다.
+TimeoutStopSec=30s
+Restart=no

@@ -31,6 +31,7 @@
     "biologisches Esses": {"en": "Organic food", "ko": "유기농 식품"},
     "geschwefelt": {"en": "Treated with sulphites", "ko": "아황산염 처리됨"},
     "vegan": {"en": "Vegan", "ko": "비건"},
-    "vegetarisch": {"en": "Vegetarian", "ko": "채식"}
+    "vegetarisch": {"en": "Vegetarian", "ko": "채식"},
+    "Dinkel": {"en": "Spelt", "ko": "스펠트밀"}
   }
 }

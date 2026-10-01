@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .tmp/
+.autopilot/
 .venv/
 .env
 dist/
+node_modules/
