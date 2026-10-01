@@ -1,6 +1,8 @@
 import importlib
 import io
+import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 import plistlib
 import subprocess
@@ -87,6 +89,32 @@ class InstallLocalWorkerTests(unittest.TestCase):
         data = plistlib.loads(self.plist_path.read_bytes())
         self.assertEqual(data['ProgramArguments'][0], str(Path(sys.executable).absolute()))
         self.assertEqual(list(self.plist_path.parent.iterdir()), [self.plist_path])
+
+    def test_installed_worker_can_collect_from_existing_nonprivate_base(self):
+        """설치기는 기존 기록을 보존하며 작업자가 요구하는 비공개 폴더 권한을 준비해야 합니다."""
+        from mensa.jobs import JobRunner
+
+        self.base.chmod(0o755)
+        queue = self.base / 'queue.json'
+        previous = b'{"schema_version":1,"completed_period":"2026-09-28","pending":null}'
+        queue.write_bytes(previous)
+        menu = self.base / 'checkout/menu.json'
+        menu.write_bytes(b'existing menu')
+
+        with patch.object(self.installer.subprocess, 'run') as launchctl:
+            self.installer.install(self.base, load=False)
+        launchctl.assert_not_called()
+        self.assertEqual(queue.read_bytes(), previous)
+        self.assertEqual(menu.read_bytes(), b'existing menu')
+        self.assertEqual(self.base.stat().st_mode & 0o777, 0o700)
+
+        collected = []
+        runner = JobRunner(self.base, resources=lambda: (True, 'ready'),
+                           work=lambda state: collected.append(state['pending']['period']))
+        result = runner.run(datetime(2026, 10, 1, 17, tzinfo=timezone.utc))
+        self.assertEqual(result, {'status': 'completed', 'period': '2026-10-01T11:00'})
+        self.assertEqual(collected, ['2026-10-01T11:00'])
+        self.assertEqual(json.loads(queue.read_text())['completed_period'], '2026-10-01T11:00')
 
     def test_missing_dedicated_checkout_has_no_installation_side_effects(self):
         self.worker.unlink()

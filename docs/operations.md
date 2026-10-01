@@ -89,6 +89,12 @@ python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa
 
 Mac 코드 폴더는 base/checkout, Ollama 실행 파일은 base/runtime/ollama, 모델 파일은 base/models, 로그는 base/logs입니다. 프로그램은 base의 queue.json/last-result.json에 진행 기록을 저장하고 고정 모델 gemma4:31b와 `garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup`의 `update-and-deploy.yml`을 사용합니다. 설치 프로그램 `scripts.install_local_worker.py`는 사용자 plist를 작성해 로그인 시와 900초 간격의 실행을 등록합니다. 사용자 로그인이 필요하며 컴퓨터 강제 깨우기나 모델 설치는 하지 않습니다.
 
+Mac 설치 프로그램은 작업 기록 폴더인 base의 접근 권한을 `0700`으로 설정합니다. 이 권한은 폴더 소유자만 내부 파일을 읽고 변경할 수 있다는 뜻입니다. 실행 프로그램은 다른 사용자가 접근할 수 있는 작업 폴더를 거부합니다. `State directory must have private permissions` 오류가 발생하면 LaunchAgent를 등록한 사용자가 설치 프로그램을 다시 실행해 주세요. 설치 프로그램은 기존 큐 기록·모델·메뉴 파일을 보존하고 폴더 권한을 바로잡습니다. 다음 명령의 `--write-only`는 자동 실행을 시작하지 않고 설치 설정과 폴더 권한만 준비합니다.
+
+```sh
+python3 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa" --write-only
+```
+
 ## 설정으로 바꿀 값과 코드에 정해진 값
 
 운영자는 TOML의 memory/load 기준을 컴퓨터에 맞춰 정하고, Linux timer/Mac LaunchAgent의 실행 간격을 관리합니다. 아래 값은 현재 CLI가 사용하는 코드의 값이며 TOML 옵션이 아닙니다. 유지보수자가 이 값을 바꾸면 관련 함수의 검사도 함께 검토해야 합니다.

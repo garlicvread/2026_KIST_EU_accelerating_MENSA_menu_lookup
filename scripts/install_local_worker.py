@@ -1,7 +1,7 @@
 """현재 사용자의 macOS LaunchAgent 파일을 설치하고 선택적으로 launchd에 등록합니다.
 
 LaunchAgent는 전용 체크아웃에서 scripts.local_refresh를 실행하도록 정의합니다.
-이 설치기는 plist와 로그 디렉터리를 만들지만 큐 작업을 직접 실행하거나 모델을
+이 설치기는 작업 폴더를 소유자만 접근하도록 설정하고 plist와 로그 디렉터리를 만들지만 큐 작업을 직접 실행하거나 모델을
 내려받지 않습니다. 등록 후의 작업자 실행은 launchd가 정의된 조건에 따라 수행합니다.
 """
 
@@ -56,6 +56,7 @@ def _launchctl(*args, check=True):
 def install(base, load=True):
     """전용 체크아웃을 확인한 뒤 사용자 plist를 교체 저장하고 저장된 파일 경로를 반환합니다.
 
+    기존 작업 기록을 보존하고 base를 소유자만 접근할 수 있는 권한(0700)으로 설정합니다.
     ~/Library/LaunchAgents와 base/logs를 준비합니다. load가 참이면 현재 사용자의
     같은 LABEL 작업만 조회·해제한 뒤 새 정의를 등록합니다. load가 거짓이어도 파일과
     디렉터리는 쓰지만 등록 상태는 변경하지 않습니다. 실패가 발생하면 호출자에게
@@ -64,6 +65,10 @@ def install(base, load=True):
     base = Path(base).expanduser().resolve()
     if not (base / 'checkout/scripts/local_refresh.py').is_file():
         raise ValueError(f'Dedicated checkout is missing scripts/local_refresh.py: {base / "checkout"}')
+
+    # 설치기가 실행 프로그램의 비공개 상태 폴더 조건을 준비합니다. 기존 큐·모델·메뉴
+    # 파일은 수정하지 않고 전용 폴더 자체의 접근 권한만 제한합니다.
+    base.chmod(0o700)
 
     definition = generate_plist(base, sys.executable)
     destination = Path.home() / 'Library/LaunchAgents' / f'{LABEL}.plist'
