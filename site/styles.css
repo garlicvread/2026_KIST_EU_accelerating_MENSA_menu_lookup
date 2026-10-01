@@ -1040,6 +1040,11 @@ h2 {
 /* 작은 창에서도 날짜·가격 선택의 라벨과 선택값을 한 묶음으로 읽을 수 있게 합니다. */
 @media(max-width:600px) {
   .hero { padding: 22px 0 24px; }
+  /* 제목과 로고 크기를 창 폭에 맞추되 읽기 쉬운 최소 글자 크기를 유지합니다. */
+  .brand { gap: clamp(10px, 3vw, 14px); }
+  .brand-mark { width: clamp(44px, 15vw, 64px); height: auto; }
+  .wordmark h1 { font-size: clamp(20px, 7vw, 30px); }
+  html[lang="ko"] .wordmark h1 { word-break: keep-all; overflow-wrap: normal; }
   .navigation { padding-top: 16px; }
   /* 연도가 바뀌는 긴 날짜 범위는 줄을 나누어 옆 버튼과 겹치지 않게 합니다. */
   .week-range { white-space: normal; }
