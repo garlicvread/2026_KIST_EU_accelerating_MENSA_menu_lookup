@@ -95,6 +95,8 @@ Mac 설치 프로그램은 작업 기록 폴더인 base의 접근 권한을 `070
 python3 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa" --write-only
 ```
 
+메뉴 게시와 체크아웃 복구를 담당하는 `mensa/git_repository.py`는 알려지지 않은 저장소 변경을 거부합니다. 다만 Python이 `mensa/__pycache__/` 또는 `scripts/__pycache__/`에 생성했고 Git이 무시하는 일반 바이트코드 파일은 식단 변경으로 취급하지 않습니다. 프로그램은 이 캐시를 삭제하지 않습니다. 캐시 경로가 이동할 커밋의 추적 파일과 충돌하거나 다른 미확인 파일이 있으면 복구를 중단하여 기존 파일을 보호합니다.
+
 ## 설정으로 바꿀 값과 코드에 정해진 값
 
 운영자는 TOML의 memory/load 기준을 컴퓨터에 맞춰 정하고, Linux timer/Mac LaunchAgent의 실행 간격을 관리합니다. 아래 값은 현재 CLI가 사용하는 코드의 값이며 TOML 옵션이 아닙니다. 유지보수자가 이 값을 바꾸면 관련 함수의 검사도 함께 검토해야 합니다.

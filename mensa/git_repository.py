@@ -135,9 +135,26 @@ class SnapshotRepository:
         _require(_oid(value), 'Invalid Git object identity')
         return value
 
-    def _clean(self, *, include_ignored=True):
+    def _clean(self, *, include_ignored=True, target=None):
         flags = ('--ignored',) if include_ignored else ()
-        _require(not self._git('status', '--porcelain', '--untracked-files=all', *flags),
+        changes = self._git('status', '--porcelain', '--untracked-files=all', *flags).splitlines()
+        if include_ignored and changes:
+            # NUL 구분자로 읽어 한글·줄바꿈이 있는 경로도 Git의 인용 표기 없이 비교합니다.
+            tracked = set(self._git('ls-tree', '-r', '--name-only', '-z', target or 'HEAD').split('\0')) - {''}
+            remaining = []
+            for line in changes:
+                name = line[3:]
+                # Python이 실행 중 만든 캐시는 식단 변경이 아닙니다. Git이 무시하는
+                # 정상 캐시 파일만 허용하며, 이동할 커밋의 파일과 충돌하면 거부합니다.
+                cache = re.fullmatch(r'(?:mensa|scripts)/__pycache__/[A-Za-z_]\w*\.(?:cpython|pypy)-\d+(?:\.opt-[12])?\.pyc', name)
+                collision = any(name == path or name.startswith(path + '/') or path.startswith(name + '/')
+                                for path in tracked)
+                if (line.startswith('!! ') and cache and not collision and
+                        stat.S_ISREG((self._checkout / name).lstat().st_mode)):
+                    continue
+                remaining.append(line)
+            changes = remaining
+        _require(not changes,
                  'Unknown or unprepared repository changes; inspect before recovery')
 
     def _position(self):
@@ -221,7 +238,7 @@ class SnapshotRepository:
         journal = self._load() or self._new(period)
         _require(journal['replacement'] is None, 'An unresolved replacement already exists')
         _require(self._position() == ('main', snapshot_sha, snapshot_sha), 'Unknown worker HEAD/ref; inspect before recovery')
-        self._clean()
+        self._clean(target=upstream_sha)
         if upstream_sha == snapshot_sha:
             return False
         common = self._merge_base(snapshot_sha, upstream_sha)
@@ -307,10 +324,10 @@ class SnapshotRepository:
             sha = request['ready']
             _require(self._position() == ('main', sha, sha), 'Prepared replacement HEAD/ref changed')
             self._verify(journal['snapshot'], sha)
-            self._clean()
+            self._clean(target=sha)
             return {'status': 'ready', 'sha': sha, 'period': request['next_period']}
         S, M = request['original'], request['target']
-        self._clean()
+        self._clean(target=request['target'])
         position = self._position()
         if request['diverged']:
             _require(position in {('main', S, S), ('HEAD', M, S), ('HEAD', M, M), ('main', M, M)},
