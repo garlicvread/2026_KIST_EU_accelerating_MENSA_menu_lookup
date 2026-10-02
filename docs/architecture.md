@@ -12,7 +12,7 @@
 
 예정 수집 시각을 계산하는 함수는 [`mensa/schedule.py`](../mensa/schedule.py)에 있고, 대기 작업과 실패 후 재시도 시간을 관리하는 함수들은 [`mensa/queue.py`](../mensa/queue.py)에 있습니다. JobRunner는 이 함수들이 반환한 내용을 파일에 저장합니다. 실패하면 JobRunner는 중간에 저장된 queue.json을 다시 읽고 다음 재시도 시간을 기록합니다. 프로그램 중지 요청은 위로 전달되어 파일 잠금이 해제됩니다.
 
-식단 갱신의 호출 순서를 관리하는 **Python 클래스** `RefreshService`는 [`mensa/refresh_service.py`](../mensa/refresh_service.py)에 있습니다. 이 클래스는 원본 수집 함수를 호출하고, 메뉴/가격 검사와 현재 날짜 검사를 통과하면 번역 함수를 호출합니다. 이어 모든 필요한 번역과 주의 표시가 있는지 검사하고 파일 게시 함수를 호출합니다. 실제 HTTP는 원본 수집 함수가, 모델 요청은 번역 함수가, 파일 쓰기는 게시 함수가 수행합니다. RefreshService는 Linux 자동 실행 설정 파일 `deploy/mensa-refresh.service`와 별개의 이름입니다.
+식단 갱신의 호출 순서를 관리하는 Python 클래스 `RefreshService`는 [`mensa/refresh_service.py`](../mensa/refresh_service.py)에 있습니다. 이 클래스는 원본 수집 함수를 호출하고, 새 원본의 메뉴/가격 검사와 현재 날짜 검사를 먼저 수행합니다. 검사를 통과하면 `retain_published_days` 함수가 새 원본의 시작 날짜보다 앞선 기존 식단을 보존합니다. 같은 날짜의 메뉴는 새 원본으로 교체합니다. 이어 보존한 날짜까지 포함한 메뉴를 번역 함수에 전달하고, 모든 필요한 번역과 주의 표시가 있는지 검사한 뒤 파일 게시 함수를 호출합니다. 실제 HTTP는 원본 수집 함수가, 모델 요청은 번역 함수가, 파일 쓰기는 게시 함수가 수행합니다. RefreshService는 Linux 자동 실행 설정 파일 `deploy/mensa-refresh.service`와 별개의 이름입니다.
 
 유지보수자가 테스트할 때는 RefreshService에 원본/번역/게시 함수를 인자로 전달할 수 있습니다. 예를 들어 원본 페이지를 가져오는 함수 대신 저장된 HTML을 읽는 함수를 전달하면 네트워크 없이 같은 검사 순서를 확인할 수 있습니다. 데이터 검사 함수에는 HTTP나 파일 쓰기를 넣지 않고, 어느 함수를 어떤 순서로 실행할지는 RefreshService에서 관리해 주세요.
 
@@ -27,7 +27,8 @@ flowchart TD
   Job --> Service[RefreshService: 함수 호출 순서]
   Service --> Source[menu_source: 원본 HTML과 개별·공통 가격 읽기]
   Source --> Check[menu_contract: 메뉴와 가격 검사]
-  Check --> Translate[번역 저장·재사용·필요한 모델 요청]
+  Check --> Retain[retain_published_days: 지난 공개 날짜 보존·같은 날짜 최신 값 사용]
+  Retain --> Translate[번역 저장·재사용·필요한 모델 요청]
   Translate --> Complete[publication: 모든 표시 데이터 검사]
   Complete --> Publish[파일 또는 GitHub에 게시]
 ```
@@ -65,7 +66,7 @@ GitHub 실행을 요청하고 조회하는 `GitHubPublication`([`mensa/github_pu
 | 수정할 내용 | 담당 파일과 함수의 일 |
 | --- | --- |
 | 원본 페이지 형태 | [`scripts/menu_source.py`](../scripts/menu_source.py)가 HTML을 읽고 메뉴를 추출하며, 별도 항목 개수 검사와 대조합니다. 같은 판매대의 마지막 가격표가 하나뿐이면 나열된 메뉴들의 공통 가격으로 적용합니다. |
-| 날짜·ID·가격 규칙 | [`mensa/menu_contract.py`](../mensa/menu_contract.py)가 메뉴 형식과 같은 원본 가격의 정수 센트를 검사합니다. |
+| 날짜·ID·가격 규칙과 날짜 보존 | [`mensa/menu_contract.py`](../mensa/menu_contract.py)가 메뉴 형식과 같은 원본 가격의 정수 센트를 검사합니다. `retain_published_days`는 검사를 통과한 새 메뉴에 앞선 공개 날짜를 보존합니다. |
 | 번역 key·표현·재사용 | [`mensa/translation_contract.py`](../mensa/translation_contract.py)가 원문으로 key를 계산하고 번역 형식/표현/모델 버전을 검사합니다. |
 | 주의 표시·전체 게시 가능 여부 | [`mensa/notice_contract.py`](../mensa/notice_contract.py)와 [`publication.py`](../mensa/publication.py)가 검토 대응표와 모든 메뉴 번역을 검사합니다. |
 | 검토 문구 입력 | [`scripts/notices.py`](../scripts/notices.py)가 대응표를 읽으며, 유지보수자는 `data/notice-translations.json`과 `data/editorial-translations.json`을 편집합니다. |

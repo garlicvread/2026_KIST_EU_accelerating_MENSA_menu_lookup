@@ -128,6 +128,40 @@ class RefreshServiceTests(unittest.TestCase):
             self.service().refresh(previous, self.cache, {})
         self.assertEqual(self.events, ['source'])
 
+    def test_refresh_retains_earlier_dates_but_uses_new_overlap_and_drops_old_future(self):
+        previous = copy.deepcopy(self.menu)
+        old_overlap = parse_menu(page(date='22.09.2026'))
+        future = parse_menu(page(date='25.09.2026'))
+        previous['days'] += old_overlap['days'] + future['days']
+        previous['coverage']['end'] = '2026-09-25'
+        self.menu = parse_menu(page(meal(date='22.09.2026', prices=
+            '<p><strong>Preise:</strong> S: 4,00 | M: 5,00 | G: 6,00</p>'),
+            date='22.09.2026'), '2026-09-22T10:00:00Z')
+        before = copy.deepcopy((previous, self.menu))
+        observed = []
+        result, _ = self.service(
+            translate=lambda menu, *args, **kwargs: (observed.append(menu) or self.candidate),
+            publisher=lambda menu, *args, **kwargs: observed.append(menu),
+        ).refresh(previous, self.cache, {})
+        self.assertEqual([day['date'] for day in result['days']], ['2026-09-21', '2026-09-22'])
+        self.assertEqual(result['days'][0], previous['days'][0])
+        self.assertEqual(result['days'][1], self.menu['days'][0])
+        self.assertEqual(result['days'][1]['meals'][0]['prices']['student'], 400)
+        self.assertEqual(result['source'], self.menu['source'])
+        self.assertEqual(observed, [result, result])
+        self.assertEqual((previous, self.menu), before)
+
+    def test_retained_dates_cannot_make_expired_new_source_pass_coverage_guard(self):
+        from scripts.update_menu import require_current_coverage
+        previous = copy.deepcopy(self.menu)
+        future = parse_menu(page(date='25.09.2026'))
+        previous['days'] += future['days']
+        previous['coverage']['end'] = '2026-09-25'
+        with self.assertRaisesRegex(ValueError, 'only past menus'):
+            self.service(coverage_guard=lambda menu: require_current_coverage(
+                menu, today='2026-09-22')).refresh(previous, self.cache, {})
+        self.assertEqual(self.events, ['source'])
+
     def test_each_port_failure_propagates_and_stops_later_ports(self):
         stages = list(self.ports)
         for index, stage in enumerate(stages):

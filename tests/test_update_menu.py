@@ -22,6 +22,22 @@ def complete_cache(menu):
 
 class SnapshotTests(unittest.TestCase):
 
+    def test_update_keeps_published_earlier_days_across_successive_collections(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            directory = root / 'site/data'
+            previous = parse_menu(page(date='21.09.2099'))
+            write_snapshot(directory, previous, complete_cache(previous))
+            for source_date, expected_dates in (
+                ('22.09.2099', ['2099-09-21', '2099-09-22']),
+                ('23.09.2099', ['2099-09-21', '2099-09-22', '2099-09-23']),
+            ):
+                report = update(root, html=page(date=source_date))
+                stored = json.loads((directory / 'menu.json').read_text())
+                self.assertEqual([day['date'] for day in stored['days']], expected_dates)
+                self.assertEqual(stored['days'][0], previous['days'][0])
+                self.assertEqual(report['days'], len(expected_dates))
+
     def test_validate_only_rejects_missing_second_current_meal_translation(self):
         menu = parse_menu(page(meal() + meal(name="Second dish")))
         cache = complete_cache(menu)

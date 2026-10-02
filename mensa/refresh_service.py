@@ -1,6 +1,6 @@
 """식단 갱신을 담당하는 RefreshService가 원본 수집, 메뉴 검사, 번역, 공개 함수를 순서대로 호출합니다."""
 
-from mensa.menu_contract import validate_menu
+from mensa.menu_contract import retain_published_days, validate_menu
 
 
 class RefreshService:
@@ -26,6 +26,9 @@ class RefreshService:
         menu = self._source()
         validate_menu(menu, previous=previous)
         self._coverage_guard(menu)
+        # 새 원본의 검사에 통과한 뒤 지난 공개 날짜를 보존합니다. 보존한 날짜도 번역과
+        # 게시 검사에 포함하여 메뉴만 남고 해당 번역이 빠지는 일을 막습니다.
+        menu = retain_published_days(menu, previous)
         candidate = self._translate(menu, cache, phrases, checkpoint=checkpoint)
         self._validator(menu, candidate)
         self._publisher(menu, candidate, previous=previous)

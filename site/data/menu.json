@@ -6,10 +6,369 @@
     "sha256": "02d130454cce640ab51962333ec437fe32327041444f3561f5fbeda69f06a5af"
   },
   "coverage": {
-    "start": "2026-10-01",
+    "start": "2026-09-30",
     "end": "2026-10-09"
   },
   "days": [
+    {
+      "date": "2026-09-30",
+      "meals": [
+        {
+          "id": "2026-09-30-dda296752ac6ebc2ac6ac004f7dbaa8d58887243d4e0ae773803b25574324d6c",
+          "translation_key": "0924eb072408d84edbee0be476c6aaf50d823846bec39c4ddb397b4e9af02bb6",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Köttbullar",
+          "components": [
+            {
+              "name_de": "Rahmsoße mit Champignons",
+              "notices": [
+                "Antioxidationsmittel",
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Salzkartoffel",
+              "notices": []
+            },
+            {
+              "name_de": "Karottensalat mit Erbsen",
+              "notices": [
+                "Farbstoff",
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "White Donut",
+              "notices": [
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
+              ]
+            }
+          ],
+          "notices": [
+            "Schweinefleisch",
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Ei",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Menü 1",
+            "name": "Köttbullar",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
+          "id": "2026-09-30-463572d09e247de8f341b1c327050d73a63c470c3add2a982fdc0dce97b9db04",
+          "translation_key": "f4c886a73687ae5106a52ab7f397ab4f652a3e65dcad947cdcdfe3d47812b489",
+          "category": "Menü 2",
+          "location": "Aufgang B",
+          "name_de": "Portugiesische Reispfanne",
+          "components": [
+            {
+              "name_de": "Kräuterdip",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Karottensalat mit Erbsen",
+              "notices": [
+                "Farbstoff",
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "White Donut",
+              "notices": [
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
+              ]
+            }
+          ],
+          "notices": [
+            "Knoblauch"
+          ],
+          "prices": {
+            "student": 310,
+            "staff": 560,
+            "guest": 780
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Menü 2",
+            "name": "Portugiesische Reispfanne",
+            "raw": "S: 3,10 | M: 5,60 | G: 7,80"
+          }
+        },
+        {
+          "id": "2026-09-30-67f9a4cd040866a07e1b9e15f9f8c6199032b998c3d7274cb16a2826aabc073c",
+          "translation_key": "12c7e1fe25c39b5c3cc4d7b42695b8b11788d964fd1c1e319cb51281989f71f8",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Indisches Butter Chicken",
+          "components": [
+            {
+              "name_de": "Basmatireis (aus biologischem Anbau)",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "Knoblauch",
+            "Milch und Laktose"
+          ],
+          "prices": {
+            "student": 500,
+            "staff": 615,
+            "guest": 685
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Wahlessen",
+            "name": "Indisches Butter Chicken",
+            "raw": "S: 5,00 | M: 6,15 | G: 6,85"
+          }
+        },
+        {
+          "id": "2026-09-30-96b40dd2df6831f532bd19e5d8c6de6eb1ca2d05e72314ff3c45b447ee419a2b",
+          "translation_key": "cc46d6993f62d0bdb1ccbe99cf9f5c1c63b9e6240ed08c97ef0d6dfe4fb181cd",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Tagesessen: Aktion „Zu gut für die Tonne“: Wurstsalat „nach Art des Hauses“",
+          "components": [
+            {
+              "name_de": "Pommes frites",
+              "notices": [
+                "Backtriebmittel"
+              ]
+            },
+            {
+              "name_de": "Solange der Vorrat reicht!",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Farbstoff",
+            "Geschmacksverstärker",
+            "Süßungsmittel",
+            "Schweinefleisch",
+            "Senf",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 230,
+            "staff": 330,
+            "guest": 400
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Wahlessen",
+            "name": "Tagesessen: Aktion „Zu gut für die Tonne“: Wurstsalat „nach Art des Hauses“",
+            "raw": "S: 2,30 | M: 3,30 | G: 4,00"
+          }
+        },
+        {
+          "id": "2026-09-30-126335aa2e4c2de5db2c9ccef6d32943e1860e9a5ccab068aa3d5d1f741196ee",
+          "translation_key": "e6b74fbfad77933bc9e6e66528474a418a55db5ec8c438821d57a14a2b63df0f",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Türkische Pizza Lahmacun",
+          "components": [],
+          "notices": [
+            "Knoblauch",
+            "Soja",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 490,
+            "staff": 605,
+            "guest": 675
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Wahlessen",
+            "name": "Türkische Pizza Lahmacun",
+            "raw": "S: 4,90 | M: 6,05 | G: 6,75"
+          }
+        },
+        {
+          "id": "2026-09-30-dae7a212cf32752f912deff44c259a68b5559ff3fab963b2c27601e81a1bcd98",
+          "translation_key": "4d89f68bf9bf737f5207c50568b90fbb855d2038548db48417afa8d63a924c7f",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Vegetarische Türkische Pizza Lahmacun",
+          "components": [],
+          "notices": [
+            "Knoblauch",
+            "Soja",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 470,
+            "staff": 585,
+            "guest": 655
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Wahlessen",
+            "name": "Vegetarische Türkische Pizza Lahmacun",
+            "raw": "S: 4,70 | M: 5,85 | G: 6,55"
+          }
+        },
+        {
+          "id": "2026-09-30-dbc9080de50a93d0e18271049fbf79d4836fc1a1af2970e1c59214f5882d76bd",
+          "translation_key": "61d03d450d1fca23ed7123be6fb1bcca428c1bb7cc207ebd00cab622582f1471",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Salatbuffet",
+          "components": [
+            {
+              "name_de": "Tomatensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskraut",
+              "notices": []
+            },
+            {
+              "name_de": "Gurken",
+              "notices": []
+            },
+            {
+              "name_de": "Zwiebel Ringe",
+              "notices": []
+            },
+            {
+              "name_de": "Karotten",
+              "notices": []
+            },
+            {
+              "name_de": "Gemischter Paprika",
+              "notices": []
+            },
+            {
+              "name_de": "Mais",
+              "notices": []
+            },
+            {
+              "name_de": "Peperoni",
+              "notices": []
+            },
+            {
+              "name_de": "Lollo Bianco",
+              "notices": []
+            },
+            {
+              "name_de": "Eichblattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Radicchio",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Schnittlauch-Senfdressing",
+              "notices": [
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-09-30-6a301d6e159e04fce1c04c23e3d2685a752b29add4297926ba301c9118f78ac2",
+          "translation_key": "cef901594c683735ceb7069b1bbe4d6260fedda5bcf1f6afae0c03841760a67e",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Rotkohl-Quinoa-Salat",
+          "components": [
+            {
+              "name_de": "Vegan: Sesam-Karotten-Knusperstick",
+              "notices": [
+                "Sellerie",
+                "Sesamsamen",
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "Konservierungsstoff",
+            "Geschmacksverstärker",
+            "Knoblauch",
+            "Erdnüsse",
+            "Soja",
+            "Sesamsamen",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 445,
+            "staff": 560,
+            "guest": 630
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Mensacafé",
+            "name": "Rotkohl-Quinoa-Salat",
+            "raw": "S: 4,45 | M: 5,60 | G: 6,30"
+          }
+        }
+      ]
+    },
     {
       "date": "2026-10-01",
       "meals": [

@@ -15,6 +15,7 @@ import tempfile
 from zoneinfo import ZoneInfo
 
 from mensa.publication import validate_publication
+from mensa.menu_contract import retain_published_days
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
 from scripts.notices import load_glossary
 from scripts.translations import build_translations, model_config
@@ -109,6 +110,7 @@ def update(root=ROOT, html=None):
     menu = parse_menu(fetch_html() if html is None else html)
     validate_menu(menu, previous=previous)
     require_current_coverage(menu)
+    menu = retain_published_days(menu, previous)
     translations = build_translations(menu, cache, editorial["phrases"], model_config())
     write_snapshot(directory, menu, translations, previous)
     return summarize(menu, translations)

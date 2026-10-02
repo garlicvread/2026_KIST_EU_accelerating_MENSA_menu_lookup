@@ -1,6 +1,7 @@
 """메뉴 검증 함수가 메뉴 JSON의 스키마·원본 출처·항목 식별 정보를 확인하고 이전 공개 스냅샷의 데이터 손실을 검사합니다."""
 
 from collections import Counter
+from copy import deepcopy
 from datetime import date, datetime
 import hashlib
 import json
@@ -79,6 +80,25 @@ def validate_menu(menu, previous=None):
             _validate_previous(menu, previous)
     except (TypeError, KeyError, IndexError, OverflowError, RecursionError) as exc:
         raise ValueError(f"Invalid menu data: {exc}") from exc
+
+
+def retain_published_days(menu, previous):
+    """호출자가 검증한 새 메뉴에 원본 공개 범위보다 앞선 기존 날짜를 보존합니다.
+
+    호출자는 이 함수 전에 새 원본의 구조·손실·최신 날짜 범위를 검사해야 합니다.
+    같은 날짜는 새 원본을 사용하며, 새 범위 안에서 사라진 날짜나 범위 뒤의 미래
+    날짜를 이전 자료로 채우지 않습니다. source는 마지막 수집의 출처를 유지하고,
+    coverage는 보존한 날짜까지 포함합니다. 입력 사전은 수정하지 않습니다.
+    """
+    retained = [] if previous is None else [
+        day for day in previous['days'] if day['date'] < menu['coverage']['start']
+    ]
+    if not retained:
+        return menu
+    combined = deepcopy(menu)
+    combined['days'] = deepcopy(retained) + combined['days']
+    combined['coverage']['start'] = combined['days'][0]['date']
+    return combined
 
 
 def _validate_schema(menu):
