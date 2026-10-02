@@ -2508,7 +2508,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     },
     "4fa8d37ba55caf119e10ed2ddcab7930e32fec796b9aeb7202198f0d7f3428ad": {
       "source": {
@@ -2525,7 +2531,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     },
     "e1aa1f8d9b5f473c400c69044e089b13b1745cd97ddbb2733a5e0a1d6bdc94dc": {
       "source": {
@@ -2710,7 +2722,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     },
     "9aa6f99981ac2a6cc62da33df3b4cf7f7842a4ed9fd27a4a4063f69f2c3bbbc7": {
       "source": {
@@ -2766,7 +2784,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     },
     "5de1060e272b4fd3609aaf903c70458beec6734a7c0ef7555cd8be0616a8bcac": {
       "source": {
@@ -2840,6 +2864,12 @@
       "origin": "model",
       "model": "gemma4:31b",
       "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      },
       "component_policy_version": "semantic-components-v1"
     },
     "9c595ae6b494fa252990000e097cf471f8974e777d5e1644f4734662965a20d2": {
@@ -2924,7 +2954,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     },
     "4d3c9d6b071dc30921c6d22bdd17df8685b9d38cff4ca774f1b602039672e241": {
       "source": {
@@ -3071,7 +3107,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     },
     "9a9c48b496a0632b2bc6d2926f64b5bf35b338ac90f05b472c74a3be0bd24169": {
       "source": {
@@ -4048,6 +4090,278 @@
       "origin": "editorial-draft",
       "model": "assistant-draft",
       "prompt_version": "menu-v4"
+    },
+    "fee844884c28dd0d91f379dff2a51c38d5dd19a0fe564540e2c7250526d92ec0": {
+      "source": {
+        "name_de": "Gebackenes Seelachsfilet",
+        "components": [
+          "Remouladensoße",
+          "Petersilienkartoffel (aus biologischem Anbau)",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Schokoladenpudding"
+        ]
+      },
+      "en": {
+        "name": "Baked white-fish fillet (Seelachs)",
+        "components": [
+          "Remoulade sauce",
+          "Organic parsley potatoes",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Chocolate pudding"
+        ]
+      },
+      "ko": {
+        "name": "구운 흰살생선 필레(Seelachs)",
+        "components": [
+          "레물라드 소스",
+          "파슬리를 곁들인 유기농 감자",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "맑은 샐러드 드레싱",
+          "초콜릿 푸딩"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "7d16419cbf718b048544c2e02b2e660ef1eef478e97b1fdfa686c46d41c22f1d": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weisskraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Karotten",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Kopfsalat",
+          "Endiviensalat",
+          "Radicchio",
+          "Klare Salatsoße",
+          "Limetten-Joghurt-Dressing",
+          "Kräuter",
+          "Hülsenfrüchte"
+        ]
+      },
+      "en": {
+        "name": "Salad buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumbers",
+          "Sliced onion rings",
+          "Carrots",
+          "Mixed bell peppers",
+          "Sweetcorn",
+          "Chili peppers",
+          "Butterhead lettuce",
+          "Endive salad",
+          "Radicchio",
+          "Clear salad dressing",
+          "Lime and yogurt dressing",
+          "Herbs",
+          "Legumes"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "양배추",
+          "오이",
+          "링 모양으로 썬 양파",
+          "당근",
+          "모둠 파프리카",
+          "옥수수",
+          "고추",
+          "버터헤드 상추",
+          "엔다이브 샐러드",
+          "라디키오",
+          "맑은 샐러드 드레싱",
+          "라임·요구르트 드레싱",
+          "허브",
+          "콩류"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "adfae9894a60ac3c417eaa6e215c136c17aad440e9c4c7a43442d6fd2294af0c": {
+      "source": {
+        "name_de": "KlimaTeller: Hausgemachte vegetarische Kartoffelsuppe",
+        "components": [
+          "Brötchen",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Homemade vegetable potato soup",
+        "components": [
+          "Bread roll",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "수제 채소 감자 수프",
+        "components": [
+          "빵",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "클리어 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
+    },
+    "5e605e098bd7e1b94eff854045bde881e6641e9829ae041e9e97aa1a201d29aa": {
+      "source": {
+        "name_de": "KlimaTeller: Veganer Reissalat mit Belugalinsen",
+        "components": [
+          "Vegan: Knoblauch-Kräuter-Dip",
+          "Vegan: Bratwurst"
+        ]
+      },
+      "en": {
+        "name": "Vegan rice salad with Beluga lentils",
+        "components": [
+          "Vegan: garlic herb dip",
+          "Vegan: bratwurst"
+        ]
+      },
+      "ko": {
+        "name": "벨루가 렌틸콩을 곁들인 비건 쌀 샐러드",
+        "components": [
+          "비건: 마늘 허브 딥",
+          "비건: 브라트부르스트"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
+    },
+    "bc4a19774e9b21a247e79d2fd439b78d34b39bd2b2738ab4341fb0bf30fd6f9b": {
+      "source": {
+        "name_de": "KlimaTeller: Vegan: Rote Bete Puffer paniert",
+        "components": [
+          "Vegan: Knoblauch-Kräuter-Dip",
+          "Salzkartoffeln (aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Vegan breaded beetroot patties",
+        "components": [
+          "Vegan garlic herb dip",
+          "Boiled potatoes (organic)"
+        ]
+      },
+      "ko": {
+        "name": "비건 빵가루를 입힌 비트 패티",
+        "components": [
+          "비건 마늘 허브 딥",
+          "소금물에 삶은 감자 (유기농)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
+    },
+    "97253b0dcfa0ad365b6e14234972021910ebd80d443aaacd2bceb617f3e9fa54": {
+      "source": {
+        "name_de": "Bunter Blattsalatteller",
+        "components": [
+          "Klare Salatsoße",
+          "Hausgemachte Frikadelle"
+        ]
+      },
+      "en": {
+        "name": "Mixed Leaf Salad Plate",
+        "components": [
+          "Clear salad dressing",
+          "Homemade patty"
+        ]
+      },
+      "ko": {
+        "name": "모둠 잎채소 샐러드 접시",
+        "components": [
+          "투명 샐러드 드레싱",
+          "수제 패티"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
+    },
+    "25a4759ed539c9dd4d895ca3e03aec3eea6e0e0dab442f427d04738405fd2a71": {
+      "source": {
+        "name_de": "KlimaTeller: Bunter Blattsalatteller",
+        "components": [
+          "Klare Salatsoße",
+          "Edamame Avocado Bratling"
+        ]
+      },
+      "en": {
+        "name": "Mixed Leaf Salad Plate",
+        "components": [
+          "Clear salad dressing",
+          "Edamame avocado patty"
+        ]
+      },
+      "ko": {
+        "name": "모둠 잎채소 샐러드 접시",
+        "components": [
+          "투명 샐러드 드레싱",
+          "에다마메 아보카도 패티"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "11582db4068726529501b881008c2c392196ed391fc411141e11e1c2719cb2c5"
+      }
     }
   },
   "notices": {
