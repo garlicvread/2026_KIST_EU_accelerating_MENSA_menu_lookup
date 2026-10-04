@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-03T09:10:03Z",
-    "sha256": "3227d8edad5afd2e83c3a4744c8985d03076f7b1c69db94e4140cdbb07e485c9"
+    "fetched_at": "2026-10-04T07:11:30Z",
+    "sha256": "b135c4feed6e0cb83f2c8031858388d9515fe23a4408ffc00d5f660a8dfa3fb7"
   },
   "coverage": {
     "start": "2026-09-30",
