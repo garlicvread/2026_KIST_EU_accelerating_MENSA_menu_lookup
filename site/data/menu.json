@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-04T09:13:44Z",
-    "sha256": "b135c4feed6e0cb83f2c8031858388d9515fe23a4408ffc00d5f660a8dfa3fb7"
+    "fetched_at": "2026-10-05T07:02:41Z",
+    "sha256": "85a52ae54b264e3ba955f521ceb7124312c1f58003c781f937f146a6b3350bf9"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -1122,7 +1122,7 @@
       "meals": [
         {
           "id": "2026-10-05-2b132d92ea2d3054196212301fd4e714f658a89d8d7c8f867f0cf28349c56b91",
-          "translation_key": "e92218c49ba478fa64a0f68d128e19383537513d10b2878ce04d0465db09bd4e",
+          "translation_key": "806b4932ccb71415d2045855486d940e88b4248f8f51e1865be57a6879f08263",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Jägerpfanne",
@@ -1138,9 +1138,10 @@
               ]
             },
             {
-              "name_de": "Bananenquark",
+              "name_de": "Schokoladenpudding",
               "notices": [
-                "Milch und Laktose"
+                "Milch und Laktose",
+                "Weizen"
               ]
             }
           ],
@@ -1420,11 +1421,11 @@
       "date": "2026-10-06",
       "meals": [
         {
-          "id": "2026-10-06-c74941f76f5278383d565a1d0b776aa72e7cf7dbbcb8b4fa2685b0f59a090d92",
-          "translation_key": "35fca8cfb26e6bff53203600c21019581b9dc002a8b4bd5929730fd0f8ae451a",
+          "id": "2026-10-06-df54d8fd16011c92a33ea06eb1fea7e293f2079849b3083daa996f52610b8e7d",
+          "translation_key": "b620ad2a7941b8aab57d377264816186af14234d26a1f60c11b066056fc9859f",
           "category": "Menü 1",
           "location": "Aufgang A",
-          "name_de": "Veganer Cornflakes Taler Chicken Style",
+          "name_de": "Tomate-Mozzarella Bratling",
           "components": [
             {
               "name_de": "Scharfer Tomatencreme-Dip",
@@ -1464,11 +1465,7 @@
               "notices": []
             }
           ],
-          "notices": [
-            "Phosphat",
-            "Weizen",
-            "Gerste"
-          ],
+          "notices": [],
           "prices": {
             "student": 365,
             "staff": 670,
@@ -1478,13 +1475,13 @@
           "price_source": {
             "date": "2026-10-06",
             "category": "Menü 1",
-            "name": "Veganer Cornflakes Taler Chicken Style",
+            "name": "Tomate-Mozzarella Bratling",
             "raw": "S: 3,65 | M: 6,70 | G: 9,35"
           }
         },
         {
           "id": "2026-10-06-74505be564010b808e4df0656c1159ab4fcf19ffa850a55bc11b6b6c04a952af",
-          "translation_key": "f9a1983231b2029732f4552be8f2827818a74b970e035e111d52d7caaffc67f1",
+          "translation_key": "e26beb0474affd3f2502831abbadeb1d3581240f9dab53381cf01a07ad1489a8",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "Gemüsespätzle",
@@ -1501,7 +1498,7 @@
               ]
             },
             {
-              "name_de": "Pfirsich-Joghurtcreme",
+              "name_de": "Fruchtjoghurt",
               "notices": [
                 "Milch und Laktose"
               ]
@@ -1708,7 +1705,7 @@
       "meals": [
         {
           "id": "2026-10-07-b97a4822209133aebeda9d9a691847b6aac7173c4e3300062aa5471c9d55d909",
-          "translation_key": "ce242afc2047f2a6e6c2c4407c33f260b30b7ddd0dc52a7080f9b913aab310b0",
+          "translation_key": "b0a59888c72b283c810d583b3ef6f1b43319f7224e9bd6507b57d76e4a88d2b3",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Cevapcici mit scharfer Gemüsesoße",
@@ -1729,9 +1726,10 @@
               ]
             },
             {
-              "name_de": "Sahnepudding",
+              "name_de": "Vanillepudding",
               "notices": [
-                "Milch und Laktose"
+                "Milch und Laktose",
+                "Weizen"
               ]
             }
           ],
@@ -2018,7 +2016,7 @@
       "meals": [
         {
           "id": "2026-10-08-699bd4d8b6d70a6ec9fc1c8e017a0c28abe5dfb6d235d25e4983413fa9a40bff",
-          "translation_key": "180b0fb295ed3295ca56ddc3833806e4e37b8235bdbfdfb2eed63a6771178ee7",
+          "translation_key": "741fc75a0768109f8bf46e1f6a6561024999fc7f3069fc20cf657c55e85e947c",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Hähnchenbrustfilet Toscana",
@@ -2055,8 +2053,13 @@
               ]
             },
             {
-              "name_de": "Obst",
-              "notices": []
+              "name_de": "White Donut",
+              "notices": [
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
+              ]
             }
           ],
           "notices": [
@@ -2077,7 +2080,7 @@
         },
         {
           "id": "2026-10-08-431b34bb9130785459b115be36f83e6c7224b94e52538a5cbd70fa5e445a3b95",
-          "translation_key": "8af415e39c3b850d3c676af865678620d29674f9e5773e4c535fc218a64c202e",
+          "translation_key": "9b148f33d82b19b4ff805b5f1185f34b94b87ab07cd4f084b21951a5de17b353",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "KlimaTeller: Linsen-Gemüse-Chili",
@@ -2096,9 +2099,12 @@
               ]
             },
             {
-              "name_de": "Stracciatella-Bananen-Sahnequark",
+              "name_de": "White Donut",
               "notices": [
-                "Milch und Laktose"
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
               ]
             }
           ],
@@ -2379,7 +2385,7 @@
         },
         {
           "id": "2026-10-09-c573fad98470286943cff463e27ecc85b53f3bf202775915396dfc5b5e5b7190",
-          "translation_key": "ca41b7eeb8a946349f51322144ff34f1c399730916cc37d6a92f22dfd040353a",
+          "translation_key": "181a6be0178c3f57a1dae660bc640dead3f94ae6650462b1ed023cd33cb63fc0",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "KlimaTeller: Buntes Gemüse in Cremiger Soße mit gebackenem Tofu und Vollkornpasta",
@@ -2406,7 +2412,7 @@
               ]
             },
             {
-              "name_de": "Stracciatella-Quark",
+              "name_de": "Fruchtjoghurt",
               "notices": [
                 "Milch und Laktose"
               ]
