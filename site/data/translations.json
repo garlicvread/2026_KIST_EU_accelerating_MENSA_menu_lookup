@@ -194,7 +194,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "f20789bb8333cbdff77059b431514c212304f775fa41e0bbd5c4e6be71bddbdd": {
       "source": {
@@ -2490,7 +2490,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "0f4fbdd88902d165f726551223d149adcacf53346b9a03457b76683c8213321e": {
@@ -2519,7 +2519,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "4fa8d37ba55caf119e10ed2ddcab7930e32fec796b9aeb7202198f0d7f3428ad": {
@@ -2542,7 +2542,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "e1aa1f8d9b5f473c400c69044e089b13b1745cd97ddbb2733a5e0a1d6bdc94dc": {
@@ -2795,7 +2795,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "5de1060e272b4fd3609aaf903c70458beec6734a7c0ef7555cd8be0616a8bcac": {
@@ -2874,7 +2874,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       },
       "component_policy_version": "semantic-components-v1"
     },
@@ -3118,7 +3118,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "9a9c48b496a0632b2bc6d2926f64b5bf35b338ac90f05b472c74a3be0bd24169": {
@@ -4238,7 +4238,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "5e605e098bd7e1b94eff854045bde881e6641e9829ae041e9e97aa1a201d29aa": {
@@ -4270,7 +4270,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "bc4a19774e9b21a247e79d2fd439b78d34b39bd2b2738ab4341fb0bf30fd6f9b": {
@@ -4302,7 +4302,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "97253b0dcfa0ad365b6e14234972021910ebd80d443aaacd2bceb617f3e9fa54": {
@@ -4334,7 +4334,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "25a4759ed539c9dd4d895ca3e03aec3eea6e0e0dab442f427d04738405fd2a71": {
@@ -4366,7 +4366,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "806b4932ccb71415d2045855486d940e88b4248f8f51e1865be57a6879f08263": {
@@ -4538,7 +4538,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "e26beb0474affd3f2502831abbadeb1d3581240f9dab53381cf01a07ad1489a8": {
@@ -4570,7 +4570,7 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     },
     "b0a59888c72b283c810d583b3ef6f1b43319f7224e9bd6507b57d76e4a88d2b3": {
@@ -4605,7 +4605,36 @@
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
         "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "58fe15841a7b069814c6ba67c54e175dab72a1d7e9e011f7e6c58eab86b0cfad"
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+      }
+    },
+    "c8a71ce3461f1049a6e8f8f77050c6c0c76deee64c3dea700865125a12ff4352": {
+      "source": {
+        "name_de": "KlimaTeller: Spaghetti (aus biologischem Anbau) mit Vegan: Soja Bolognaise",
+        "components": [
+          "Vegan: Geriebener Käse"
+        ]
+      },
+      "en": {
+        "name": "Organic Spaghetti with Vegan Soy Bolognaise",
+        "components": [
+          "Vegan: Grated cheese"
+        ]
+      },
+      "ko": {
+        "name": "유기농 스파게티와 비건 소이 볼로네제",
+        "components": [
+          "비건: 갈은 치즈"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
+        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
       }
     }
   },

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-05T07:02:41Z",
-    "sha256": "85a52ae54b264e3ba955f521ceb7124312c1f58003c781f937f146a6b3350bf9"
+    "fetched_at": "2026-10-05T08:06:17Z",
+    "sha256": "7784f0ff0cacbccb9cb1a64b7bdb536def722245d8748cd28742ea4428907919"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -1234,60 +1234,53 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 525,
+            "staff": 640,
+            "guest": 710
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-05",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "mensaVital: KlimaTeller: Hähnchenstreifen in Rucolasoße mit Bandnudeln",
+            "raw": "S: 5,25 | M: 6,40 | G: 7,10"
           }
         },
         {
-          "id": "2026-10-05-7b6ec5b83a0fc1d805cf83b1353082b8d43d9300adc6f85fe0b5644f060f792b",
-          "translation_key": "2227035e0037c4d62b85ad775d0d348578b2eda74ccfb505defa706a9dd11a3b",
+          "id": "2026-10-05-3e227c552cca6026d3580905a4dd60bc44155d162587cae886f08da01dfe4fbd",
+          "translation_key": "c8a71ce3461f1049a6e8f8f77050c6c0c76deee64c3dea700865125a12ff4352",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "KlimaTeller: Spaghetti (aus biologischem Anbau)",
+          "name_de": "KlimaTeller: Spaghetti (aus biologischem Anbau) mit Vegan: Soja Bolognaise",
           "components": [
-            {
-              "name_de": "Vegan: Soja Bolognaise",
-              "notices": [
-                "Knoblauch",
-                "vegan",
-                "Soja",
-                "Sellerie"
-              ]
-            },
             {
               "name_de": "Vegan: Geriebener Käse",
               "notices": []
             }
           ],
           "notices": [
-            "Weizen"
+            "Weizen",
+            "Knoblauch",
+            "vegan",
+            "Soja",
+            "Sellerie"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 410,
+            "staff": 525,
+            "guest": 595
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-05",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "KlimaTeller: Spaghetti (aus biologischem Anbau) mit Vegan: Soja Bolognaise",
+            "raw": "S: 4,10 | M: 5,25 | G: 5,95"
           }
         },
         {
           "id": "2026-10-05-fd638bd7613d60c2136723d86ecb9b5e4b99c9b6562a92b3688121627a7161b5",
-          "translation_key": "391c7a47691a64e79fc1e9ee34a154b353549144b8462490798e2c2520841844",
+          "translation_key": "d20ce414e67214e554b176d4876778e5ee1f049dbdef1255f620c146e4dbad96",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -1341,6 +1334,20 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Limetten-Joghurt-Dressing",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -1378,13 +1385,17 @@
           "notices": [
             "Schweinefleisch"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 485,
+            "guest": 555
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-05",
             "category": "Mensacafé",
             "name": "KlimaTeller: Bratwurst",
-            "raw": null
+            "raw": "S: 3,70 | M: 4,85 | G: 5,55"
           }
         },
         {
@@ -1406,13 +1417,17 @@
             }
           ],
           "notices": [],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 410,
+            "staff": 525,
+            "guest": 595
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-05",
             "category": "Mensacafé",
             "name": "KlimaTeller: Vegan: Gebratene Bratwurst",
-            "raw": null
+            "raw": "S: 4,10 | M: 5,25 | G: 5,95"
           }
         }
       ]
