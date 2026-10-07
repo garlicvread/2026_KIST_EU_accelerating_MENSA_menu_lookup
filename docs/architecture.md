@@ -45,7 +45,7 @@ flowchart TD
 
 번역 준비를 맡는 `TranslationService`([`mensa/translation_service.py`](../mensa/translation_service.py))는 검토된 구문과 이미 저장된 번역을 먼저 사용합니다. 번역 재개 함수 `resume_translations`([`mensa/translation_runner.py`](../mensa/translation_runner.py))는 현재 메뉴에 필요한 번역을 확인하고 이전에 완료한 항목을 다시 사용할 수 있는지 판단합니다.
 
-설정 기반 재개 함수 `resume_configured_translations`([`mensa/translation_runtime.py`](../mensa/translation_runtime.py))는 완료된 번역을 저장하는 `TranslationCheckpointStore`([`mensa/checkpoints.py`](../mensa/checkpoints.py))를 호출합니다. 저장 파일 `translation-checkpoint.json`에는 이미 검사를 통과한 요리별 번역이 들어갑니다. 일부 요리가 아직 미완료일 수 있으므로 운영자가 이 파일을 웹사이트에 직접 복사하면 안 됩니다.
+설정 기반 재개 함수 `resume_configured_translations`([`mensa/translation_runtime.py`](../mensa/translation_runtime.py))는 완료된 번역을 저장하는 `TranslationCheckpointStore`([`mensa/checkpoints.py`](../mensa/checkpoints.py))를 호출합니다. 저장 파일 `translation-checkpoint.json`에는 이미 검사를 통과한 요리별 번역이 들어갑니다. 일부 요리가 아직 미완료일 수 있으므로 운영자가 이 파일을 웹사이트에 직접 복사하면 안 됩니다. Mac 기본 `--base` 실행의 `RefreshJob.translate`는 이 재개 함수를 사용하지 않습니다. Mac 기본 경로는 공개 캐시의 완료 번역을 재사용하고 새 번역을 메모리에 보관하다가 전체 검사를 통과하면 저장합니다. 번역 도중 프로세스가 종료되면 그 실행에서 새로 만들던 번역은 다음 시도에서 다시 생성하며, 기존 공개 식단과 저장된 번역은 유지합니다.
 
 새 번역이 필요한 순간에만 모델 실행을 관리하는 `model_session` 함수([`mensa/model_runtime.py`](../mensa/model_runtime.py))를 호출합니다. `managed` 설정이면 이 함수는 준비된 Ollama 실행 파일을 별도 프로세스 그룹으로 시작하고 요청이 끝나면 자신이 만든 그룹만 종료합니다. 컴퓨터에서 따로 실행 중인 Ollama는 종료하지 않습니다. `external` 설정이면 이미 실행 중인 모델의 URL을 사용하며 그 프로세스를 시작하거나 종료하지 않습니다. 번역 재개 함수는 모델 정리를 끝낸 뒤에 메뉴/번역을 게시 함수에 넘깁니다.
 

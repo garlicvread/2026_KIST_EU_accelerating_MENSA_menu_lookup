@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import test from 'node:test';
 import { validateMenu } from '../dist/frontend/contracts.js';
 const stateURL = new URL('../dist/frontend/state.js', import.meta.url);
 const selectorsURL = new URL('../dist/frontend/selectors.js', import.meta.url);
-const states = existsSync(stateURL) ? await import(stateURL.href) : null;
-const selectors = existsSync(selectorsURL) ? await import(selectorsURL.href) : null;
+const states = await import(stateURL.href);
+const selectors = await import(selectorsURL.href);
 const hash = 'a'.repeat(64);
 function menu(dates = ['2026-12-31', '2027-01-01', '2027-01-04', '2027-02-01']) {
   return validateMenu({ schema_version: 1, source: { url: 'https://www.stw-saarland.de/gastro/mensa-saarbruecken/', fetched_at: '2026-12-30T12:00:00Z', sha256: hash },
@@ -18,7 +17,6 @@ function frozen(value) { if (value && typeof value === 'object') { Object.values
 function ready(value = menu()) { return states.transition(states.createInitialState(), { type: 'menu-ready', menu: value, today: '2027-01-01' }); }
 
 test('initial state and ready menu choose only a published date', () => {
-  assert.ok(states, 'Compile the pure state implementation before selecting published dates');
   const initial = states.createInitialState();
   assert.deepEqual(initial, { language: 'en', group: 'student', view: 'day', menu: { status: 'idle' }, translations: { status: 'idle' }, selectedDate: null, expandedIds: [] });
   const supplied = states.createInitialState({ language: 'ko', group: 'guest' }); assert.equal(supplied.language, 'ko'); assert.equal(supplied.group, 'guest');

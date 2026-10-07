@@ -29,20 +29,16 @@ def sample_menu():
 
 
 class NoticeSelectionTests(unittest.TestCase):
-    def selector(self):
-        selector = getattr(notice_contract, "translate_notice_labels", None)
-        self.assertTrue(callable(selector), "Pure translate_notice_labels helper is required")
-        return selector
 
     def test_selects_only_requested_labels_in_sorted_order(self):
         glossary = sample_glossary()
-        selected = self.selector()({"vegan", "Weizen", "Senf"}, glossary)
+        selected = notice_contract.translate_notice_labels({"vegan", "Weizen", "Senf"}, glossary)
         self.assertEqual(list(selected), ["Senf", "Weizen", "vegan"])
         self.assertEqual(selected, {label: glossary[label] for label in ("Senf", "Weizen", "vegan")})
         self.assertNotIn("Milch und Laktose", selected)
 
     def test_accepts_frozenset_and_empty_label_sets(self):
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         glossary = sample_glossary()
         self.assertEqual(select(frozenset({"Weizen"}), glossary), {"Weizen": {"en": "Wheat", "ko": "밀"}})
         self.assertEqual(select(set(), glossary), {})
@@ -52,7 +48,7 @@ class NoticeSelectionTests(unittest.TestCase):
         labels = {"Weizen", "vegan"}
         glossary = sample_glossary()
         original = copy.deepcopy((labels, glossary))
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         first = select(labels, glossary)
         second = select(labels, glossary)
         self.assertEqual((labels, glossary), original)
@@ -65,17 +61,17 @@ class NoticeSelectionTests(unittest.TestCase):
 
     def test_preserves_exact_labels_and_translation_text(self):
         glossary = {" Weizen ": {"en": " Wheat ", "ko": " 밀 "}}
-        self.assertEqual(self.selector()({" Weizen "}, glossary), glossary)
+        self.assertEqual(notice_contract.translate_notice_labels({" Weizen "}, glossary), glossary)
 
     def test_rejects_label_containers_other_than_sets_with_exact_error(self):
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         for labels in (None, [], ["Weizen"], ("Weizen",), {"Weizen": True}, "Weizen", 1, True):
             with self.subTest(labels=labels), self.assertRaises(ValueError) as caught:
                 select(labels, sample_glossary())
             self.assertEqual(str(caught.exception), "Notice labels must be a set of nonempty strings")
 
     def test_rejects_invalid_set_labels_with_exact_error(self):
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         for label in (None, 1, True, "", " ", "\nWeizen", "Wei\tzen", "x" * 1001):
             for factory in (set, frozenset):
                 with self.subTest(label=label, container=factory.__name__), self.assertRaises(ValueError) as caught:
@@ -83,7 +79,7 @@ class NoticeSelectionTests(unittest.TestCase):
                 self.assertEqual(str(caught.exception), "Notice labels must be a set of nonempty strings")
 
     def test_validates_complete_glossary_even_without_selected_labels(self):
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         for labels in (set(), {"Weizen"}):
             for malformed in (None, [], "invalid", 7):
                 with self.subTest(labels=labels, glossary=malformed), self.assertRaises(ValueError) as caught:
@@ -91,7 +87,7 @@ class NoticeSelectionTests(unittest.TestCase):
                 self.assertEqual(str(caught.exception), "Notice translations must be an object")
 
     def test_rejects_malformed_unused_glossary_entries(self):
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         for labels in (set(), {"Weizen"}):
             for source, entry, expected in (
                 (" ", {"en": "Text", "ko": "텍스트"}, "Notice translation needs an exact German key and exactly en/ko text"),
@@ -113,14 +109,14 @@ class NoticeSelectionTests(unittest.TestCase):
         labels = {"weizen", "Weizen ", "Weizen", "Unreviewed 'label'"}
         original = labels.copy()
         with self.assertRaises(ValueError) as caught:
-            self.selector()(labels, sample_glossary())
+            notice_contract.translate_notice_labels(labels, sample_glossary())
         self.assertEqual(str(caught.exception),
                          'Unknown notice labels: "Unreviewed \'label\'", \'Weizen \', \'weizen\'; '
                          'review and add en/ko translations to data/notice-translations.json before retrying')
         self.assertEqual(labels, original)
 
     def test_selection_requires_no_file_reads(self):
-        select = self.selector()
+        select = notice_contract.translate_notice_labels
         with patch("builtins.open", side_effect=AssertionError("Selection must avoid I/O")), \
                 patch.object(Path, "read_text", side_effect=AssertionError("Selection must avoid I/O")):
             self.assertEqual(select({"Weizen"}, sample_glossary()), {"Weizen": {"en": "Wheat", "ko": "밀"}})
@@ -188,7 +184,6 @@ class NoticeAdapterTests(unittest.TestCase):
         loader.assert_not_called()
 
 
-
     def test_default_and_explicit_glossary_files_use_the_reviewed_validation(self):
         with TemporaryDirectory() as folder:
             default, explicit = Path(folder) / 'default.json', Path(folder) / 'checkout.json'
@@ -199,10 +194,7 @@ class NoticeAdapterTests(unittest.TestCase):
                 path.write_text(json.dumps({'schema_version': 1, 'notices': data}), encoding='utf-8')
             with patch.object(notices, 'GLOSSARY_PATH', default):
                 self.assertEqual(notices.load_glossary(), glossary)
-                try:
-                    selected = notices.load_glossary(explicit)
-                except TypeError as error:
-                    self.fail(f'Explicit glossary path is unavailable: {error}')
+                selected = notices.load_glossary(explicit)
                 self.assertEqual(selected, checkout)
                 self.assertEqual(notices.load_glossary(), glossary)
                 explicit.write_text(json.dumps({'schema_version': 2, 'notices': checkout}), encoding='utf-8')

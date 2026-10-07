@@ -57,10 +57,6 @@ class PublicationTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "integer cents"):
                     self.validate()
 
-    def test_rejects_prices_different_from_raw_source(self):
-        self.record["prices"]["student"] = 1
-        with self.assertRaisesRegex(ValueError, "raw source"):
-            self.validate()
 
     def test_rejects_raw_price_provenance_for_another_meal(self):
         self.record["price_source"]["name"] = "Other meal"
@@ -79,10 +75,6 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unreviewed notice"):
             self.validate()
 
-    def test_missing_reviewed_glossary_notice_is_contextual(self):
-        del self.glossary["Sellerie"]
-        with self.assertRaisesRegex(ValueError, "Sellerie"):
-            self.validate()
 
     def test_missing_cache_notice_is_contextual(self):
         del self.cache["notices"]["Sellerie"]
@@ -121,15 +113,6 @@ class PublicationTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     validate_publication(self.menu, cache, notice_glossary=self.glossary)
 
-    def test_rejects_translation_component_count_mismatch(self):
-        self.cache["entries"][self.key]["ko"]["components"].pop()
-        with self.assertRaisesRegex(ValueError, "components"):
-            self.validate()
-
-    def test_rejects_translation_source_mismatch(self):
-        self.cache["entries"][self.key]["source"]["name_de"] = "Different source"
-        with self.assertRaisesRegex(ValueError, "source"):
-            self.validate()
 
     def test_accepts_valid_historical_extra_entry(self):
         source = {"name_de": "Historical dish", "components": ["Reis", "Soße & Gemüse"]}

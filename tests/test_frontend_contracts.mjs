@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const moduleURL = new URL('../dist/frontend/contracts.js', import.meta.url);
-const contracts = existsSync(moduleURL) ? await import(moduleURL.href) : null;
+const contracts = await import(moduleURL.href);
 const fixture = name => JSON.parse(readFileSync(new URL(`../site/data/${name}.json`, import.meta.url), 'utf8'));
 const digest = 'a'.repeat(64);
 function menu() {
@@ -32,7 +32,6 @@ function rejected(validator, factory, mutations) {
 }
 
 test('valid published snapshots produce isolated display values without changing inputs', () => {
-  assert.ok(contracts, 'Compile the browser contract implementation before validating snapshots');
   for (const value of [fixture('menu'), menu()]) {
     const before = structuredClone(value);
     const result = contracts.validateMenu(value);

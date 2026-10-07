@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 const clientURL = new URL('../dist/frontend/data_client.js', import.meta.url);
 const controllerURL = new URL('../dist/frontend/controller.js', import.meta.url);
-const clients = existsSync(clientURL) ? await import(clientURL.href) : null;
-const controllers = existsSync(controllerURL) ? await import(controllerURL.href) : null;
+const clients = await import(clientURL.href);
+const controllers = await import(controllerURL.href);
 const A = 'a'.repeat(64), B = 'b'.repeat(64);
 const fixture = name => JSON.parse(readFileSync(new URL(`../site/data/${name}.json`, import.meta.url), 'utf8'));
 const response = value => ({ ok: true, json: async () => value });
@@ -22,7 +22,6 @@ function deferred() {
 const clock = () => new Date('2026-09-28T12:00:00Z');
 
 test('pinned client validates real snapshots and rejects IDs before fetching', async () => {
-  assert.ok(clients, 'Compile the pinned data client implementation before loading snapshots');
   const paths = [];
   const client = clients.createDataClient(async path => {
     paths.push(path);

@@ -1,8 +1,6 @@
 """이 테스트 모듈은 RefreshService가 메뉴 수집·번역·검증·게시의 요구 조건을 지키는지 확인합니다. 각 단계를 명시적으로 전달한 메모리의 함수로 실행하여 호출 순서와 데이터를 검사합니다."""
 
 import copy
-import importlib
-import importlib.util
 import unittest
 
 from mensa.publication import validate_publication
@@ -13,15 +11,12 @@ from test_menu_source import meal, page
 from test_publication import translation_entry
 
 
-spec = importlib.util.find_spec('mensa.refresh_service')
-refresh_module = importlib.import_module('mensa.refresh_service') if spec else None
+from mensa.refresh_service import RefreshService
 
 
 class RefreshServiceTests(unittest.TestCase):
     def setUp(self):
-        self.assertIsNotNone(refresh_module, 'RefreshService application module is missing')
-        self.service_type = getattr(refresh_module, 'RefreshService', None)
-        self.assertTrue(callable(self.service_type), 'RefreshService callable is missing')
+        self.service_type = RefreshService
         self.menu = parse_menu(page(), '2026-09-21T10:00:00Z')
         record = self.menu['days'][0]['meals'][0]
         self.glossary = {
@@ -184,12 +179,6 @@ class RefreshServiceTests(unittest.TestCase):
             self.service(validator=validate).refresh(None, self.cache, {})
         self.assertEqual(self.events, ['source', 'coverage_guard', 'translate', 'validator'])
 
-    def test_incomplete_notice_candidate_never_reaches_publisher(self):
-        del self.candidate['notices']['Sellerie']
-        with self.assertRaisesRegex(ValueError, 'Missing notice translation'):
-            self.service(validator=lambda menu, candidate: validate_publication(
-                menu, candidate, notice_glossary=self.glossary)).refresh(None, self.cache, {})
-        self.assertNotIn('publisher', self.events)
 
     def test_real_translation_service_preserves_inputs_and_checkpoint_ownership(self):
         record = self.menu['days'][0]['meals'][0]

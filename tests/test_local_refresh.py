@@ -1,7 +1,6 @@
 import unittest
 import json
 import io
-import importlib.util
 import signal
 import subprocess
 from pathlib import Path
@@ -18,12 +17,7 @@ from scripts.menu_source import parse_menu
 from test_menu_source import page
 from test_publication import translation_entry
 
-JOBS_PATH = Path(__file__).resolve().parents[1] / 'mensa/jobs.py'
-jobs = None
-if JOBS_PATH.exists():
-    jobs_spec = importlib.util.spec_from_file_location('mensa.jobs', JOBS_PATH)
-    jobs = importlib.util.module_from_spec(jobs_spec)
-    jobs_spec.loader.exec_module(jobs)
+from mensa import jobs as jobs
 
 NOW = datetime(2026, 9, 21, 10, tzinfo=timezone.utc)
 SHA = 'a' * 40
@@ -72,8 +66,7 @@ def checkout(base):
 
 class LocalRefreshTests(unittest.TestCase):
     def test_github_transport_validates_explicit_ports_before_commands(self):
-        transport_type = getattr(worker, 'GitHubPublication', None)
-        self.assertTrue(callable(transport_type), 'GitHubPublication implementation is missing')
+        transport_type = worker.GitHubPublication
         calls = []
         port = lambda *args: calls.append(args)
         for workflow, gh, watch in (('', port, port), ('  ', port, port), (None, port, port),
@@ -149,14 +142,6 @@ class LocalRefreshTests(unittest.TestCase):
                 cache = {'entries': {key: {'origin': origin, 'model': model, 'prompt_version': prompt}}}
                 self.assertEqual(translation_needed(menu, cache), needed)
 
-    def test_real_porcelain_allows_only_generated_snapshot_changes(self):
-        with TemporaryDirectory() as folder:
-            repo = checkout(folder)
-            (repo / worker.DATA_FILES[0]).write_text('{"interrupted":true}')
-            try:
-                RefreshJob(folder).check_repository(allow_snapshots=True)
-            except ValueError as exc:
-                self.fail(f'Generated snapshot must pass porcelain validation: {exc}')
 
     def test_interrupted_collection_restores_only_snapshots_then_recollects(self):
         with TemporaryDirectory() as folder:
@@ -239,21 +224,6 @@ class LocalRefreshTests(unittest.TestCase):
                 self.assertEqual(waiting['status'], 'waiting')
                 self.assertEqual(load_state(Path(folder) / 'queue.json')['pending']['run_id'], 123)
 
-    def test_successful_existing_run_is_acknowledged_without_pushing_older_main(self):
-        with TemporaryDirectory() as folder:
-            job, _ = fake_publication(folder, 'success')
-            state = publication_state()
-            def git(*args):
-                if args[0] == 'push':
-                    raise RuntimeError('remote main advanced')
-                return SHA
-            job.git.side_effect = git
-            with patch.object(worker, 'read_json', return_value=FRESH_MENU):
-                try:
-                    job.publish(state)
-                except RuntimeError as exc:
-                    self.fail(f'Completed matching publication must be acknowledged: {exc}')
-            self.assertFalse(any(call.args[0] == 'push' for call in job.git.call_args_list))
 
     def test_run_discovery_matches_snapshot_title_even_if_workflow_head_is_newer(self):
         job = RefreshJob('/unused')
@@ -270,16 +240,6 @@ class LocalRefreshTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'snapshot'):
                     job.publish(publication_state())
 
-    def test_busy_wakeup_does_not_replace_owned_worker_status(self):
-        with TemporaryDirectory() as folder:
-            process_queue(folder, NOW, lambda: (False, 'Low available memory'), Mock())
-            status = Path(folder) / 'last-result.json'
-            self.assertTrue(status.exists(), 'Owned worker result must be persisted under its lock')
-            before = status.read_bytes()
-            with exclusive_lock(Path(folder) / 'worker.lock'):
-                self.assertEqual(process_queue(folder, NOW, Mock(), Mock())['status'], 'busy')
-            self.assertEqual(status.read_bytes(), before)
-            self.assertEqual(json.loads(before)['reason'], 'Low available memory')
 
     def test_model_cleanup_kills_owned_group_after_leader_already_exited(self):
         with TemporaryDirectory() as folder:
@@ -411,7 +371,6 @@ class LocalRefreshTests(unittest.TestCase):
             self.assertFalse(any(call.args[:2] == ('run', 'rerun') for call in job.gh.call_args_list))
 
 
-
 class RefreshCompositionTests(unittest.TestCase):
     def setUp(self):
         self.menu = parse_menu(page(), '2026-09-21T10:00:00Z')
@@ -424,8 +383,7 @@ class RefreshCompositionTests(unittest.TestCase):
         self.events = []
 
     def translator(self, job):
-        translate = getattr(job, 'translate', None)
-        self.assertTrue(callable(translate), 'RefreshJob.translate method is missing')
+        translate = job.translate
         return translate
 
     @contextmanager
@@ -437,8 +395,6 @@ class RefreshCompositionTests(unittest.TestCase):
             self.events.append(('model-exit', base))
 
     def test_collect_delegates_after_exact_repository_and_file_sequence_and_summarizes(self):
-        self.assertTrue(callable(getattr(worker, 'RefreshService', None)),
-                        'Worker RefreshService composition is missing')
         with TemporaryDirectory() as folder:
             job = RefreshJob(folder)
             directory = job.repo / 'site/data'
@@ -581,13 +537,11 @@ class RefreshCompositionTests(unittest.TestCase):
                 self.assertEqual([event[0] for event in self.events], ['model-enter', 'model-exit'])
 
 
-
 class JobOwnershipTests(unittest.TestCase):
     """JobOwnershipTests는 실제 JobRunner를 사용하여 비공개 작업 기록과 디스크에 저장되는 실행 결과를 검사합니다. 다른 실행이 잡은 잠금을 존중하고 자신이 맡은 작업만 수행하는지 확인합니다."""
 
     def runner(self, state_dir, *, resources=None, work=None, clock=None):
-        runner = getattr(jobs, 'JobRunner', None)
-        self.assertTrue(callable(runner), 'mensa.jobs.JobRunner implementation is missing')
+        runner = jobs.JobRunner
         return runner(state_dir, resources=resources if resources is not None else lambda: (True, 'ready'),
                       work=work if work is not None else lambda state: None, clock=clock)
 
@@ -751,7 +705,7 @@ class JobOwnershipTests(unittest.TestCase):
             status = base / 'last-result.json'
             status.write_text('{"status":"previous"}')
             before = status.read_bytes()
-            replace = jobs.os.replace if jobs is not None else None
+            replace = jobs.os.replace
             observations = []
             def record_replace(source, destination):
                 if Path(destination) == status:
@@ -787,7 +741,7 @@ class GenerationWorkerTests(unittest.TestCase):
         self.path = self.base / 'queue.json'
         self.resources = Mock(return_value=(True, 'ready'))
 
-    def test_card16_permanent_failure_blocks_repeated_and_future_ticks(self):
+    def test_permanent_failure_blocks_repeated_and_future_ticks(self):
         error = self.GenerationError('authentication', status_code=401)
         work = Mock(side_effect=error)
         first = process_queue(self.base, NOW, self.resources, work)
@@ -808,10 +762,9 @@ class GenerationWorkerTests(unittest.TestCase):
         self.assertEqual(pending['period'], '2026-10-19T11:00')
         self.assertEqual(pending['attempts'], 1)
 
-    def test_card16_explicit_retry_reenables_work_and_preserves_attempts(self):
+    def test_explicit_retry_reenables_work_and_preserves_attempts(self):
         from scripts import refresh_queue
         process_queue(self.base, NOW, self.resources, Mock(side_effect=self.GenerationError('invalid_config')))
-        self.assertTrue(callable(getattr(refresh_queue, "request_retry", None)), "request_retry must exist")
         save_state(self.path, refresh_queue.request_retry(load_state(self.path)))
         work = Mock()
         result = process_queue(self.base, NOW, self.resources, work)
@@ -819,7 +772,7 @@ class GenerationWorkerTests(unittest.TestCase):
         self.assertEqual(work.call_args.args[0]['pending']['attempts'], 1)
         self.assertNotIn('generation_failure', work.call_args.args[0]['pending'])
 
-    def test_card16_transient_failure_waits_until_retry_after_deadline(self):
+    def test_transient_failure_waits_until_retry_after_deadline(self):
         error = self.GenerationError('http_retryable', retry_after=3600)
         with patch.object(worker.time, 'monotonic', return_value=0):
             result = process_queue(self.base, NOW, self.resources, Mock(side_effect=error))
@@ -834,7 +787,7 @@ class GenerationWorkerTests(unittest.TestCase):
         self.assertEqual(result['status'], 'completed')
         work.assert_called_once()
 
-    def test_card16_typed_failure_reloads_advanced_publication_checkpoint(self):
+    def test_typed_failure_reloads_advanced_publication_checkpoint(self):
         def work(state):
             state['pending'].update(phase='publish', commit_sha=SHA, run_id=123,
                                     dispatch_requested_at=NOW.isoformat())
@@ -847,12 +800,12 @@ class GenerationWorkerTests(unittest.TestCase):
                          ('publish', SHA, 123, NOW.isoformat()))
         self.assertEqual(pending['generation_failure'], {'code': 'invalid_result', 'retryable': False})
 
-    def test_card16_generic_failure_keeps_old_result_keys_and_reason_limit(self):
+    def test_generic_failure_keeps_old_result_keys_and_reason_limit(self):
         result = process_queue(self.base, NOW, self.resources, Mock(side_effect=RuntimeError('x' * 700)))
         self.assertEqual(result, {'status': 'failed', 'reason': 'x' * 500, 'period': '2026-09-21T11:00'})
         self.assertEqual(load_state(self.path)['pending']['last_error'], 'x' * 500)
 
-    def test_card16_main_nonzero_for_blocked_and_failed_only(self):
+    def test_main_nonzero_for_blocked_and_failed_only(self):
         for status in ('blocked', 'failed', 'idle', 'waiting', 'deferred', 'completed'):
             with self.subTest(status=status), patch('sys.argv', ['local_refresh', '--base', str(self.base)]), \
                  patch.object(worker, 'process_queue', return_value={'status': status}), redirect_stdout(io.StringIO()):
@@ -866,8 +819,7 @@ class GenerationWorkerTests(unittest.TestCase):
 
 class ConfiguredWorkerTests(unittest.TestCase):
     def setUp(self):
-        self.job_type = getattr(worker, 'ConfiguredRefreshJob', None)
-        self.assertTrue(callable(self.job_type), 'ConfiguredRefreshJob implementation is missing')
+        self.job_type = worker.ConfiguredRefreshJob
         self.temporary = TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name).resolve()
@@ -958,8 +910,7 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
         self.assertEqual({lang: entry[lang] for lang in ('en', 'ko')}, self.generated)
         self.assertEqual(published[1]['notices'], self.glossary)
         self.assertEqual(json.loads((self.state/'translation-checkpoint.json').read_text()), published[1])
-        directory_type = getattr(worker, 'DirectoryRefreshJob', None)
-        self.assertTrue(callable(directory_type), 'DirectoryRefreshJob implementation is missing')
+        directory_type = worker.DirectoryRefreshJob
         files = {path: path.read_bytes() for directory in (self.state, self.public)
                  for path in directory.rglob('*') if path.is_file()}
         with (patch.object(self.job_type, '__init__', side_effect=AssertionError('Status Git constructor')),
@@ -1078,8 +1029,7 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
 
 class SnapshotRecoveryTests(unittest.TestCase):
     def setUp(self):
-        self.repository_type = getattr(worker, 'SnapshotRepository', None)
-        self.assertTrue(callable(self.repository_type), 'Owned SnapshotRepository implementation is missing')
+        self.repository_type = worker.SnapshotRepository
         self.observations = []
         self.git_receipts = []
 

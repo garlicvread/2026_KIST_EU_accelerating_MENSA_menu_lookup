@@ -46,7 +46,7 @@ Linux 자동 실행 파일 deploy/mensa-refresh.service는 Python 프로그램�
 
 게시 담당자는 현재 공개된 전체 사이트와 같은 ID의 메뉴/번역을 보존합니다. 작업 기록을 수정하거나 백업하기 전에는 자동 실행과 현재 Python 작업을 멈추고 worker.lock의 파일 잠금을 사용합니다. 운영 문서에는 Linux/Mac 중지 명령과 잠금 아래의 request_retry 예제가 있습니다.
 
-운영자는 queue.json·last-result.json·translation-checkpoint.json·GitHub 복구용 snapshot-journal.json과 실제 TOML을 함께 백업합니다. GitHub 방식이면 같은 커밋/실행 번호의 성공 여부를 조사한 뒤 원인을 고칩니다. 파일이나 게시 번호를 지우면 프로그램이 이미 수행한 게시를 잊을 수 있으므로 queue.json/번역 기록/복구 기록 삭제나 force push로 해결하지 않습니다.
+운영자는 실제 작업 기록 폴더의 queue.json·last-result.json을 백업해 주세요. `--config` 실행을 사용하는 운영자는 translation-checkpoint.json과 실제 TOML도 함께 보존해 주세요. GitHub 게시 방식을 사용하는 운영자는 복구용 snapshot-journal.json도 보존해 주세요. Mac 기본 `--base` 실행은 TOML이나 translation-checkpoint.json을 사용하지 않으므로, 운영자는 이 파일이 없다는 이유로 복구 실패라고 판단하지 마세요. GitHub 운영자는 같은 커밋/실행 번호의 성공 여부를 조사한 뒤 원인을 고칩니다. 파일이나 게시 번호를 지우면 프로그램이 이미 수행한 게시를 잊을 수 있으므로 운영자는 queue.json/번역 기록/복구 기록 삭제나 force push로 해결하지 않습니다.
 
 Git 변경을 복구하는 SnapshotRepository(`mensa/git_repository.py`)는 워커가 두 데이터 JSON을 기록해 만든 커밋인지 snapshot-journal.json의 부모 커밋·Git 트리·데이터 파일 내용으로 확인합니다. 이 커밋을 소유 커밋이라고 부르며 커밋 메시지만으로 판단하지 않습니다. 게시 준비 중 원격 main이 앞서가면 SnapshotRepository의 plan_replacement/resume_replacement는 두 이력을 구별합니다. 원격 main 이력에 워커의 기존 커밋이 이미 들어 있으면 로컬 main을 원격 main 위치까지 앞으로 이동합니다(fast-forward). 기존 커밋이 main 이력에 남아 있으므로 이 경우에는 refs/mensa/superseded/<SHA>를 만들지 않습니다. 원격 main이 기존 커밋을 포함하지 않고 두 이력이 갈라졌다면, 클래스는 워커가 만든 커밋인지와 기록된 출발 커밋이 원격 main에 남아 있는지를 확인한 뒤 기존 커밋을 refs/mensa/superseded/<SHA>에 보존합니다. 프로그램은 최신 main에서 식단을 다시 수집하고 새 게시용 데이터 커밋을 준비합니다. 이 새 커밋을 대체 커밋이라고 부릅니다. 사람이 만든 변경과 알 수 없는 커밋은 보존하며 운영자가 검토합니다.
 

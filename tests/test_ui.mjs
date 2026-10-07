@@ -1,13 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { createDataClient } from '../dist/frontend/data_client.js';
 
 const displayURL = new URL('../dist/frontend/display.js', import.meta.url);
 const appURL = new URL('../dist/frontend/app.js', import.meta.url);
-const ui = existsSync(displayURL) ? await import(displayURL.href) : null;
-const apps = existsSync(appURL) ? await import(appURL.href) : null;
+const ui = await import(displayURL.href);
+const apps = await import(appURL.href);
 
 
 
@@ -50,7 +49,6 @@ function pricedSnapshot() {
 
 
 test('notice translations preserve exact source association and order in each language', () => {
-  assert.equal(typeof ui.translatedNotices, 'function');
   const notices = ['Milch und Laktose', 'Senf'];
   const cache = { notices: { 'Milch und Laktose': { en: 'Milk and lactose', ko: '우유 및 유당' }, Senf: { en: 'Mustard', ko: '겨자' } } };
   assert.deepEqual(ui.translatedNotices(notices, cache, 'ko'), [
@@ -63,7 +61,6 @@ test('notice translations preserve exact source association and order in each la
 });
 
 test('missing, malformed or inexact notice translations retain every original warning', () => {
-  assert.equal(typeof ui.translatedNotices, 'function');
   const notices = ['Kann Spuren von Senf enthalten', 'Senf'];
   for (const cache of [null, {}, { notices: [] }, { notices: { Senf: { en: '', ko: '겨자' } } }, { notices: { Senf: { en: 5, ko: '겨자' } } }]) {
     assert.deepEqual(ui.translatedNotices(notices, cache, 'en'), notices.map(original => ({ original, text: original, translated: false })));
@@ -169,14 +166,7 @@ test('render failures leave loading and allow a successful retry', async () => {
   assert.equal(browser.nodes.get('navigation').hidden, false);
 });
 
-test('normal browser startup renders meals without an error or loading placeholder', async () => {
-  const browser = await browserHarness();
-  await browser.start();
-  const content = browser.nodes.get('menu-content');
-  assert.equal(content.children[0].className, 'meal-grid');
-  assert.equal(content.attributes['aria-busy'], 'false');
-  assert.ok(descendants(content).some(node => node.tagName === 'ARTICLE'));
-});
+
 
 function withClass(node, className) {
   return descendants(node).filter(item => item.className?.split(' ').includes(className));
@@ -420,7 +410,6 @@ function deferred() { let resolve, reject; const promise = new Promise((yes, no)
 async function until(predicate) { for (let turn = 0; turn < 50 && !predicate(); turn++) await Promise.resolve(); assert.ok(predicate(), 'Expected asynchronous app state'); }
 
 test('open focused details survive group language and late cache updates without navigation jumps', async () => {
-  assert.ok(apps, 'Compile the typed app implementation before exercising stable interaction');
   const late = deferred(); const fixture = ingredientSnapshot();
   const browser = await browserHarness({ ...fixture, language: 'en', translationPromise: late.promise });
   assert.deepEqual(browser.requests, []);

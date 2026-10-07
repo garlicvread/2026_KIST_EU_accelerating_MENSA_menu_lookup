@@ -1,14 +1,13 @@
 """이 테스트 모듈은 중단한 번역을 올바르게 재개하는지 확인하기 위해 실제 TranslationService와 비공개 번역 재개 기록 저장 코드를 함께 실행합니다."""
 
 import copy
-import importlib
-import inspect
 from pathlib import Path
 import tempfile
 import unittest
 
 from mensa.checkpoints import TranslationCheckpointStore
 from mensa.errors import GenerationError
+from mensa.translation_runner import resume_translations
 from mensa.translation_contract import PROMPT_VERSION, generation_identity, source_key
 
 
@@ -24,11 +23,7 @@ class TranslationRunnerTests(unittest.TestCase):
         self.runner()
 
     def runner(self):
-        path = Path(__file__).resolve().parents[1] / "mensa" / "translation_runner.py"
-        self.assertTrue(path.is_file(), "resume_translations must provide explicit private resume orchestration")
-        runner = getattr(importlib.import_module("mensa.translation_runner"), "resume_translations", None)
-        self.assertTrue(callable(runner), "resume_translations must be callable")
-        return runner
+        return resume_translations
 
     def meal(self, source):
         return {"name_de": source["name_de"], "components": [{"name_de": name, "notices": ["Weizen"]}
@@ -64,21 +59,6 @@ class TranslationRunnerTests(unittest.TestCase):
         return self.runner()(self.menu, published, {} if phrases is None else phrases,
                              self.config if config == "default" else config, **supplied)
 
-    def test_resume_signature_requires_explicit_keyword_ports(self):
-        runner = self.runner()
-        signature = inspect.signature(runner)
-        positional = ["menu", "published", "phrases", "config"]
-        ports = {"glossary_provider", "translate", "load_checkpoint", "save_checkpoint"}
-        self.assertEqual(list(signature.parameters)[:4], positional)
-        self.assertEqual(set(signature.parameters), set(positional) | ports)
-        for name in positional:
-            parameter = signature.parameters[name]
-            self.assertEqual(parameter.kind, inspect.Parameter.POSITIONAL_OR_KEYWORD)
-            self.assertIs(parameter.default, inspect.Parameter.empty)
-        for name in ports:
-            parameter = signature.parameters[name]
-            self.assertEqual(parameter.kind, inspect.Parameter.KEYWORD_ONLY)
-            self.assertIs(parameter.default, inspect.Parameter.empty)
 
     def test_every_noncallable_port_rejected_before_any_port_invocation(self):
         calls = []

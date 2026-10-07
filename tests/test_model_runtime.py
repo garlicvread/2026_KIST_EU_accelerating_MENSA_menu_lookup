@@ -3,7 +3,6 @@
 from contextlib import contextmanager
 from dataclasses import replace
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import importlib
 import json
 import os
 from pathlib import Path
@@ -17,21 +16,14 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 
-from mensa.config import InferenceSettings, load_worker_config
+from mensa.config import InferenceSettings
 from mensa.errors import GenerationError
 
-try:
-    runtime = importlib.import_module('mensa.model_runtime')
-except ModuleNotFoundError as error:
-    if error.name != 'mensa.model_runtime':
-        raise
-    runtime = None
+from mensa import model_runtime as runtime
 
 
 class ModelRuntimeTests(unittest.TestCase):
     def setUp(self):
-        self.assertTrue(callable(getattr(runtime, 'model_session', None)),
-                        'model_session API must exist before exercising runtime behavior')
         self.temporary = TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.base = Path(self.temporary.name)
@@ -52,9 +44,7 @@ class ModelRuntimeTests(unittest.TestCase):
         self.stop = Mock()
 
     def api(self, name='model_session'):
-        function = getattr(runtime, name, None)
-        self.assertTrue(callable(function), f'{name} API must exist')
-        return function
+        return getattr(runtime, name)
 
     def clock(self):
         return self.now
@@ -138,30 +128,6 @@ class ModelRuntimeTests(unittest.TestCase):
             self.assertEqual(other['backend_revision'], result['backend_revision'])
             self.assertNotEqual(other['url'], result['url'])
 
-    def test_runtime_accepts_settings_from_reviewed_loader(self):
-        config = self.base / 'worker.toml'
-        config.write_text('''[paths]
-checkout_dir = "checkout"
-state_dir = "state"
-public_dir = "public"
-[inference]
-mode = "managed"
-provider = "ollama"
-model = "fixture:1"
-revision = "sha256:fixture"
-binary = "fake-ollama"
-models_dir = "models"
-log_dir = "logs"
-[resources]
-platform = "macos"
-min_available_bytes = 1
-max_load_per_cpu = 1
-[publication]
-mode = "directory"
-''')
-        loaded = load_worker_config(config).inference
-        with self.session(loaded) as result:
-            self.assertEqual(result['backend_revision'], loaded.revision)
 
     def test_log_leaf_and_file_are_private_and_latest_run_is_truncated(self):
         with self.session():

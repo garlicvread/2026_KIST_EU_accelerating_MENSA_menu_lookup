@@ -95,6 +95,14 @@ python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa
 
 Mac 코드 폴더는 base/checkout, Ollama 실행 파일은 base/runtime/ollama, 모델 파일은 base/models, 로그는 base/logs입니다. 프로그램은 base의 queue.json/last-result.json에 진행 기록을 저장하고 고정 모델 gemma4:31b와 `garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup`의 `update-and-deploy.yml`을 사용합니다. 설치 프로그램 `scripts.install_local_worker.py`는 사용자 plist를 작성해 로그인 시와 900초 간격의 실행을 등록합니다. 사용자 로그인이 필요하며 컴퓨터 강제 깨우기나 모델 설치는 하지 않습니다.
 
+### Mac의 로그인·화면 잠금·잠자기
+
+운영자가 화면만 잠그면 로그인 세션은 유지됩니다. Mac 자체가 깨어 있고 리소스 기준을 통과하면 LaunchAgent는 잠금 화면에서도 작업을 실행할 수 있습니다. 화면 잠금 해제를 매번 수행할 필요는 없습니다. 로그아웃은 로그인 세션을 종료하므로 다르며, 다시 로그인하면 LaunchAgent가 작업을 실행합니다.
+
+시스템 잠자기 동안에는 식단 수집·번역 프로그램이 실행되지 않습니다. Mac이 깨어난 뒤 다음 실행 기회에 큐가 최신 수집 시각을 판단합니다. 프로그램은 놓친 시간대마다 수집을 반복하지 않으며, 이미 진행 중인 게시와 서버가 정한 재시도 대기는 보존합니다. 운영자가 전원 연결 상태로 Mac을 서버처럼 사용하려면 [Apple의 잠자기 설정 안내](https://support.apple.com/guide/mac-help/set-sleep-and-wake-settings-mchle41a6ccd/mac)에 따라 자동 시스템 잠자기를 방지해 주세요. 화면을 끄는 설정과 시스템 잠자기는 별개입니다.
+
+운영자는 `pmset -g custom`으로 AC Power의 `sleep` 값을 확인할 수 있습니다. `sleep 0`은 유휴 상태에 따른 자동 시스템 잠자기를 끈 설정입니다. 이 값은 덮개 닫기·수동 잠자기·전원 꺼짐까지 막는 설정은 아닙니다. FileVault가 켜진 Mac은 재부팅 후 사람이 첫 잠금 해제를 해야 하며, [자동 로그인도 사용할 수 없습니다](https://support.apple.com/en-us/102316). 식단 프로그램은 로그인 암호나 디스크 암호화를 변경하지 않습니다.
+
 Mac 설치 프로그램은 작업 기록 폴더인 base의 접근 권한을 `0700`으로 설정합니다. 이 권한은 폴더 소유자만 내부 파일을 읽고 변경할 수 있다는 뜻입니다. 실행 프로그램은 다른 사용자가 접근할 수 있는 작업 폴더를 거부합니다. `State directory must have private permissions` 오류가 발생하면 LaunchAgent를 등록한 사용자가 설치 프로그램을 다시 실행해 주세요. 설치 프로그램은 기존 큐 기록·모델·메뉴 파일을 보존하고 폴더 권한을 바로잡습니다. 다음 명령의 `--write-only`는 자동 실행을 시작하지 않고 설치 설정과 폴더 권한만 준비합니다.
 
 ```sh
@@ -165,29 +173,31 @@ sudo systemctl enable --now mensa-refresh.timer
 
 운영자는 오류에 나온 독일어 문구의 의미를 확인한 뒤, `notices` 안에 그 문구를 정확한 키로 추가하고 `en`·`ko` 번역을 모두 작성해 주세요. 운영자는 검사한 수정본을 Mac의 `base/checkout`에도 반영해야 합니다. 원인을 고친 뒤에는 기존 대기 작업을 재시도하며, `queue.json`이나 `snapshot-journal.json`을 삭제하지 않습니다. 아래의 `request_retry` 절차는 오류와 재시도 대기 조건을 해제하면서 대기 작업과 누적 시도 횟수를 보존합니다.
 
-운영자는 --status 출력과 실제 작업 기록 폴더의 아래 파일을 함께 확인해 주세요.
+운영자는 `--status` 출력에서 `queue.completed_period`, `queue.pending`과 최근 결과를 함께 확인해 주세요. `completed`는 해당 수집 시각의 게시까지 완료한 결과이고, `idle`은 현재 할 작업이 없다는 뜻입니다. `waiting`은 재시도 시각을 기다리는 상태이므로 운영자는 `pending.last_error`에서 원인을 확인해야 합니다. `deferred`는 메모리·CPU·전원 조건을 통과하지 못한 상태이고, `failed`·`blocked`는 오류 확인이 필요한 상태입니다. 다른 프로세스가 잠금을 보유할 때 반환하는 `busy`는 큐와 최근 결과 파일을 덮어쓰지 않습니다.
+
+프로그램은 정상적인 대기 상태에서도 종료 코드 0으로 끝납니다. 따라서 운영자는 LaunchAgent의 마지막 종료 코드만으로 새 식단이 게시됐다고 판단하지 마세요. 공개 메뉴의 `source.fetched_at`과 큐의 완료 수집 시각을 확인해 주세요. 웹사이트의 이틀 경과 경고는 공개 데이터가 오래되었다는 안내이며, 맥의 전원·로그인·실패 원인을 판별하는 감시 장치는 아닙니다. 아래 파일은 원인 확인과 복구에 사용합니다.
 
 | 파일 | 프로그램이 저장하는 내용과 운영자가 확인할 것 |
 | --- | --- |
 | `queue.json` | 완료 수집 시각 completed_period와 대기 작업 pending입니다. pending에는 period(수집 날짜·시각), phase(수집 collect/게시 publish), attempts(시도 수), next_attempt_at, last_error와 Git commit_sha/run_id/dispatch_requested_at이 있습니다. |
 | `last-result.json` | 마지막 실행의 시각과 완료/실패/연기 이유입니다. |
-| `translation-checkpoint.json` | 검사를 통과해 이미 완료한 요리 번역입니다. 모든 요리가 완료된 파일이라는 뜻은 아닙니다. |
+| `translation-checkpoint.json` | `--config` 경로가 저장한 검증된 중간 번역입니다. 일부 요리는 미완료일 수 있습니다. Mac 기본 `--base` 경로는 이 파일을 사용하지 않습니다. |
 | `snapshot-journal.json` | GitHub 경로에서 프로그램이 만든 게시용 커밋을 확인하고 복구하기 위한 기록입니다. |
 
 운영자가 파일을 수정하거나 백업하기 전에는 자동 실행과 현재 작업을 먼저 멈춰 주세요. Linux 예제에서는 `sudo systemctl stop mensa-refresh.timer mensa-refresh.service`, Mac에서는 `launchctl bootout "gui/$(id -u)/io.github.garlicvread.mensa-refresh"`를 사용합니다. 별도로 실행한 수동 작업도 멈춥니다. 파일을 수정하는 코드에서는 worker.lock에 같은 파일 잠금을 걸어 다른 실행과 queue.json이 경합하지 않게 해야 합니다.
 
-운영자는 오류의 원인인 설정·모델 버전·주의 표시 번역 등을 먼저 고칩니다. 자동 재시도가 중지된 모델 실패는 `request_retry` 함수([`mensa/queue.py`](../mensa/queue.py))로 중지를 해제할 수 있습니다. 전용 CLI 옵션은 없습니다. 아래 코드는 지정 TOML의 작업 폴더와 정상 파일을 검사하고 잠금 안에서 queue.json을 저장합니다. 갱신 날짜·처리 단계·시도 수·GitHub 게시 번호는 유지하므로 이미 진행한 작업을 잊지 않습니다. 운영자는 자동 실행과 같은 OS 계정에서 이 코드를 실행해 주세요.
+운영자는 오류의 원인인 설정·모델 버전·주의 표시 번역 등을 먼저 고칩니다. 자동 재시도가 중지된 모델 실패는 `request_retry` 함수([`mensa/queue.py`](../mensa/queue.py))로 중지를 해제할 수 있습니다. 전용 CLI 옵션은 없습니다. 아래 코드는 Mac 기본 작업 폴더와 정상 파일을 검사하고 잠금 안에서 queue.json을 저장합니다. Mac 운영자는 `base/checkout` 코드 폴더에서 실행해 주세요. Linux 운영자는 TOML의 `paths.checkout_dir` 코드 폴더에서 실행합니다. `--config` 실행을 복구하는 운영자는 명령 인자를 TOML의 `paths.state_dir` 값으로 바꿔 주세요. Linux 예제에서는 첫 줄의 이동 경로도 `paths.checkout_dir`로 바꿔 주세요. TOML 파일 이름을 인자로 전달하는 명령이 아닙니다. 갱신 날짜·처리 단계·시도 수·GitHub 게시 번호는 유지하므로 이미 진행한 작업을 잊지 않습니다. 운영자는 자동 실행과 같은 OS 계정에서 이 코드를 실행해 주세요.
 
 ```sh
-python3 - /etc/mensa/worker.toml <<'PYTHON'
+cd "$HOME/Library/Application Support/Mensa/checkout"
+python3 - "$HOME/Library/Application Support/Mensa" <<'PYTHON'
 from pathlib import Path
 import os
 import stat
 import sys
-from mensa.config import load_worker_config
 from mensa.queue import exclusive_lock, load_state, request_retry, save_state
 
-state_dir = load_worker_config(Path(sys.argv[1])).paths.state_dir
+state_dir = Path(sys.argv[1]).expanduser().absolute()
 mode = state_dir.lstat().st_mode
 if not stat.S_ISDIR(mode) or stat.S_IMODE(mode) & 0o077:
     raise SystemExit('Existing private state directory required')
@@ -211,7 +221,14 @@ with exclusive_lock(state_dir / 'worker.lock'):
 PYTHON
 ```
 
-운영자는 status로 변경한 대기 작업을 확인한 뒤 자동 실행을 다시 등록/활성화해 주세요. queue.json·완료 번역·복구 기록이나 게시 번호를 삭제하면 프로그램이 이미 수행한 작업을 잊을 수 있으므로 초기화하지 않습니다.
+운영자는 `--status`로 대기 작업의 날짜·단계·시도 횟수·게시 번호가 유지됐는지 확인해 주세요. 앞에서 Mac LaunchAgent를 중지했다면 같은 사용자가 아래 명령으로 다시 등록하고 기존 대기 작업을 실행합니다. 이미 실행 중인 작업을 강제로 종료하는 명령은 아닙니다. Linux 운영자는 기존 systemd timer를 다시 활성화해 주세요.
+
+```sh
+launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/io.github.garlicvread.mensa-refresh.plist"
+launchctl kickstart "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
+```
+
+운영자가 queue.json·완료 번역·복구 기록이나 게시 번호를 삭제하면 프로그램은 이미 수행한 작업을 잊을 수 있습니다. 운영자는 이 기록을 초기화하지 말고 기존 대기 작업을 재개해 주세요.
 
 Git 변경을 복구하는 SnapshotRepository(`mensa/git_repository.py`)는 워커가 두 데이터 JSON을 기록해 만든 커밋을 확인합니다. 이 커밋을 소유 커밋이라고 부릅니다. 이 클래스는 snapshot-journal.json의 부모 커밋·Git 트리·데이터 파일 내용을 대조하며 커밋 메시지만으로 소유 여부를 판단하지 않습니다. 게시 준비 중 원격 main이 앞서가면 SnapshotRepository의 plan_replacement/resume_replacement는 두 이력을 구별합니다. 원격 main 이력에 워커의 기존 커밋이 이미 들어 있으면 로컬 main을 원격 main 위치까지 앞으로 이동합니다(fast-forward). 기존 커밋이 main 이력에 남아 있으므로 이 경우에는 refs/mensa/superseded/<SHA>를 만들지 않습니다. 원격 main이 기존 커밋을 포함하지 않고 두 이력이 갈라졌다면, 클래스는 워커가 만든 커밋인지와 기록된 출발 커밋이 원격 main에 남아 있는지를 확인한 뒤 기존 커밋을 refs/mensa/superseded/<SHA>에 보존합니다. 프로그램은 최신 main에서 식단을 다시 수집하고 새 게시용 데이터 커밋을 준비합니다. 이 새 커밋을 대체 커밋이라고 부릅니다. 프로그램은 사람이 만든 변경·알 수 없는 커밋을 보존하며 운영자가 검토해야 합니다.
 

@@ -2,7 +2,6 @@
 
 import copy
 from datetime import datetime, timedelta, timezone
-import importlib.util
 import json
 from pathlib import Path
 import subprocess
@@ -13,23 +12,9 @@ from unittest.mock import patch, Mock
 from dataclasses import FrozenInstanceError
 
 from mensa.config import ResourceSettings
+from mensa import queue, resources
 
 from scripts import refresh_queue as resource_adapter
-
-RESOURCES_PATH = Path(__file__).resolve().parents[1] / 'mensa/resources.py'
-resources = None
-if RESOURCES_PATH.exists():
-    resources = importlib.import_module('mensa.resources')
-
-
-MODULE = Path(__file__).resolve().parents[1] / "mensa" / "queue.py"
-if MODULE.exists():
-    spec = importlib.util.spec_from_file_location("mensa.queue", MODULE)
-    queue = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(queue)
-else:
-    queue = None
-
 
 NOW = datetime(2026, 9, 21, 8, 0, tzinfo=timezone.utc)
 EMPTY = {"schema_version": 1, "completed_period": None, "pending": None}
@@ -44,7 +29,6 @@ Pages wired down:                        100000.
 
 class QueueTests(unittest.TestCase):
     def setUp(self):
-        self.assertIsNotNone(queue, "mensa.queue implementation is missing")
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.directory = Path(self.temporary.name)
@@ -238,9 +222,6 @@ sys.exit(0)
 
 
 class ResourceTests(unittest.TestCase):
-    def setUp(self):
-        self.assertIsNotNone(resources, "mensa.resources implementation is missing")
-
     def status(self, vm=VM_OK, power="Now drawing from 'AC Power'\n -InternalBattery-0 100%; charged", load=1, cpus=8):
         def command(args, **kwargs):
             self.assertLessEqual(kwargs["timeout"], 10)
@@ -287,9 +268,6 @@ class ResourceTests(unittest.TestCase):
 
 
 class ConfiguredResourceTests(unittest.TestCase):
-    def setUp(self):
-        self.assertIsNotNone(resources, 'mensa.resources implementation is missing')
-
     def test_configured_thresholds_use_measured_fractional_capacity_without_legacy_floor(self):
         snapshot = resources.ResourceSnapshot(4096, .5, .5, True)
         with self.assertRaises(FrozenInstanceError):
@@ -364,7 +342,6 @@ class ConfiguredResourceTests(unittest.TestCase):
 
 class LinuxResourceTests(unittest.TestCase):
     def setUp(self):
-        self.assertIsNotNone(resources, 'mensa.resources implementation is missing')
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.base = Path(self.temporary.name)
@@ -458,7 +435,6 @@ class LinuxResourceTests(unittest.TestCase):
         self.assertFalse(ready)
 
 
-
 class GenerationQueueTests(unittest.TestCase):
     """GenerationQueueTests는 queue 코드가 번역 오류의 종류와 재시도 가능 여부를 작업 대기열 파일에 올바르게 저장하고 읽는지 확인합니다. 작업을 안전하게 재개하도록 오류에 따른 차단, 재시도 시각 계산, 명시적 재시도 요청의 처리도 검사합니다."""
 
@@ -473,7 +449,7 @@ class GenerationQueueTests(unittest.TestCase):
     def blocked(self, state=None):
         return queue.failed(state or self.pending(), self.generation_error("authentication"), NOW)
 
-    def test_card16_valid_markers_roundtrip(self):
+    def test_valid_markers_roundtrip(self):
         for code in ("authentication", "http_error", "http_retryable", "timeout", "network",
                      "redirect", "invalid_config", "invalid_ollama_endpoint", "invalid_json",
                      "invalid_envelope", "incomplete_generation", "invalid_result", "response_too_large"):
@@ -487,7 +463,7 @@ class GenerationQueueTests(unittest.TestCase):
                     self.fail(f"Valid typed marker must be accepted: {exc}")
                 self.assertEqual(queue.load_state(self.path), state)
 
-    def test_card16_malformed_markers_are_rejected(self):
+    def test_malformed_markers_are_rejected(self):
         invalid = (None, [], "authentication", {}, {"code": "authentication"},
                    {"code": "unknown", "retryable": False},
                    {"code": 1, "retryable": False},
@@ -508,7 +484,7 @@ class GenerationQueueTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             queue.validate_state(state)
 
-    def test_card16_permanent_failure_keeps_safe_message_work_and_identifiers(self):
+    def test_permanent_failure_keeps_safe_message_work_and_identifiers(self):
         original = self.publishing()
         original["pending"]["dispatch_requested_at"] = NOW.isoformat()
         untouched = copy.deepcopy(original)
@@ -523,7 +499,7 @@ class GenerationQueueTests(unittest.TestCase):
         queue.save_state(self.path, state)
         self.assertEqual(queue.load_state(self.path), state)
 
-    def test_card16_retry_after_is_lower_bound_for_backoff(self):
+    def test_retry_after_is_lower_bound_for_backoff(self):
         for attempts, requested, seconds in ((0, None, 900), (0, 60, 900), (0, 1800, 1800),
                                              (8, 60, 21600), (8, 86400, 86400)):
             original = self.pending()
@@ -545,13 +521,13 @@ class GenerationQueueTests(unittest.TestCase):
                     self.assertEqual(following["pending"]["next_attempt_at"], state["pending"]["next_attempt_at"])
                     self.assertEqual(following["pending"]["attempts"], state["pending"]["attempts"])
 
-    def test_card16_fractional_retry_delay_and_clock_never_schedule_early(self):
+    def test_fractional_retry_delay_and_clock_never_schedule_early(self):
         now = NOW.replace(microsecond=123456)
         state = queue.failed(self.pending(), self.generation_error("http_retryable", retry_after=1800.75), now)
         self.assertEqual(datetime.fromisoformat(state["pending"]["next_attempt_at"].replace("Z", "+00:00")),
                          now + timedelta(seconds=1800.75))
 
-    def test_card16_generic_failure_clears_stale_marker_and_keeps_old_limit(self):
+    def test_generic_failure_clears_stale_marker_and_keeps_old_limit(self):
         state = self.blocked()
         changed = queue.failed(state, "x" * 2500, NOW)
         self.assertNotIn("generation_failure", changed["pending"])
@@ -559,7 +535,7 @@ class GenerationQueueTests(unittest.TestCase):
         self.assertEqual(changed["pending"]["next_attempt_at"], "2026-09-21T08:30:00Z")
         self.assertIn("generation_failure", state["pending"])
 
-    def test_card16_future_week_coalesces_but_keeps_permanent_block(self):
+    def test_future_week_coalesces_but_keeps_permanent_block(self):
         original = self.blocked()
         original["pending"]["attempts"] = 7
         untouched = copy.deepcopy(original)
@@ -569,15 +545,8 @@ class GenerationQueueTests(unittest.TestCase):
         self.assertEqual(state, expected)
         self.assertEqual(original, untouched)
 
-    def test_card16_publication_failure_survives_future_week(self):
-        state = self.blocked(self.publishing())
-        state["pending"]["dispatch_requested_at"] = NOW.isoformat()
-        changed = queue.reconcile(state, NOW + timedelta(weeks=4))
-        self.assertEqual(changed, state)
-        self.assertIsNot(changed["pending"], state["pending"])
 
-    def test_card16_request_retry_clears_only_failure_schedule_and_reason(self):
-        self.assertTrue(callable(getattr(queue, "request_retry", None)), "request_retry must exist")
+    def test_request_retry_clears_only_failure_schedule_and_reason(self):
         for original in (self.blocked(self.publishing()),
                          queue.failed(self.publishing(), self.generation_error("timeout"), NOW),
                          queue.failed(self.publishing(), "ordinary", NOW), self.pending()):

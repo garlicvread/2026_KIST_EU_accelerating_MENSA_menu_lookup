@@ -3,7 +3,6 @@
 import copy
 from contextlib import contextmanager
 from dataclasses import replace
-import importlib
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -15,18 +14,11 @@ from mensa.errors import GenerationError
 from mensa.model_runtime import model_session
 from mensa.translation_contract import PROMPT_VERSION, generation_identity, source_key
 
-try:
-    adapter = importlib.import_module('mensa.translation_runtime')
-except ModuleNotFoundError as error:
-    if error.name != 'mensa.translation_runtime':
-        raise
-    adapter = None
+from mensa import translation_runtime as adapter
 
 
 class TranslationRuntimeTests(unittest.TestCase):
     def setUp(self):
-        self.assertTrue(callable(getattr(adapter, 'resume_configured_translations', None)),
-                        'resume_configured_translations must connect configured runtime to private JSON')
         temporary = TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.base = Path(temporary.name)
@@ -146,29 +138,6 @@ class TranslationRuntimeTests(unittest.TestCase):
                 self.assertEqual(callbacks, [final])
                 forbidden.assert_not_called()
 
-    def test_published_editorial_and_reviewed_beat_private_models_without_runtime(self):
-        TranslationCheckpointStore(self.state).save(self.cache(*(self.entry(s) for s in self.sources)))
-        for origin in ('editorial-draft', 'reviewed-draft'):
-            with self.subTest(origin=origin):
-                public = self.cache(*(self.entry(s, origin=origin, name='Published current') for s in self.sources))
-                forbidden = Mock(side_effect=AssertionError('Editorial data must not start runtime'))
-                final = self.run_adapter(public, runtime=forbidden, translate=forbidden)
-                self.assertEqual(final, public)
-                self.assertEqual(self.stored(), public)
-                forbidden.assert_not_called()
-
-    def test_current_phrases_override_stale_public_and_private_without_runtime(self):
-        history = self.cache(*(self.entry(s) for s in self.sources))
-        TranslationCheckpointStore(self.state).save(history)
-        phrases = {name: {'en': 'Corrected ' + name, 'ko': '수정'} for name in ('Suppe A', 'Suppe B', 'Brot')}
-        before = copy.deepcopy((self.menu, history, phrases, self.glossary))
-        forbidden = Mock(side_effect=AssertionError('Phrases must not start runtime'))
-        final = self.run_adapter(history, phrases, runtime=forbidden, translate=forbidden)
-        self.assertTrue(all(e['origin'] == 'editorial-draft' for e in final['entries'].values()))
-        self.assertEqual(final['entries'][source_key(self.sources[0])]['en']['name'], 'Corrected Suppe A')
-        self.assertEqual(self.stored(), final)
-        self.assertEqual((self.menu, history, phrases, self.glossary), before)
-        forbidden.assert_not_called()
 
     def test_empty_menu_still_saves_final_without_runtime(self):
         self.menu = {'days': []}

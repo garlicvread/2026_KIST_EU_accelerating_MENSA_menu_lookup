@@ -2,20 +2,12 @@
 
 import copy
 import hashlib
-import importlib.util
 import json
-from pathlib import Path
 import unittest
 from unittest.mock import patch
 
 
-MODULE = Path(__file__).resolve().parents[1] / "scripts" / "menu_source.py"
-if MODULE.exists():
-    spec = importlib.util.spec_from_file_location("menu_source", MODULE)
-    collector = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(collector)
-else:
-    collector = None
+from scripts import menu_source as collector
 
 
 PRICES = "<p><strong>Preise:</strong> S: 3,50 | M: 4,65 | G: 5,35</p>"
@@ -43,9 +35,6 @@ def page(content=None, category="Wahlessen", date="21.09.2026"):
 
 
 class MenuSourceTests(unittest.TestCase):
-    def setUp(self):
-        self.assertIsNotNone(collector, "menu_source implementation is missing")
-
     def parse(self, html=None):
         return collector.parse_menu(page() if html is None else html, "2026-09-21T10:00:00Z")
 

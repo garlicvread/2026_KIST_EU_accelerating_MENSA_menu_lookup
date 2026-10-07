@@ -4,7 +4,6 @@ import copy
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from dataclasses import replace
-import importlib.util
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -21,21 +20,14 @@ from scripts.menu_source import parse_menu
 from test_menu_source import meal, page
 from test_publication import translation_entry
 
-MODULE = Path(__file__).resolve().parents[1] / 'mensa/directory_refresh.py'
-adapter = None
-if MODULE.exists():
-    spec = importlib.util.spec_from_file_location('mensa.directory_refresh', MODULE)
-    adapter = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(adapter)
+from mensa import directory_refresh as adapter
 
 NOW = datetime(2026, 9, 21, 10, tzinfo=timezone.utc)
 
 
 class DirectoryRefreshTests(unittest.TestCase):
     def setUp(self):
-        self.assertIsNotNone(adapter, 'Directory refresh implementation is missing')
-        self.job_type = getattr(adapter, 'DirectoryRefreshJob', None)
-        self.assertTrue(callable(self.job_type), 'DirectoryRefreshJob implementation is missing')
+        self.job_type = adapter.DirectoryRefreshJob
 
     @contextmanager
     def fixture(self):

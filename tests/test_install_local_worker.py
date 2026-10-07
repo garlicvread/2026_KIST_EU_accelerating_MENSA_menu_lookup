@@ -1,4 +1,5 @@
 import importlib
+from scripts import install_local_worker as installer
 import io
 import json
 import os
@@ -17,10 +18,7 @@ LABEL = 'io.github.garlicvread.mensa-refresh'
 
 class InstallLocalWorkerTests(unittest.TestCase):
     def setUp(self):
-        try:
-            self.installer = importlib.import_module('scripts.install_local_worker')
-        except ModuleNotFoundError:
-            self.fail('The local worker installer is not implemented')
+        self.installer = installer
         self.folder = TemporaryDirectory()
         self.addCleanup(self.folder.cleanup)
         self.home = Path(self.folder.name).resolve()

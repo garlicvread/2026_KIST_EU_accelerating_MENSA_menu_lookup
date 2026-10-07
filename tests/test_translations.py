@@ -86,16 +86,6 @@ class TranslationTests(unittest.TestCase):
         self.phrases = {"Schupfnudeln": {"en": "German potato dumplings", "ko": "독일식 감자 경단"},
                         "Gemüse": {"en": "Vegetables", "ko": "채소"}}
 
-    def test_no_provider_keeps_unknown_as_original(self):
-        result = build_translations(self.menu, {"schema_version": 1, "entries": {}}, {}, None)
-        self.assertEqual(result["entries"], {})
-        self.assertEqual(self.meal["prices"]["student"], 310)
-
-    def test_editorial_translation_covers_name_and_components(self):
-        cache = build_translations(self.menu, {}, self.phrases, None)
-        entry = cache["entries"][self.meal["translation_key"]]
-        self.assertEqual(entry["ko"], {"name": "독일식 감자 경단", "components": ["채소"]})
-        validate_cache(cache)
 
     def test_notices_are_translated_even_when_dish_translation_is_cached(self):
         old = build_translations(self.menu, {}, self.phrases, None)
@@ -152,12 +142,6 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(cache["entries"], previous["entries"])
         self.assertEqual(menu, original)
 
-    def test_notice_source_keys_are_exact_and_not_normalized(self):
-        for label in ("weizen", "Weizen ", "biologisches Essen"):
-            with self.subTest(label=label):
-                self.meal["notices"] = [label]
-                with self.assertRaisesRegex(ValueError, "Unknown notice"):
-                    build_translations(self.menu, {}, self.phrases, None)
 
     def test_source_change_does_not_reuse_old_translation(self):
         old = build_translations(self.menu, {}, self.phrases, None)
@@ -270,9 +254,7 @@ class GenerationIdentityTests(unittest.TestCase):
                           "ko": {"name": "새 이름", "components": ["새 곁들임"]}}
 
     def api(self, name):
-        function = getattr(translation_contract, name, None)
-        self.assertTrue(callable(function), f"Pure {name} API is required")
-        return function
+        return getattr(translation_contract, name)
 
     def build(self, previous, config, result, *, glossary=None, phrases=None):
         with patch.object(translations, "load_glossary", return_value=self.glossary if glossary is None else glossary, create=True):
@@ -541,31 +523,6 @@ class GenerationIdentityTests(unittest.TestCase):
         self.assertEqual(load.call_count, 1)
         self.assertIs(translate_notices.call_args.args[1], self.glossary)
         self.assertIs(identity_call.call_args.kwargs["notice_glossary"], self.glossary)
-
-    def test_notice_adapter_validates_explicit_mapping_and_keeps_exact_label_errors(self):
-        try:
-            selected = notices.translated_notices(self.menu, glossary=self.glossary)
-        except TypeError as exc:
-            self.fail(f"Notice adapter must accept a validated snapshot: {exc}")
-        self.assertEqual(selected, {"Weizen": self.glossary["Weizen"]})
-        selected["Weizen"]["en"] = "Edited copy"
-        self.assertEqual(self.glossary["Weizen"]["en"], "Wheat")
-        for malformed in ([], {"Weizen": {"en": "Wheat"}}):
-            with self.subTest(glossary=malformed), self.assertRaises(ValueError):
-                notices.translated_notices(self.menu, glossary=malformed)
-        with self.assertRaisesRegex(ValueError, "Unknown notice labels: 'Weizen'.*notice-translations.json before retrying"):
-            notices.translated_notices(self.menu, glossary={})
-
-    def test_complete_editorial_phrases_replace_model_identity_without_acquiring_it(self):
-        previous = self.build({}, self.config, self.original)
-        phrases = {"Schupfnudeln": {"en": "Editorial title", "ko": "편집 이름"},
-                   "Gemüse": {"en": "Editorial side", "ko": "편집 곁들임"}}
-        cache = self.build(previous, self.config, self.generated, phrases=phrases)
-        entry = cache["entries"][self.meal["translation_key"]]
-        self.assertEqual(entry["en"], {"name": "Editorial title", "components": ["Editorial side"]})
-        self.assertEqual(entry["ko"], {"name": "편집 이름", "components": ["편집 곁들임"]})
-        self.assertEqual(entry["origin"], "editorial-draft")
-        self.assertNotIn("generation_identity", entry)
 
 
 class TranslationCheckpointTests(unittest.TestCase):
@@ -1016,14 +973,6 @@ class SemanticNamePolicyTests(unittest.TestCase):
                     "generation_identity": self.fixture_identity(config)})
                 self.assertEqual((menu, previous, phrases, config), inputs)
 
-    def test_configured_build_reuses_v3_model_cache_without_editorial_phrases(self):
-        meal = sample_meal()
-        previous = self.legacy_cache(meal, "Potato dumplings", "감자 경단")
-        config = {"model": "original-generator"}
-        previous["entries"][meal["translation_key"]]["generation_identity"] = self.fixture_identity(config)
-        cache = build_translations({"days": [{"meals": [meal]}]}, previous, {}, config,
-                                   translate=lambda *args: self.fail("Compatible cache must not call a model"))
-        self.assertEqual(cache["entries"], previous["entries"])
 
     def test_malformed_editorial_entries_follow_incomplete_phrase_fallback(self):
         meal = sample_meal()

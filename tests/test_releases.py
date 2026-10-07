@@ -2,7 +2,6 @@
 
 import copy
 import hashlib
-import importlib.util
 import json
 import os
 from pathlib import Path
@@ -16,18 +15,12 @@ from scripts.menu_source import parse_menu
 from test_menu_source import page
 from test_publication import translation_entry
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / 'mensa/releases.py'
-releases = None
-if MODULE_PATH.exists():
-    spec = importlib.util.spec_from_file_location('mensa.releases', MODULE_PATH)
-    releases = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(releases)
+from mensa import releases as releases
 
 
 class DirectoryPublisherTests(unittest.TestCase):
     def setUp(self):
-        self.publisher_type = getattr(releases, 'DirectoryPublisher', None)
-        self.assertTrue(callable(self.publisher_type), 'Immutable DirectoryPublisher implementation is missing')
+        self.publisher_type = releases.DirectoryPublisher
         self.menu = parse_menu(page(), '2026-09-21T10:00:00Z')
         record = self.menu['days'][0]['meals'][0]
         self.key = record['translation_key']

@@ -1,7 +1,6 @@
 """이 테스트 모듈은 번역 재개 기록이 비공개 파일에 저장되는지 확인합니다. 실제 작업 파일을 건드리지 않도록 모든 파일 변경은 테스트 임시 디렉터리에 한정합니다."""
 
 import copy
-import importlib
 import json
 import os
 from pathlib import Path
@@ -10,14 +9,8 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from mensa import checkpoints
 from mensa.translation_contract import source_key
-
-try:
-    checkpoints = importlib.import_module("mensa.checkpoints")
-except ModuleNotFoundError as error:
-    if error.name != "mensa.checkpoints":
-        raise
-    checkpoints = None
 
 
 def partial_cache():
@@ -35,7 +28,6 @@ def partial_cache():
 
 class CheckpointTests(unittest.TestCase):
     def setUp(self):
-        self.assertIsNotNone(checkpoints, "TranslationCheckpointStore must provide private persistence")
         self.scratch = tempfile.TemporaryDirectory()
         self.addCleanup(self.scratch.cleanup)
         self.parent = Path(self.scratch.name)

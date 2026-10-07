@@ -8,7 +8,7 @@
 
 식단을 주기적으로 준비하는 Python 프로그램을 워커라고 부릅니다. 실행 명령은 [`scripts/local_refresh.py`](scripts/local_refresh.py)에 있습니다. 이 프로그램은 원본 웹페이지를 읽고 메뉴·가격을 검사한 뒤 요리 이름과 곁들임 음식을 번역합니다. 검사를 통과한 메뉴와 번역은 JSON 파일로 저장합니다.
 
-이용자의 브라우저는 미리 준비한 HTML/CSS/JavaScript와 JSON 파일을 읽습니다. 브라우저 요청에 맞춰 식단을 생성하는 웹 백엔드나 데이터베이스 엔진은 없습니다. Python 프로그램이 진행 중인 작업과 이미 완료한 번역도 JSON 파일로 저장합니다. 운영자는 이 진행 기록을 웹서버에 공개하지 않습니다.
+이용자의 브라우저는 미리 준비한 HTML/CSS/JavaScript와 JSON 파일을 읽습니다. 브라우저 요청에 맞춰 식단을 생성하는 웹 백엔드나 데이터베이스 엔진은 없습니다. Python 프로그램은 수집·게시 진행 상태와 완성된 번역을 JSON 파일로 저장합니다. `--config` 실행은 검사가 끝난 중간 번역도 별도 파일에 저장하지만, Mac 기본 `--base` 실행은 새 번역을 만드는 동안 메모리에서 보관합니다. 운영자는 이 진행 기록을 웹서버에 공개하지 않습니다.
 
 처음 프로젝트를 맡은 유지보수자는 [시작 안내](docs/getting-started.md)와 [유지보수 설명서](docs/maintenance.md)를 읽어 주세요. 웹사이트에 변경을 반영하는 운영자는 [사이트 배포 안내](docs/deployment.md)를 확인해 주세요.
 
@@ -58,7 +58,7 @@ python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa
 python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa"
 ```
 
-Mac 자동 실행 파일을 작성·등록하는 [`scripts/install_local_worker.py`](scripts/install_local_worker.py)는 로그인 시와 900초 간격으로 위 Python 프로그램을 실행하도록 설정합니다. 이 경로는 고정 모델 `gemma4:31b`와 GitHub 게시 대상을 사용합니다. 운영자는 모델 실행 파일과 가중치를 별도로 준비해야 합니다.
+Mac 자동 실행 파일을 작성·등록하는 [`scripts/install_local_worker.py`](scripts/install_local_worker.py)는 로그인 시와 900초 간격으로 위 Python 프로그램을 실행하도록 설정합니다. 이 경로는 고정 모델 `gemma4:31b`와 GitHub 게시 대상을 사용합니다. 운영자는 모델 실행 파일과 가중치를 별도로 준비해야 합니다. Mac이 깨어 있고 해당 사용자의 로그인 세션이 유지되어야 프로그램이 실행됩니다. 화면 잠금과 로그아웃·시스템 잠자기의 차이, 실행 상태 확인과 복구 방법은 [Mac 운영 조건](docs/operations.md#mac의-로그인화면-잠금잠자기)을 확인해 주세요.
 
 ## 원본 데이터와 공개 파일을 다룰 때의 기준
 

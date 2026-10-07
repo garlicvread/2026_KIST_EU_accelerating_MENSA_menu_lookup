@@ -35,7 +35,7 @@ package.json, package-lock.json, tsconfig.json
 
 `local_refresh`는 TOML 기반 `--config` 또는 Mac 모드 `--base`를 선택합니다. `JobRunner`가 비공개 state 준비와 비대기 락을 소유하고 갱신 예정 시각을 큐에 저장합니다. 리소스와 재시도 게이트를 통과하면 수집 → 원본/가격/coverage 검증 → 번역 → 후보 완전성 검증 → 게시를 수행합니다. 작업 성공 후에만 큐의 완료 수집 시각을 저장하며 마지막 결과를 쓰기까지 락을 유지합니다.
 
-설정 기반 번역은 저장된 공개 캐시와 비공개 `translation-checkpoint.json`을 재개합니다. 각 수락 항목의 번역 JSON을 저장하고 필요한 생성 시점에만 runtime을 엽니다. managed는 자신이 시작한 Ollama 그룹만 종료하며 external은 endpoint 프로세스를 관리하지 않습니다. runtime은 게시자에게 결과를 넘기기 전에 닫습니다.
+설정 기반 `--config` 실행의 번역 재개 함수는 공개 캐시와 비공개 `translation-checkpoint.json`에서 완료 번역을 읽습니다. 이 함수는 검사를 통과한 요리별 번역을 중간 파일에 저장합니다. 설정 기반 모델 실행 함수 `model_session`은 새 번역이 필요한 순간에만 모델 연결을 준비합니다. `managed` 설정에서는 이 함수가 자신이 시작한 Ollama 프로세스 그룹만 종료하며, `external` 설정에서는 외부 모델 프로세스를 시작하거나 종료하지 않습니다. 번역 재개 함수는 모델 연결을 정리한 뒤 게시자에게 결과를 넘깁니다. Mac 기본 `--base` 실행의 `RefreshJob.translate`는 중간 저장 파일을 사용하지 않습니다. Mac 기본 경로는 공개 캐시의 완료 번역을 재사용하고 새 번역을 메모리에 보관하다가 전체 식단 검사가 끝난 뒤 저장합니다.
 
 `directory`는 현재 공개 release를 이전 입력으로 읽고 완전한 쌍을 설치한 뒤 포인터를 교체합니다. 첫 게시에는 checkout의 `site/data`를 사용합니다. checkout/Git/HTML/assets를 쓰지 않습니다. 게시 후 큐 저장이 실패하면 다음 실행이 수집을 다시 수행하고 완료 번역을 재사용합니다.
 
@@ -164,7 +164,7 @@ Mac `--base`는 전용 checkout/runtime/ollama/models/logs와 고정 gemma4:31b/
 
 ## 실패와 복구를 다룰 때
 
-status에서 pending period/phase/attempts/next_attempt_at과 commit_sha/run_id/dispatch_requested_at, 최근 결과를 함께 봅니다. `translation-checkpoint.json`은 완료된 항목 데이터지만 부분 캐시일 수 있습니다. 작업을 중지하고 같은 락 아래에서 큐/최근 결과/번역 이력/저널/TOML을 일관된 비공개 사본으로 보존합니다. Git은 HEAD/main/upstream과 소유 `refs/mensa/superseded/`도 남깁니다.
+운영자는 `--status` 출력에서 대기 작업의 period/phase/attempts/next_attempt_at과 commit_sha/run_id/dispatch_requested_at, 최근 실행 결과를 함께 확인해 주세요. `translation-checkpoint.json`은 `--config` 경로에서 저장한 완료 항목 데이터이며 부분 캐시일 수 있습니다. Mac 기본 `--base` 경로에는 이 파일이 없습니다. 운영자는 `waiting`이나 종료 코드 0만으로 새 게시가 성공했다고 판단하지 말고, 완료 수집 시각과 공개 데이터의 수집 시각을 대조해 주세요. 운영자가 복구 기록을 백업할 때는 자동 실행과 현재 작업을 중지하고 worker.lock 잠금 안에서 큐/최근 결과/번역 이력/저널/TOML을 일관된 비공개 사본으로 보존해 주세요. Git 게시 경로를 복구하는 운영자는 HEAD/main/upstream과 `refs/mensa/superseded/`의 커밋도 보존해 주세요.
 
 먼저 원인을 수정합니다. 영구 generation 실패의 명시적 해제는 `mensa.queue.request_retry`를 사용하며 전용 CLI 옵션은 없습니다. 운영 문서의 락/파일 검사 snippet을 따라 period/phase/attempts/게시 IDs를 보존해 주세요. queue/checkpoint/journal 삭제나 임의 ID 초기화는 하지 않습니다. GitHub의 알려진 run을 먼저 조회하고 응답이 사라진 dispatch는 같은 SHA로 찾습니다. 대체 커밋과 원래 실행의 충돌·만료 후보·unknown 변경은 운영자 검토 대상입니다.
 
