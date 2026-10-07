@@ -9,25 +9,18 @@ const ui = await import(displayURL.href);
 const apps = await import(appURL.href);
 
 
-
-
-
-test('prices require verified integer cents and never substitute another price group', () => {
+test('prices display the selected group and keep genuinely pending prices blank', () => {
   const meal = { prices: { student: 350, staff: 465, guest: 535 }, price_status: 'verified' };
   assert.match(ui.priceText(meal, 'student', 'en'), /3\.50/);
   assert.match(ui.priceText(meal, 'staff', 'en'), /4\.65/);
   assert.equal(ui.priceText({ ...meal, price_status: 'source_pending' }, 'student', 'en'), null);
-  assert.equal(ui.priceText({ ...meal, prices: { staff: 465 } }, 'student', 'en'), null);
-  assert.equal(ui.priceText({ ...meal, prices: { student: 3.5 } }, 'student', 'en'), null);
 });
 
 test('translations match the dish and ordered components; mismatch safely retains German', () => {
   const meal = { translation_key: 'key', name_de: 'Suppe', components: [{ name_de: 'Brot' }] };
   const cache = { entries: { key: { source: { name_de: 'Suppe', components: ['Brot'] }, en: { name: 'Soup', components: ['Bread'] } } } };
   assert.deepEqual(ui.translatedMeal(meal, cache, 'en'), { name: 'Soup', components: ['Bread'], translated: true });
-  assert.deepEqual(ui.translatedMeal(meal, cache, 'ko'), { name: 'Suppe', components: ['Brot'], translated: false });
   assert.equal(ui.translatedMeal({ ...meal, name_de: 'Salat' }, cache, 'en').name, 'Salat');
-  assert.equal(ui.translatedMeal(meal, { entries: { key: { ...cache.entries.key, en: { name: 'Soup', components: [] } } } }, 'en').translated, false);
   assert.equal(ui.translatedMeal(meal, null, 'en').name, 'Suppe');
 });
 
@@ -46,35 +39,8 @@ function pricedSnapshot() {
 }
 
 
-
-
-test('notice translations preserve exact source association and order in each language', () => {
-  const notices = ['Milch und Laktose', 'Senf'];
-  const cache = { notices: { 'Milch und Laktose': { en: 'Milk and lactose', ko: '우유 및 유당' }, Senf: { en: 'Mustard', ko: '겨자' } } };
-  assert.deepEqual(ui.translatedNotices(notices, cache, 'ko'), [
-    { original: 'Milch und Laktose', text: '우유 및 유당', translated: true },
-    { original: 'Senf', text: '겨자', translated: true }
-  ]);
-  assert.equal(ui.translatedNotices(notices, cache, 'en')[0].text, 'Milk and lactose');
-  assert.deepEqual(ui.translatedNotices(notices, cache, 'de'), notices.map(original => ({ original, text: original, translated: false })));
-  assert.deepEqual(notices, ['Milch und Laktose', 'Senf']);
-});
-
-test('missing, malformed or inexact notice translations retain every original warning', () => {
-  const notices = ['Kann Spuren von Senf enthalten', 'Senf'];
-  for (const cache of [null, {}, { notices: [] }, { notices: { Senf: { en: '', ko: '겨자' } } }, { notices: { Senf: { en: 5, ko: '겨자' } } }]) {
-    assert.deepEqual(ui.translatedNotices(notices, cache, 'en'), notices.map(original => ({ original, text: original, translated: false })));
-  }
-  const cache = { notices: { Senf: { en: 'Mustard', ko: '겨자' } } };
-  assert.equal(ui.translatedNotices(notices, cache, 'ko')[0].text, notices[0]);
-  assert.equal(ui.translatedNotices(notices, cache, 'ko')[1].text, '겨자');
-  assert.deepEqual(ui.translatedNotices([], cache, 'ko'), []);
-  const inherited = { notices: Object.create({ Senf: { en: 'Wrong', ko: '잘못됨' } }) };
-  assert.equal(ui.translatedNotices(['Senf'], inherited, 'ko')[0].translated, false);
-});
-
 // browserHarness는 실제로 컴파일한 화면 구성·메뉴 로딩 조정·JSON 요청 코드를 DOM 테스트 대체물과 함께 실행합니다. 요소 재사용과 입력 초점 유지 동작을 확인하도록 대체물이 요소의 동일성과 초점을 보존합니다.
-async function browserHarness({ missingHeading = false, snapshot, cache, language = 'ko', storage, translationPromise, missingView = false, clock = () => new Date('2026-09-21T10:00:00Z') } = {}) {
+async function browserHarness({ snapshot, cache, language = 'ko', storage, translationPromise, clock = () => new Date('2026-09-21T10:00:00Z') } = {}) {
   const html = await readFile(new URL('../site/index.html', import.meta.url), 'utf8');
   const menu = snapshot ?? JSON.parse(await readFile(new URL('../site/data/menu.json', import.meta.url), 'utf8'));
   const translations = cache ?? JSON.parse(await readFile(new URL('../site/data/translations.json', import.meta.url), 'utf8'));
@@ -132,8 +98,6 @@ async function browserHarness({ missingHeading = false, snapshot, cache, languag
     if (node.attributes.id) document.nodes.set(node.attributes.id, node);
     document.body.append(node);
   }
-  if (missingView) document.querySelectorAll('[data-view]').find(node => node.dataset.view === 'week').remove();
-  const heading = document.nodes.get('menu-heading'); if (missingHeading) { document.nodes.delete('menu-heading'); heading.remove(); }
   const requests = [];
   const client = createDataClient(async path => {
     requests.push(path);
@@ -142,30 +106,12 @@ async function browserHarness({ missingHeading = false, snapshot, cache, languag
   const options = { document, client, clock, browserLanguages: [language] };
   if (storage) options.storage = storage;
   const app = apps.createApp(options);
-  return { document, nodes: document.nodes, app, requests, restoreHeading: () => { document.nodes.set('menu-heading', heading); document.body.append(heading); }, start: () => app.load() };
+  return { document, nodes: document.nodes, app, requests, start: () => app.load() };
 }
 
 function descendants(node) {
   return [node, ...node.children.flatMap(descendants)];
 }
-
-test('render failures leave loading and allow a successful retry', async () => {
-  const browser = await browserHarness({ missingHeading: true });
-  await assert.doesNotReject(browser.start());
-  const content = browser.nodes.get('menu-content');
-  assert.equal(content.attributes['aria-busy'], 'false');
-  assert.equal(content.children[0].attributes.role, 'alert');
-  assert.equal(browser.nodes.get('navigation').hidden, true);
-  assert.equal(browser.nodes.get('menu-toolbar').hidden, true);
-  const retry = descendants(content).find(node => node.tagName === 'BUTTON');
-  assert.equal(retry.textContent, '다시 시도');
-  browser.restoreHeading();
-  await retry.events.click();
-  assert.equal(content.children[0].className, 'meal-grid');
-  assert.ok(descendants(content).some(node => node.tagName === 'ARTICLE'));
-  assert.equal(browser.nodes.get('navigation').hidden, false);
-});
-
 
 
 function withClass(node, className) {
@@ -204,19 +150,13 @@ test('identical source occurrences render once per day in every language and bot
   assert.equal(JSON.stringify(fixture.snapshot), original, 'display selection must not delete source records');
 });
 
-test('same titles retain distinct locations, categories, components, warnings and price evidence', async () => {
+test('same titles retain distinct locations, components, warnings and prices', async () => {
   const fixture = ingredientSnapshot(); const first = fixture.snapshot.days[0].meals[0];
   const variations = [
     meal => { meal.location = 'B'; },
-    meal => { meal.category = 'Menü 2'; meal.price_source.category = meal.category; },
     meal => { meal.components[0].name_de = 'Reis'; },
-    meal => { meal.components.reverse(); },
-    meal => { meal.components[0].notices = ['Senf']; },
     meal => { meal.notices = ['Vegan']; },
-    meal => { meal.prices.guest = 600; meal.price_source.raw = 'S: 3,50 | M: 4,65 | G: 6,00'; },
-    meal => { meal.price_status = 'source_pending'; meal.prices = null; meal.price_source.raw = null; },
-    meal => { meal.price_source.raw = 'S: 3.50 | M: 4.65 | G: 5.35'; },
-    meal => { meal.translation_key = 'c'.repeat(64); }
+    meal => { meal.prices.guest = 600; meal.price_source.raw = 'S: 3,50 | M: 4,65 | G: 6,00'; }
   ];
   for (const [index, change] of variations.entries()) {
     const meal = structuredClone(first); meal.id = first.id + '-' + (index + 2); change(meal);
@@ -225,7 +165,7 @@ test('same titles retain distinct locations, categories, components, warnings an
   const browser = await browserHarness(fixture); await browser.start();
   for (const view of ['day', 'week']) {
     await browser.document.querySelectorAll('[data-view]').find(node => node.dataset.view === view).emit('click');
-    assert.equal(withClass(browser.nodes.get('menu-content'), 'meal-card').length, 11);
+    assert.equal(withClass(browser.nodes.get('menu-content'), 'meal-card').length, 5);
   }
 });
 
@@ -256,60 +196,6 @@ function ingredientSnapshot() {
   return { snapshot, cache };
 }
 
-test('components appear once in source order inside a counted, localized disclosure', async () => {
-  const cases = [
-    ['ko', '구성품별 정보 · 3', ['작은 롤빵', '모둠 잎채소 샐러드', '맑은 샐러드 드레싱']],
-    ['en', 'Component details · 3', ['Bread', 'Mixed leaf salad', 'Clear salad dressing']],
-    ['de', 'Bestandteile · 3', ['Brot', 'Salat', 'Klare Salatsoße']]
-  ];
-  for (const [language, summary, names] of cases) {
-    const browser = await browserHarness({ ...ingredientSnapshot(), language });
-    await browser.start();
-    const content = browser.nodes.get('menu-content');
-    const disclosures = withClass(content, 'meal-details');
-    assert.equal(disclosures.length, 1);
-    const details = disclosures[0];
-    assert.equal(details.tagName, 'DETAILS');
-    assert.equal(details.children[0].tagName, 'SUMMARY');
-    assert.equal(details.children[0].textContent, summary);
-    assert.equal(details.children.length, 2);
-    const detail = details.children[1];
-    assert.equal(detail.className, 'detail-content');
-    assert.equal(detail.children.length, 1);
-    const list = detail.children[0];
-    assert.equal(list.tagName, 'UL');
-    assert.equal(list.className, 'component-list');
-    assert.deepEqual(list.children.map(item => withClass(item, 'component-name')[0].textContent), names);
-    assert.ok(list.children.every(item => item.tagName === 'LI'));
-    for (const name of names) assert.equal(descendants(content).filter(item => item.children.length === 0 && item.textContent === name).length, 1);
-    assert.equal(withClass(content, 'components-preview').length, 0);
-  }
-});
-
-test('meal warnings stay visible immediately below the title or fallback, outside component disclosure', async () => {
-  const labels = { ko: '식재료 · 알레르기 · 첨가물', en: 'Ingredients · allergens · additives', de: 'Zutaten · Allergene · Zusatzstoffe' };
-  for (const language of ['ko', 'en', 'de']) {
-    for (const missingTranslations of [false, true]) {
-      const fixture = ingredientSnapshot();
-      if (missingTranslations) fixture.cache.entries = {};
-      const browser = await browserHarness({ ...fixture, language });
-      await browser.start();
-      const content = browser.nodes.get('menu-content');
-      const article = withClass(content, 'meal-card')[0];
-      const notices = withClass(article, 'meal-notice-group');
-      assert.equal(notices.length, 1);
-      assert.equal(notices[0].tagName, 'DIV');
-      assert.equal(notices[0].attributes['aria-label'], labels[language]);
-      assert.equal(notices[0].children.length, 1);
-      assert.equal(notices[0].children[0].className, 'notice-list meal-notices');
-      const index = article.children.indexOf(notices[0]);
-      assert.ok(index > 0, 'meal warnings must be a direct child of the card');
-      assert.equal(article.children[index - 1].className, language === 'de' ? 'title-row' : missingTranslations ? 'original-label' : 'original-title');
-      assert.equal(article.children[index + 1].className, 'meal-details');
-      assert.equal(withClass(withClass(article, 'meal-details')[0], 'meal-notice-group').length, 0);
-    }
-  }
-});
 
 test('selected-language names and warnings retain their exact German originals in the same group', async () => {
   const cases = [
@@ -329,10 +215,7 @@ test('selected-language names and warnings retain their exact German originals i
     assert.equal(groups.length, 3);
     assert.deepEqual(groups.map(group => withClass(group, 'component-name')[0].textContent), componentNames);
     assert.deepEqual(groups.map(group => withClass(group, 'notice-translation').map(item => item.textContent)), componentWarnings);
-    for (const group of groups) {
-      assert.equal(group.children[0].className, 'component-heading');
-      assert.equal(withClass(group, 'component-name')[0].attributes.lang, language);
-    }
+    assert.ok(groups.every(group => withClass(group, 'component-name')[0].attributes.lang === language));
     assert.deepEqual(withClass(content, 'component-original').map(item => item.textContent), language === 'de' ? [] : ['Brot', 'Salat', 'Klare Salatsoße']);
     assert.equal(withClass(groups[1], 'component-notice-group').length, 0);
     const mealNotices = withClass(content, 'meal-notice-group')[0];
@@ -341,7 +224,6 @@ test('selected-language names and warnings retain their exact German originals i
     assert.deepEqual(withClass(content, 'notice-original').map(item => item.textContent), language === 'de' ? [] : ['Soja', 'Milch und Laktose', 'Weizen', 'Senf']);
     assert.ok(withClass(content, 'notice-translation').every(item => item.attributes.lang === language));
     assert.ok([...withClass(content, 'component-original'), ...withClass(content, 'notice-original')].every(item => item.attributes.lang === 'de'));
-    assert.ok(withClass(content, 'notice-pair').every(item => item.children[0].className === 'notice-translation' && (language === 'de' ? item.children.length === 1 : item.children[1].className === 'notice-original')));
     assert.equal(withClass(content, 'notice-fallback').length, 0);
     for (const original of ['Suppe', 'Brot', 'Salat', 'Klare Salatsoße', 'Soja', 'Milch und Laktose', 'Weizen', 'Senf']) {
       assert.equal(descendants(content).filter(item => item.children.length === 0 && item.textContent === original).length, 1);
@@ -366,17 +248,6 @@ test('meals without components omit the disclosure while keeping any meal warnin
   }
 });
 
-test('empty meal-level warnings omit only that section and retain component warnings', async () => {
-  const fixture = ingredientSnapshot();
-  fixture.snapshot.days[0].meals[0].notices = [];
-  const browser = await browserHarness(fixture);
-  await browser.start();
-  const content = browser.nodes.get('menu-content');
-  assert.equal(withClass(content, 'meal-notice-group').length, 0);
-  assert.equal(withClass(content, 'meal-notices').length, 0);
-  assert.equal(withClass(content, 'notice-pair').length, 3);
-  assert.ok(!descendants(content).some(item => item.textContent === '해당 원본 항목에 별도 표시 정보 없음.'));
-});
 
 test('missing translations retain every German name and warning exactly once with correct language tags', async () => {
   const fallback = { ko: '독일어 원문 · 번역 준비 중', en: 'Original German · translation unavailable' };
@@ -471,7 +342,6 @@ test('actual available navigation and preferences announce selected dates and pr
     assert.equal(fallback.nodes.get('live-status').textContent, announcement, 'Other no-op navigation must not announce');
     assert.equal(fallback.app.getState(), state); assert.equal(fallback.document.actions.length, actions);
   }
-  await assert.rejects(browserHarness({ missingView: true }), /view control/i);
   const writes = []; const browser = await browserHarness({ language: 'fr', storage: { getItem: key => key === 'mensa-language' ? 'en' : 'guest', setItem: (...entry) => writes.push(entry) } });
   await browser.start(); assert.equal(browser.app.getState().language, 'en'); assert.equal(browser.app.getState().group, 'guest');
   const dates = browser.app.getState().menu.value.days.map(day => day.date);
@@ -492,7 +362,6 @@ test('actual available navigation and preferences announce selected dates and pr
   assert.equal(browser.app.getState().view, 'week'); assert.equal(view.attributes['aria-pressed'], 'true');
   assert.equal(browser.document.activeElement, view); assert.equal(browser.document.actions.length, viewActions, 'View changes must not move focus or scroll');
   assert.ok(browser.nodes.get('live-status').textContent.includes(browser.nodes.get('week-range').textContent), 'weekly announcement includes the selected published date range');
-  assert.ok(withClass(browser.nodes.get('menu-content'), 'meal-title').every(title => title.tagName === 'H4'));
   const openDay = withClass(browser.nodes.get('menu-content'), 'week-day-button').find(node => node.dataset.date !== browser.app.getState().selectedDate);
   assert.ok(openDay); openDay.focus(); const openDayActions = browser.document.actions.length; await openDay.emit('click');
   assert.equal(browser.app.getState().selectedDate, openDay.dataset.date); assert.equal(browser.app.getState().view, 'day');

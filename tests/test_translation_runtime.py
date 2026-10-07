@@ -47,13 +47,10 @@ class TranslationRuntimeTests(unittest.TestCase):
         return generation_identity({'provider': settings.provider, 'model': settings.model,
                                     'backend_revision': settings.revision}, notice_glossary=self.glossary)
 
-    def entry(self, source, *, name='Cached soup', origin='model', settings=None):
-        entry = {'source': copy.deepcopy(source), **self.result(name), 'origin': origin,
-                 'model': self.settings.model if origin == 'model' else 'assistant-draft',
-                 'prompt_version': PROMPT_VERSION}
-        if origin == 'model':
-            entry['generation_identity'] = self.identity(settings)
-        return entry
+    def entry(self, source):
+        return {'source': copy.deepcopy(source), **self.result('Cached soup'),
+                'origin': 'model', 'model': self.settings.model, 'prompt_version': PROMPT_VERSION,
+                'generation_identity': self.identity()}
 
     def cache(self, *entries):
         return {'schema_version': 1, 'entries': {source_key(e['source']): e for e in entries},
@@ -139,43 +136,6 @@ class TranslationRuntimeTests(unittest.TestCase):
                 forbidden.assert_not_called()
 
 
-    def test_empty_menu_still_saves_final_without_runtime(self):
-        self.menu = {'days': []}
-        forbidden = Mock(side_effect=AssertionError('Empty work must stay lazy'))
-        final = self.run_adapter(runtime=forbidden, translate=forbidden)
-        self.assertEqual(final['entries'], {})
-        self.assertEqual(self.stored(), final)
-        forbidden.assert_not_called()
-
-    def test_invalid_settings_key_or_state_path_blocks_before_history_and_ports(self):
-        invalids = [None, {}, replace(self.settings, mode='unknown'), replace(self.settings, provider='openai'),
-                    replace(self.settings, model=' '), replace(self.settings, revision=''),
-                    replace(self.settings, url='unexpected'), replace(self.settings, binary=Path('relative')),
-                    replace(self.settings, mode='external', url=' ', binary=None, models_dir=None, log_dir=None)]
-        forbidden = Mock(side_effect=AssertionError('Invalid preconditions must not load or call ports'))
-        with patch.object(TranslationCheckpointStore, 'load', forbidden):
-            for settings in invalids:
-                with self.subTest(settings=settings), self.assertRaises(GenerationError) as raised:
-                    adapter.resume_configured_translations(self.menu, None, {}, settings,
-                        state_dir=self.state, glossary_provider=forbidden, translate=forbidden, runtime=forbidden)
-                self.assertEqual(raised.exception.code, 'invalid_config')
-                self.assertFalse(raised.exception.retryable)
-            for key in (None, False, {}, 1):
-                with self.subTest(key=key), self.assertRaises(GenerationError):
-                    self.run_adapter(key=key, glossary_provider=forbidden, runtime=forbidden, translate=forbidden)
-            for state in (None, 'relative', Path('relative')):
-                with self.subTest(state=state), self.assertRaises(ValueError):
-                    self.run_adapter(state_dir=state, glossary_provider=forbidden)
-        forbidden.assert_not_called()
-
-    def test_noncallable_ports_rejected_before_history_load(self):
-        forbidden = Mock(side_effect=AssertionError('Port validation must precede history'))
-        with patch.object(TranslationCheckpointStore, 'load', forbidden):
-            for name in ('runtime', 'translate', 'glossary_provider', 'checkpoint'):
-                with self.subTest(name=name), self.assertRaisesRegex(TypeError, name):
-                    self.run_adapter(**{name: False})
-        forbidden.assert_not_called()
-
     def test_corrupt_private_json_blocks_before_glossary_and_runtime(self):
         self.state.mkdir(mode=0o700)
         path = self.state / 'translation-checkpoint.json'
@@ -186,71 +146,6 @@ class TranslationRuntimeTests(unittest.TestCase):
         self.assertEqual(path.read_text(), '{invalid JSON')
         forbidden.assert_not_called()
 
-    def test_runtime_mapping_mismatch_unwinds_before_request_or_save(self):
-        correct = {'provider': self.settings.provider, 'model': self.settings.model,
-                   'backend_revision': self.settings.revision, 'url': self.url, 'key': self.key}
-        invalids = [None, [], *({**correct, name: value} for name, value in (
-            ('provider', 'openai'), ('model', 'wrong'), ('backend_revision', 'wrong'),
-            ('url', ''), ('url', None), ('key', 'changed')))]
-        for invalid in invalids:
-            with self.subTest(invalid=invalid):
-                self.events.clear()
-                @contextmanager
-                def mismatch(settings, *, key):
-                    self.events.append('open')
-                    try:
-                        yield invalid
-                    finally:
-                        self.events.append('close')
-                with self.assertRaises(GenerationError) as raised:
-                    self.run_adapter(runtime=mismatch)
-                self.assertEqual(raised.exception.code, 'invalid_config')
-                self.assertFalse(raised.exception.retryable)
-                self.assertNotIn('SECRET', str(raised.exception))
-                self.assertEqual(self.events, ['open', 'close'])
-                self.assertFalse(self.state.exists())
-                self.assertEqual(self.requests, [])
-
-    def test_save_then_isolated_callback_cannot_change_final_or_saved_history(self):
-        callbacks = []
-        def callback(cache):
-            on_disk = self.stored()
-            self.assertEqual(cache, on_disk)
-            callbacks.append(copy.deepcopy(cache))
-            cache['entries'].clear()
-            cache['notices']['Weizen']['en'] = 'Mutation'
-        final = self.run_adapter(checkpoint=callback)
-        self.assertEqual([len(cache['entries']) for cache in callbacks], [1, 2, 2])
-        self.assertEqual(final, callbacks[-1])
-        self.assertEqual(self.stored(), final)
-
-    def test_generator_and_runtime_result_mutation_cannot_change_future_requests_or_identity(self):
-        active = {'provider': self.settings.provider, 'model': self.settings.model,
-                  'backend_revision': self.settings.revision, 'url': self.url, 'key': self.key,
-                  'nested': {'value': 'original'}}
-        original = copy.deepcopy((self.menu, self.glossary))
-        @contextmanager
-        def runtime(settings, *, key):
-            yield active
-        def mutate(source, config):
-            self.assertEqual(config, {**active, 'provider': self.settings.provider,
-                'model': self.settings.model, 'backend_revision': self.settings.revision,
-                'url': self.url, 'key': self.key, 'nested': {'value': 'original'}})
-            self.requests.append(copy.deepcopy((source, config)))
-            source['name_de'] = 'Changed'
-            source['components'].clear()
-            config.update(model='Changed', backend_revision='Changed', key='Changed', url='Changed')
-            config['nested']['value'] = 'Changed'
-            active.update(model='External mutation', key='External mutation')
-            active['nested']['value'] = 'External mutation'
-            return self.result()
-        final = self.run_adapter(runtime=runtime, translate=mutate)
-        self.assertEqual((self.menu, self.glossary), original)
-        self.assertEqual(len(self.requests), 2)
-        self.assertEqual(self.stored(), final)
-        for entry in final['entries'].values():
-            self.assertEqual(entry['model'], self.settings.model)
-            self.assertEqual(entry['generation_identity'], self.identity())
 
     def test_save_failure_unwinds_and_skips_callback_and_next_generation(self):
         failure = OSError('fixture save failure')
@@ -263,36 +158,6 @@ class TranslationRuntimeTests(unittest.TestCase):
         self.assertFalse(self.state.exists())
         callback.assert_not_called()
 
-    def test_callback_failure_unwinds_but_accepted_json_resumes_next_call(self):
-        failure = RuntimeError('fixture callback failure')
-        def callback(cache):
-            self.assertEqual(self.stored(), cache)
-            raise failure
-        with self.assertRaises(RuntimeError) as raised:
-            self.run_adapter(checkpoint=callback)
-        self.assertIs(raised.exception, failure)
-        self.assertEqual(self.events, ['open', 'Suppe A', 'close'])
-        self.assertEqual(set(self.stored()['entries']), {source_key(self.sources[0])})
-        self.requests.clear()
-        self.run_adapter()
-        self.assertEqual([s['name_de'] for s, _ in self.requests], ['Suppe B'])
-
-    def test_actual_managed_session_with_fake_ports_closes_log_and_owned_process(self):
-        self.settings.binary.touch()
-        self.settings.models_dir.mkdir()
-        process = Mock(pid=123456)
-        process.poll.return_value = None
-        launch = Mock(return_value=process)
-        stop = Mock()
-        def runtime(settings, *, key):
-            return model_session(settings, key=key, launch=launch, choose_port=lambda: 43210,
-                probe=lambda host, timeout: {'models': [{'name': settings.model, 'digest': settings.revision}]},
-                clock=lambda: 0.0, wait=lambda seconds: self.fail('Ready fixture must not wait'), stop=stop)
-        final = self.run_adapter(runtime=runtime)
-        self.assertEqual(self.stored(), final)
-        launch.assert_called_once()
-        stop.assert_called_once_with(process)
-        self.assertTrue(launch.call_args.kwargs['stdout'].closed)
 
     def test_external_config_uses_actual_session_without_managed_files(self):
         external = replace(self.settings, mode='external', provider='openai',

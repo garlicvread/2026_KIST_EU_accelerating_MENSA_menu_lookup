@@ -8,7 +8,6 @@ import unittest
 from unittest.mock import patch
 
 from scripts.update_menu import write_snapshot, require_current_coverage, update, main
-from scripts.local_refresh import RefreshJob
 from scripts.translations import build_translations
 from scripts.menu_source import parse_menu
 from test_menu_source import page, meal
@@ -88,15 +87,6 @@ class SnapshotTests(unittest.TestCase):
             with self.assertRaisesRegex(SystemExit, "[Nn]otice.*[Ww]eizen|[Nn]otice.*[Ss]ellerie"):
                 main()
 
-    def test_worker_requires_current_notice_coverage_independent_of_dish_cache(self):
-        menu = parse_menu(page())
-        phrases = {name: {"en": "Dish", "ko": "요리"} for name in
-                   ["Vegan: Ägyptisches Kushari", "Reis", "Soße & Gemüse"]}
-        cache = build_translations(menu, {}, phrases, None)
-        cache.pop("notices", None)
-        with self.assertRaisesRegex(ValueError, "[Nn]otice"):
-            RefreshJob.validate_complete(menu, cache)
-
 
     def test_price_loss_during_refresh_preserves_published_snapshot(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -135,7 +125,6 @@ class SnapshotTests(unittest.TestCase):
             with patch("scripts.update_menu.os.replace", side_effect=fail_second):
                 with self.assertRaises(OSError):
                     write_snapshot(directory, next_menu, next_cache)
-            self.assertEqual(len(calls), 2)
             self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
 
 

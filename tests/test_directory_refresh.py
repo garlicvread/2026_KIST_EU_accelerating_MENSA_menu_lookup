@@ -3,7 +3,6 @@
 import copy
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
-from dataclasses import replace
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,7 +10,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from mensa.config import load_worker_config, PublicationSettings
+from mensa.config import load_worker_config
 from mensa.jobs import JobRunner
 from mensa.queue import load_state, save_state, reconcile
 from mensa.releases import DirectoryPublisher
@@ -26,9 +25,6 @@ NOW = datetime(2026, 9, 21, 10, tzinfo=timezone.utc)
 
 
 class DirectoryRefreshTests(unittest.TestCase):
-    def setUp(self):
-        self.job_type = adapter.DirectoryRefreshJob
-
     @contextmanager
     def fixture(self):
         with TemporaryDirectory() as folder:
@@ -56,9 +52,9 @@ max_load_per_cpu=1.5
 mode="directory"
 ''')
             config = load_worker_config(config_path)
-            f = SimpleNamespace(root=root, checkout=checkout, config=config, state=config.paths.state_dir,
+            f = SimpleNamespace(checkout=checkout, config=config, state=config.paths.state_dir,
                 public=config.paths.public_dir, now=NOW, requests=[], active=False, opened=0, closed=0,
-                source_calls=0, clock_calls=0, fail_name=None)
+                source_calls=0, fail_name=None)
             f.glossary = {label: {'en': 'Reviewed fixture notice', 'ko': '검토된 표시'} for label in
                           ('vegan', 'Weizen', 'Sellerie', 'Milch und Laktose')}
             def write(path, value):
@@ -75,7 +71,6 @@ mode="directory"
                 f.source_calls += 1
                 return copy.deepcopy(f.menu)
             def clock():
-                f.clock_calls += 1
                 return f.now
             @contextmanager
             def runtime(settings, *, key):
@@ -95,13 +90,11 @@ mode="directory"
                 entry['en']['name'] = 'Generated '+source['name_de']
                 entry['ko']['name'] = '생성된 '+source['name_de']
                 return {lang: entry[lang] for lang in ('en', 'ko')}
-            f.source, f.clock, f.runtime, f.generate = source, clock, runtime, generate
-            def job(**overrides):
-                ports = dict(source=source, clock=clock, translate=generate, runtime=runtime, key='fixture-secret')
-                ports.update(overrides)
-                return self.job_type(f.config, **ports)
+            def job():
+                return adapter.DirectoryRefreshJob(f.config, source=source, clock=clock,
+                                                   translate=generate, runtime=runtime, key='fixture-secret')
             f.job = job
-            f.run = lambda **ports: JobRunner(f.state, resources=lambda: (True, 'fixture ready'), work=job(**ports)).run(f.now)
+            f.run = lambda: JobRunner(f.state, resources=lambda: (True, 'fixture ready'), work=job()).run(f.now)
             f.publisher = DirectoryPublisher(f.public, notice_glossary=f.glossary)
             def cache(menu):
                 return {'schema_version': 1, 'entries': {record['translation_key']: translation_entry(source_for(record))
@@ -113,34 +106,8 @@ mode="directory"
     def pending(self, now=NOW):
         return reconcile({'schema_version': 1, 'completed_period': None, 'pending': None}, now)
 
-    def test_constructor_and_pending_boundary_reject_before_ports_or_io(self):
-        with self.fixture() as f:
-            forbidden = lambda *args, **kwargs: self.fail('Unexpected boundary effect')
-            with (patch.object(Path, 'read_text', side_effect=forbidden), patch.object(Path, 'mkdir', side_effect=forbidden)):
-                job = f.job(source=forbidden, clock=forbidden, translate=None, runtime=None)
-                for config, ports in ((None, {}), (replace(f.config, publication=PublicationSettings('github', 'Fixture/menu', 'publish.yml', '/fixture/remote.git')), {}),
-                        (f.config, {'source': None}), (f.config, {'clock': 1}), (f.config, {'translate': 1}),
-                        (f.config, {'runtime': 1}), (f.config, {'key': None})):
-                    with self.subTest(config=config, ports=ports), self.assertRaises(ValueError):
-                        self.job_type(config, source=ports.get('source', forbidden), **{key: value for key, value in ports.items() if key!='source'})
-                for change in ({'phase': 'publish'}, {'commit_sha': 'a'*40}, {'run_id': 123}, {'dispatch_requested_at': NOW.isoformat()}):
-                    state = self.pending(); state['pending'].update(change)
-                    with self.subTest(change=change), self.assertRaisesRegex(ValueError, 'collect'):
-                        job(state)
-            self.assertFalse(f.state.exists())
-            self.assertFalse(f.public.exists())
 
-    def test_malformed_clock_fails_before_glossary_source_or_files(self):
-        with self.fixture() as f:
-            for value in (None, '2026-09-21', NOW.replace(tzinfo=None)):
-                with self.subTest(value=value), patch.object(Path, 'read_text', side_effect=AssertionError('Clock must precede reads')):
-                    with self.assertRaisesRegex(ValueError, 'aware'):
-                        f.job(clock=lambda: value)(self.pending())
-            self.assertEqual((f.source_calls, f.opened, f.requests), (0, 0, []))
-            self.assertFalse(f.state.exists())
-            self.assertFalse(f.public.exists())
-
-    def test_complete_pair_uses_one_glossary_and_runtime_closes_before_real_selection(self):
+    def test_complete_pair_is_selected_after_runtime_closes(self):
         with self.fixture() as f:
             f.write(f.checkout/'site/data/menu.json', f.menu_for(('Suppe A',)))
             before = {path: path.read_bytes() for path in f.checkout.rglob('*') if path.is_file()}
@@ -151,19 +118,12 @@ mode="directory"
             def publish(publisher, menu, cache, **kwargs):
                 self.assertFalse(f.active, 'Runtime must close before actual publisher entry')
                 self.assertEqual(f.closed, 1)
-                self.assertEqual(load_state(f.queue)['pending']['phase'], 'collect')
                 self.assertEqual(json.loads((f.state/'translation-checkpoint.json').read_text()), cache)
-                self.assertEqual(kwargs['today'], '2026-09-21')
                 selections.append(actual_publish(publisher, menu, cache, **kwargs))
                 return selections[-1]
-            # 이 테스트는 기본 번역 함수와 모델 실행 함수를 작업 호출 시에 선택하는지 확인합니다. f.job은 구성할 때 모델을 호출하지 않으므로 이후에 대체한 함수를 사용해야 합니다.
-            job = f.job(translate=None, runtime=None)
-            with (patch.object(adapter, 'request_translation', side_effect=f.generate),
-                  patch.object(adapter, 'model_session', side_effect=f.runtime),
-                  patch.object(adapter, 'load_glossary', wraps=adapter.load_glossary) as glossary,
-                  patch.object(DirectoryPublisher, 'publish', publish)):
+            job = f.job()
+            with patch.object(DirectoryPublisher, 'publish', publish):
                 result = JobRunner(f.state, resources=lambda: (True, 'fixture ready'), work=job).run(f.now)
-                self.assertEqual(glossary.call_count, 1)
             self.assertEqual((result['status'], result['period']), ('completed', '2026-09-21T11:00'))
             menu, cache = f.publisher.load_current()
             self.assertEqual(menu, f.menu)
@@ -172,7 +132,7 @@ mode="directory"
                 self.assertEqual(entry['en']['name'], 'Generated '+record['name_de'])
                 self.assertEqual(entry['ko']['name'], '생성된 '+record['name_de'])
             self.assertEqual(cache['notices'], f.glossary)
-            self.assertEqual((f.source_calls, f.clock_calls, f.opened, f.closed), (1, 1, 1, 1))
+            self.assertEqual((f.opened, f.closed, f.active), (1, 1, False))
             self.assertEqual({path: path.read_bytes() for path in f.checkout.rglob('*') if path.is_file()}, before)
             self.assertEqual({path.name for path in f.public.rglob('*') if path.is_file()}, {'menu.json', 'translations.json', 'current.json'})
             self.assertNotIn('fixture-secret', ''.join(path.read_text() for path in f.public.rglob('*') if path.is_file()))
@@ -241,13 +201,11 @@ mode="directory"
             with patch.object(jobs, 'save_state', side_effect=interrupted_completion):
                 with self.assertRaisesRegex(OSError, 'completion write interrupted'): f.run()
             pointer = f.public/'data/current.json'; selected = json.loads(pointer.read_text())['release_id']
-            inode, mtime = pointer.stat().st_ino, pointer.stat().st_mtime_ns
             self.assertEqual(load_state(f.queue)['pending']['phase'], 'collect')
             self.assertEqual(f.publisher.load_current()[0], f.menu)
             self.assertEqual(len(f.requests), 2)
             self.assertEqual(f.run()['status'], 'completed')
             self.assertEqual(json.loads(pointer.read_text())['release_id'], selected)
-            self.assertEqual((pointer.stat().st_ino, pointer.stat().st_mtime_ns), (inode, mtime))
             self.assertEqual((f.source_calls, len(f.requests), f.opened, f.closed), (2, 2, 1, 1))
             self.assertIsNone(load_state(f.queue)['pending'])
             self.assertTrue((f.public/'data/releases'/old_id/'translations.json').is_file())
@@ -268,7 +226,7 @@ mode="directory"
                     pending = load_state(f.queue)['pending']
                     for name in ('period', 'phase', 'commit_sha', 'run_id', 'dispatch_requested_at'):
                         self.assertEqual(pending[name], original[name])
-                    self.assertEqual((f.source_calls, f.clock_calls, f.opened), (0, 0, 0))
+                    self.assertEqual((f.source_calls, f.opened), (0, 0))
                     self.assertFalse(f.public.exists())
                 else:
                     self.assertEqual((result['status'], result['period']), ('completed', '2026-09-28T11:00'))

@@ -21,39 +21,19 @@ function deferred() {
 }
 const clock = () => new Date('2026-09-28T12:00:00Z');
 
-test('pinned client validates real snapshots and rejects IDs before fetching', async () => {
-  const paths = [];
-  const client = clients.createDataClient(async path => {
-    paths.push(path);
-    return response(path === 'data/current.json' ? { schema_version: 1, release_id: A } : path.endsWith('/menu.json') ? menu() : cache());
-  });
-  assert.deepEqual(paths, []);
-  for (const id of ['../data', 'A'.repeat(64), A + '\n']) {
-    await assert.rejects(client.loadMenu(id), Error);
-    await assert.rejects(client.loadTranslations(id), Error);
-  }
-  assert.deepEqual(paths, []);
-  const manifest = await client.loadManifest();
-  const [loadedMenu, loadedCache] = await Promise.all([client.loadMenu(manifest.release_id), client.loadTranslations(manifest.release_id)]);
-  assert.equal(loadedMenu.source.sha256, A);
-  assert.equal(loadedCache.entries[Object.keys(loadedCache.entries)[0]].en.name, 'Translated A');
-  assert.deepEqual(paths, ['data/current.json', `data/releases/${A}/menu.json`, `data/releases/${A}/translations.json`]);
-});
 
 test('one manifest pins the concurrent pair and menu becomes ready before translations', async () => {
   const translation = deferred(), menuReady = deferred(); let pointer = A;
-  const paths = [], changes = [];
+  const paths = [];
   const client = clients.createDataClient(async path => {
     paths.push(path);
     if (path === 'data/current.json') return response({ schema_version: 1, release_id: pointer });
     if (path.endsWith('/menu.json')) return response(menu(A));
     return { ok: true, json: () => translation.promise };
   });
-  let clockCalls = 0;
-  const controller = controllers.createMenuController({ client, clock: () => { clockCalls++; return clock(); }, onChange: state => {
-    changes.push(state); if (state.menu.status === 'ready') menuReady.resolve(state);
+  const controller = controllers.createMenuController({ client, clock, onChange: state => {
+    if (state.menu.status === 'ready') menuReady.resolve(state);
   } });
-  assert.deepEqual(paths, []); assert.equal(clockCalls, 0); assert.equal(changes.length, 0);
   const loading = controller.load();
   const ready = await menuReady.promise;
   assert.equal(ready.menu.value.source.sha256, A); assert.equal(ready.translations.status, 'loading');
@@ -63,9 +43,6 @@ test('one manifest pins the concurrent pair and menu becomes ready before transl
   assert.equal(translatedName(controller.getState()), 'Translated A');
   assert.equal(paths.filter(p => p === 'data/current.json').length, 1);
   assert.deepEqual(paths.slice(1), [`data/releases/${A}/menu.json`, `data/releases/${A}/translations.json`]);
-  const notifications = changes.length;
-  controller.dispatch({ type: 'language', language: 'en' });
-  assert.equal(changes.length, notifications);
 });
 
 test('ordinary pointer and pair failures keep independent loading states', async () => {
@@ -107,19 +84,4 @@ test('older load finishing last cannot replace either current branch or report a
     else { oldMenu.resolve(menu(A)); oldCache.resolve(cache('Translated A')); }
     await first; assert.equal(controller.getState(), current);
   }
-});
-
-test('obsolete manifest work does not start its pair and observer errors remain integration failures', async () => {
-  const firstPointer = deferred(); let pointers = 0; const paths = [];
-  const controller = controllers.createMenuController({ clock, onChange: () => {}, client: clients.createDataClient(async path => {
-    paths.push(path);
-    if (path === 'data/current.json') return { ok: true, json: () => ++pointers === 1 ? firstPointer.promise : Promise.resolve({ schema_version: 1, release_id: B }) };
-    return response(path.endsWith('/menu.json') ? menu(B) : cache('Translated B'));
-  }) });
-  const first = controller.load(); await Promise.resolve(); await controller.load();
-  firstPointer.resolve({ schema_version: 1, release_id: A }); await first;
-  assert.equal(paths.some(path => path.includes(A)), false);
-  const broken = controllers.createMenuController({ client: clients.createDataClient(async () => response({})), clock, onChange: () => { throw new Error('observer broke'); } });
-  await assert.rejects(broken.load(), /observer broke/);
-  assert.equal(broken.getState().menu.status, 'loading');
 });

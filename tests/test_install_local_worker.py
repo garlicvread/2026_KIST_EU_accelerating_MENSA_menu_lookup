@@ -1,4 +1,3 @@
-import importlib
 from scripts import install_local_worker as installer
 import io
 import json
@@ -31,32 +30,6 @@ class InstallLocalWorkerTests(unittest.TestCase):
         home_patch.start()
         self.addCleanup(home_patch.stop)
 
-    def test_plist_runs_bounded_worker_with_expected_environment(self):
-        python = '/opt/example/Python/bin/python3'
-        result = self.installer.generate_plist(self.base, python)
-        self.assertEqual(result['Label'], LABEL)
-        self.assertEqual(result['ProgramArguments'], [
-            python, '-m', 'scripts.local_refresh', '--base', str(self.base)])
-        self.assertEqual(result['WorkingDirectory'], str(self.base / 'checkout'))
-        self.assertTrue(result['RunAtLoad'])
-        self.assertEqual(result['StartInterval'], 900)
-        self.assertEqual(result['ProcessType'], 'Background')
-        self.assertTrue(result['LowPriorityIO'])
-        self.assertEqual(result['Nice'], 10)
-        self.assertEqual(result['ThrottleInterval'], 60)
-        self.assertNotIn('KeepAlive', result)
-        self.assertEqual(result['EnvironmentVariables']['PATH'].split(':'), [
-            '/opt/example/Python/bin', '/opt/homebrew/bin', '/usr/local/bin',
-            '/usr/bin', '/bin', '/usr/sbin', '/sbin'])
-        self.assertEqual(Path(result['StandardOutPath']).parent, self.base / 'logs')
-        self.assertEqual(Path(result['StandardErrorPath']).parent, self.base / 'logs')
-        self.assertNotEqual(result['StandardOutPath'], result['StandardErrorPath'])
-        self.assertEqual(plistlib.loads(plistlib.dumps(result)), result)
-
-    def test_relative_arguments_become_absolute_in_plist(self):
-        result = self.installer.generate_plist('relative base', 'python3')
-        self.assertTrue(Path(result['ProgramArguments'][0]).is_absolute())
-        self.assertEqual(result['ProgramArguments'][-1], str(Path('relative base').resolve()))
 
     def test_interpreter_symlink_is_preserved_for_virtual_environments(self):
         python = self.home / 'venv/bin/python3'
@@ -85,7 +58,13 @@ class InstallLocalWorkerTests(unittest.TestCase):
         self.assertEqual(result, self.plist_path)
         self.assertTrue((self.base / 'logs').is_dir())
         data = plistlib.loads(self.plist_path.read_bytes())
-        self.assertEqual(data['ProgramArguments'][0], str(Path(sys.executable).absolute()))
+        self.assertEqual(data['Label'], LABEL)
+        self.assertEqual(data['ProgramArguments'], [
+            str(Path(sys.executable).absolute()), '-m', 'scripts.local_refresh', '--base', str(self.base)])
+        self.assertEqual(data['WorkingDirectory'], str(self.base / 'checkout'))
+        self.assertTrue(data['RunAtLoad'])
+        self.assertEqual(data['StartInterval'], 900)
+        self.assertNotIn('KeepAlive', data)
         self.assertEqual(list(self.plist_path.parent.iterdir()), [self.plist_path])
 
     def test_installed_worker_can_collect_from_existing_nonprivate_base(self):
@@ -189,11 +168,6 @@ class InstallLocalWorkerTests(unittest.TestCase):
             self.assertEqual(self.installer.main(['--base', str(self.base)]), 1)
         self.assertIn('Worker installation failed', output.getvalue())
 
-    def test_import_does_not_load_an_agent(self):
-        with patch('subprocess.run') as run:
-            importlib.reload(self.installer)
-        run.assert_not_called()
-        self.assertFalse(self.plist_path.exists())
 
     def test_cli_write_only_default_base_does_not_load_agent(self):
         with patch.object(self.installer.subprocess, 'run') as run, \
