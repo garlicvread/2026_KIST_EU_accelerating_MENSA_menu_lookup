@@ -370,7 +370,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "55a4bb85fec4444d0513b2c8e5434e6b8e87304b13d46937cb4fc4a243b0abe8": {
       "source": {
@@ -2489,8 +2489,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "0f4fbdd88902d165f726551223d149adcacf53346b9a03457b76683c8213321e": {
@@ -2518,8 +2518,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "4fa8d37ba55caf119e10ed2ddcab7930e32fec796b9aeb7202198f0d7f3428ad": {
@@ -2541,8 +2541,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "e1aa1f8d9b5f473c400c69044e089b13b1745cd97ddbb2733a5e0a1d6bdc94dc": {
@@ -3117,8 +3117,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "9a9c48b496a0632b2bc6d2926f64b5bf35b338ac90f05b472c74a3be0bd24169": {
@@ -4237,8 +4237,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "5e605e098bd7e1b94eff854045bde881e6641e9829ae041e9e97aa1a201d29aa": {
@@ -4269,8 +4269,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "bc4a19774e9b21a247e79d2fd439b78d34b39bd2b2738ab4341fb0bf30fd6f9b": {
@@ -4301,8 +4301,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "97253b0dcfa0ad365b6e14234972021910ebd80d443aaacd2bceb617f3e9fa54": {
@@ -4333,8 +4333,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "25a4759ed539c9dd4d895ca3e03aec3eea6e0e0dab442f427d04738405fd2a71": {
@@ -4365,8 +4365,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "806b4932ccb71415d2045855486d940e88b4248f8f51e1865be57a6879f08263": {
@@ -4569,8 +4569,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     },
     "b0a59888c72b283c810d583b3ef6f1b43319f7224e9bd6507b57d76e4a88d2b3": {
@@ -4633,8 +4633,1177 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "1a81d33e7cfb68f8138ab3a5a41cdd844a2d062c7c55c8f18249113a567f81e7",
-        "backend": "46115802d1f55f4426a70aae32b5ca4d72b02552ad44e129bc92305a8bfbff29"
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "4b6bf68e2dc26f613188563423b3b1fb5d8caf72164dda42aba39cedf2be7073": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weisskraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Karotten",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Lollo Bianco",
+          "Eichblattsalat",
+          "Radicchio",
+          "Klare Salatsoße",
+          "Schnittlauch-Senfdressing",
+          "Kräuter",
+          "Hülsenfrüchte"
+        ]
+      },
+      "en": {
+        "name": "Salad buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumbers",
+          "Sliced onion rings",
+          "Carrots",
+          "Mixed bell peppers",
+          "Sweetcorn",
+          "Chili peppers",
+          "Lollo Bianco lettuce",
+          "Oak leaf lettuce",
+          "Radicchio",
+          "Clear salad dressing",
+          "Chive and mustard dressing",
+          "Herbs",
+          "Legumes"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "양배추",
+          "오이",
+          "링 모양으로 썬 양파",
+          "당근",
+          "모둠 파프리카",
+          "옥수수",
+          "고추",
+          "롤로 비앙코 상추",
+          "오크리프 상추",
+          "라디키오",
+          "맑은 샐러드 드레싱",
+          "차이브·겨자 드레싱",
+          "허브",
+          "콩류"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "78ca50f70c92e3430b40f8d83f4af3f5c49567670760e2b1c910413d8eb2308e": {
+      "source": {
+        "name_de": "Mini Bifteki vom Rind",
+        "components": [
+          "Chili-Kräuterdip",
+          "Petersilienkartoffel (aus biologischem Anbau)",
+          "Alternativbeilage",
+          "Bunter Weißkrautsalat",
+          "Grieß-Pudding"
+        ]
+      },
+      "en": {
+        "name": "Mini Greek beef patties (bifteki)",
+        "components": [
+          "Chili and herb dip",
+          "Organic parsley potatoes",
+          "Alternative side dish",
+          "Mixed white cabbage salad",
+          "Semolina pudding"
+        ]
+      },
+      "ko": {
+        "name": "미니 그리스식 소고기 패티(비프테키)",
+        "components": [
+          "칠리·허브 딥",
+          "파슬리를 곁들인 유기농 감자",
+          "대체 곁들임 메뉴",
+          "양배추 모둠 샐러드",
+          "세몰리나 푸딩"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "188f7b501d7506c0a96a75a5172d4eca4ca0868cd0cfa58332588752e3f4d9cf": {
+      "source": {
+        "name_de": "Panierte Hühner-Filetspitzen",
+        "components": [
+          "Kräuterdip",
+          "Pommes Wedges"
+        ]
+      },
+      "en": {
+        "name": "Breaded chicken fillet pieces",
+        "components": [
+          "Herb dip",
+          "Potato wedges"
+        ]
+      },
+      "ko": {
+        "name": "빵가루를 입힌 닭고기 살코기 조각",
+        "components": [
+          "허브 딥",
+          "웨지 감자"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "5da49a85df3cf8368d37d1d0cf766f5b4544de88a216b8341efd4cb7282ea18c": {
+      "source": {
+        "name_de": "Bunter Blattsalatteller",
+        "components": [
+          "Balsamico-Dressing"
+        ]
+      },
+      "en": {
+        "name": "Mixed leaf salad plate",
+        "components": [
+          "Balsamic dressing"
+        ]
+      },
+      "ko": {
+        "name": "모둠 잎채소 샐러드",
+        "components": [
+          "발사믹 드레싱"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "629c69dd69ac3040a6f65e81e43509e26456a28fcc0f9a37801c99090a094b1a": {
+      "source": {
+        "name_de": "KlimaTeller: Tomate-Mozzarella Bratling",
+        "components": [
+          "Scharfer Tomatencreme-Dip",
+          "Pommes Frites",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Tomato Mozzarella Patty",
+        "components": [
+          "Spicy tomato cream dip",
+          "French fries",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "토마토 모짜렐라 패티",
+        "components": [
+          "매콤한 토마토 크림 딥",
+          "감자튀김",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "투명 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "e370b601a7ad5dcb184047c1447ad33e736c8c364c68b274a2e68fd55a18dced": {
+      "source": {
+        "name_de": "Tagesessen: Aktion: „Zu gut für die Tonne“: Hähnchenstreifen mit mediterranem Gemüse",
+        "components": [
+          "Reis",
+          "Solange der Vorrat reicht!"
+        ]
+      },
+      "en": {
+        "name": "Chicken strips with Mediterranean vegetables",
+        "components": [
+          "Rice",
+          "While stocks last!"
+        ]
+      },
+      "ko": {
+        "name": "지중해식 채소를 곁들인 닭고기 스트립",
+        "components": [
+          "밥",
+          "재고 소진 시까지!"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "bec5eb3b47b6329d040202330192c5d6276a653c80dcbad260b0129b3b4c1029": {
+      "source": {
+        "name_de": "Pizza „Mediterrane“ Art",
+        "components": []
+      },
+      "en": {
+        "name": "Mediterranean-style Pizza",
+        "components": []
+      },
+      "ko": {
+        "name": "지중해식 피자",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "791207e376194aa48369b290c8e0ea4ba90716f81341bb62d984fde58effe42d": {
+      "source": {
+        "name_de": "KlimaTeller: Vegane Wraps Griechische Art mit Sojagyros",
+        "components": [
+          "Vegan: Knoblauch-Kräuter-Dip"
+        ]
+      },
+      "en": {
+        "name": "Vegan Greek-style Wraps with Soy Gyros",
+        "components": [
+          "Vegan: Garlic herb dip"
+        ]
+      },
+      "ko": {
+        "name": "소이 자이로를 곁들인 그리스식 비건 랩",
+        "components": [
+          "비건: 마늘 허브 딥"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "ceedd2b0b00f094070a3919c9f61089fa37052742437fc3c0f0e9c1bd0749db6": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weisskraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Romasalat",
+          "Kopfsalat",
+          "Klare Salatsoße",
+          "Cocktailsoße",
+          "Kräuter",
+          "Hülsenfrüchte"
+        ]
+      },
+      "en": {
+        "name": "Salad Buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumber",
+          "Onion rings",
+          "Mixed bell pepper",
+          "Corn",
+          "Chili peppers",
+          "Romaine lettuce",
+          "Lettuce",
+          "Clear salad dressing",
+          "Cocktail sauce",
+          "Herbs",
+          "Legumes"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "화이트 양배추",
+          "오이",
+          "양파 링",
+          "모둠 파프리카",
+          "옥수수",
+          "고추",
+          "로메인 상추",
+          "양상추",
+          "투명 샐러드 드레싱",
+          "칵테일 소스",
+          "허브",
+          "콩류"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      },
+      "component_policy_version": "semantic-components-v1"
+    },
+    "e8dbe227fc114126c6970cad9a5131aa2e2fe6dc13c767322180175cb87c9467": {
+      "source": {
+        "name_de": "Cevapcici mit scharfer Gemüsesoße",
+        "components": [
+          "Pommes Frites",
+          "Salat Esterhazy",
+          "Buttermilch Dessert"
+        ]
+      },
+      "en": {
+        "name": "Cevapcici with spicy vegetable sauce",
+        "components": [
+          "French fries",
+          "Esterhazy salad",
+          "Buttermilk dessert"
+        ]
+      },
+      "ko": {
+        "name": "매콤한 채소 소스를 곁들인 체바프치치",
+        "components": [
+          "감자튀김",
+          "에스테르하지 샐러드",
+          "버터밀크 디저트"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "fdab72b6bf4c87fd9139fb02e15e7b9c223aba85a60f07fe66d98918404c9888": {
+      "source": {
+        "name_de": "„Hoorische“ - Saarländische Kartoffelspeise, Specksoße, Sauerkraut",
+        "components": []
+      },
+      "en": {
+        "name": "\"Hoorische\" - Saarland-style potato dish, bacon sauce, sauerkraut",
+        "components": []
+      },
+      "ko": {
+        "name": "\"호리셰\" - 자를란트식 감자 요리, 베이컨 소스, 사우어크라우트",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "7ddc953f01d064fdc1e8fbf445d3a1db2e2c055a2db36736b66d61818fd3f7c0": {
+      "source": {
+        "name_de": "KlimaTeller: Vegan: Rote-Beete Sandwich",
+        "components": [
+          "Vegan: Knoblauch-Kräuter-Dip"
+        ]
+      },
+      "en": {
+        "name": "Vegan Beetroot Sandwich",
+        "components": [
+          "Vegan garlic herb dip"
+        ]
+      },
+      "ko": {
+        "name": "비건 비트루트 샌드위치",
+        "components": [
+          "비건 마늘 허브 딥"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "bfb29d398574e673cd947bb50228dcf2eacc6bddf6846bc84158241b5bb3fa98": {
+      "source": {
+        "name_de": "KlimaTeller: Bunter Blattsalatteller",
+        "components": [
+          "Klare Salatsoße",
+          "Geflügelfrikadelle"
+        ]
+      },
+      "en": {
+        "name": "Mixed Leaf Salad Plate",
+        "components": [
+          "Clear salad dressing",
+          "Poultry patty"
+        ]
+      },
+      "ko": {
+        "name": "모둠 잎채소 샐러드 접시",
+        "components": [
+          "투명 샐러드 드레싱",
+          "가금류 패티"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "5a849940c086a3f8b5928a4e4b2c75627a9f014e8cc55f89ec58419f1f984118": {
+      "source": {
+        "name_de": "Chili-Pasta mit Knoblauch und Hartkäse",
+        "components": [
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Chili Pasta with Garlic and Hard Cheese",
+        "components": [
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "마늘과 하드 치즈를 곁들인 칠리 파스타",
+        "components": [
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "0ccd37418a071c40a5e1ca78ad4483780653d55a40678e2d7f2cda157185e343": {
+      "source": {
+        "name_de": "Veganes Pilzragout",
+        "components": [
+          "Kartoffelklöße"
+        ]
+      },
+      "en": {
+        "name": "Vegan mushroom ragout",
+        "components": [
+          "Potato dumplings"
+        ]
+      },
+      "ko": {
+        "name": "비건 버섯 라구",
+        "components": [
+          "감자 덤플링"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "ffb0089b8ee2aa6eb151bc71cdfa79ae96d43baf73103f7722e0d26388b598ac": {
+      "source": {
+        "name_de": "Pfannengyros Hähnchen/Soja",
+        "components": [
+          "Knoblauchsoße",
+          "Krautsalat",
+          "Pommes Frites"
+        ]
+      },
+      "en": {
+        "name": "Pan-fried Gyros (Chicken/Soy)",
+        "components": [
+          "garlic sauce",
+          "coleslaw",
+          "french fries"
+        ]
+      },
+      "ko": {
+        "name": "팬 프라이드 기로스 (닭고기/콩단백질)",
+        "components": [
+          "마늘 소스",
+          "양배추 샐러드",
+          "감자튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "061e0e0aaaa15ddf1b3abb128fc8b3f1b5f2755d612760a782cfad07a6f64f55": {
+      "source": {
+        "name_de": "Hähnchenbrustfilet Toscana",
+        "components": [
+          "Tomatensoße mit Gemüse",
+          "Reis",
+          "Alternativbeilage",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Toscana Chicken Breast Fillet",
+        "components": [
+          "Tomato vegetable sauce",
+          "Rice",
+          "Alternative side dish",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "토스카나식 닭가슴살 필레",
+        "components": [
+          "채소를 곁들인 토마토 소스",
+          "쌀밥",
+          "대체 사이드 메뉴",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "클리어 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "ba157e0911f94910e283e18a01a39aff9755526273cc97e66f6887a2b6988f01": {
+      "source": {
+        "name_de": "Chili sin carne",
+        "components": [
+          "Nachos",
+          "Karottensalat",
+          "Sahnepudding"
+        ]
+      },
+      "en": {
+        "name": "Chili sin carne",
+        "components": [
+          "Nachos",
+          "Carrot salad",
+          "Cream pudding"
+        ]
+      },
+      "ko": {
+        "name": "칠리 신 카르네 (고기 없는 칠리)",
+        "components": [
+          "나초",
+          "당근 샐러드",
+          "크림 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "7280d5827f6c85ec58b64bac16cd5be92314992d4cdc85b2519803b8375747a5": {
+      "source": {
+        "name_de": "mensaVital: Bulgur-Tomaten-Rucolasalat mit Schweinerückensteak",
+        "components": []
+      },
+      "en": {
+        "name": "Bulgur, tomato and arugula salad with pork loin steak",
+        "components": []
+      },
+      "ko": {
+        "name": "불구르 토마토 루콜라 샐러드를 곁들인 돼지 등심 스테이크",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "287dc354512260c180ae675b00df47894c4c4d1ae941fdd9e5942ba159854574": {
+      "source": {
+        "name_de": "Pizza Diavolo mit Peperoni, Salami und Paprika",
+        "components": []
+      },
+      "en": {
+        "name": "Pizza Diavolo with chili peppers, salami and bell peppers",
+        "components": []
+      },
+      "ko": {
+        "name": "페페로니, 살라미, 파프리카를 곁들인 피자 디아볼로",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "2158a5c6000818498df407942bf0be2a1cfb5bffaff4096b84052586fd240e22": {
+      "source": {
+        "name_de": "Pizza vegetarisch mit Oliven, Paprika,Broccoli und getrockneten Tomaten",
+        "components": []
+      },
+      "en": {
+        "name": "Vegetarian pizza with olives, bell peppers, broccoli and sun-dried tomatoes",
+        "components": []
+      },
+      "ko": {
+        "name": "올리브, 파프리카, 브로콜리, 말린 토마토를 곁들인 채식 피자",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "58aa8930ee2851be0e26635be761690d9976bea67de016d927ccd6cf3fe4ced7": {
+      "source": {
+        "name_de": "Vegan: Bunter Gemüseteller",
+        "components": [
+          "Vegan: Kräuter-Dip",
+          "Süsskartoffel Pommes"
+        ]
+      },
+      "en": {
+        "name": "Vegan Colorful Vegetable Plate",
+        "components": [
+          "Vegan herb dip",
+          "Sweet potato fries"
+        ]
+      },
+      "ko": {
+        "name": "비건 모둠 채소 접시",
+        "components": [
+          "비건 허브 딥",
+          "고구마 튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "9557805a905d2b45f3e67b8139a4eddb4e5b650e984b1a61eca6249418f6e4e2": {
+      "source": {
+        "name_de": "Gebackener Fleischkäse",
+        "components": [
+          "Ketchup",
+          "Pommes Frites",
+          "Alternativbeilage",
+          "Bohnensalat",
+          "Himbeerquark"
+        ]
+      },
+      "en": {
+        "name": "Cooked Meatloaf",
+        "components": [
+          "Ketchup",
+          "French fries",
+          "Alternative side dish",
+          "Bean salad",
+          "Raspberry quark"
+        ]
+      },
+      "ko": {
+        "name": "조리한 플라이쉬케제(독일식 고기빵)",
+        "components": [
+          "케첩",
+          "감자튀김",
+          "대체 사이드 메뉴",
+          "강낭콩 샐러드",
+          "라즈베리 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "ac33fb77be013cff8a87265b82ba0fe58cd90b8e06cce24a4d18233fa8b55c08": {
+      "source": {
+        "name_de": "Punjabi Rajma (Indisches Gericht)",
+        "components": [
+          "Reis",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Punjabi Rajma (Indian Dish)",
+        "components": [
+          "rice",
+          "mixed leaf salad",
+          "clear salad dressing",
+          "white salad dressing",
+          "fruit"
+        ]
+      },
+      "ko": {
+        "name": "펀자비 라즈마 (인도 요리)",
+        "components": [
+          "밥",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "6fe696f0b2ef0e6b5f0ff23a14583a97b075c5de52fe586d93edde3179e59362": {
+      "source": {
+        "name_de": "Vegan: Paprika-Pilzgulasch",
+        "components": [
+          "Bulgur"
+        ]
+      },
+      "en": {
+        "name": "Vegan Pepper and Mushroom Goulash",
+        "components": [
+          "Bulgur"
+        ]
+      },
+      "ko": {
+        "name": "비건 파프리카 버섯 굴라시",
+        "components": [
+          "불구르"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "3587b23634265d6e4b0725a700d1fa8a234e7afae71b4adf085c31682f1aa4fb": {
+      "source": {
+        "name_de": "Schupfnudeln Mexikanische Art",
+        "components": []
+      },
+      "en": {
+        "name": "Mexican-style Schupfnudeln",
+        "components": []
+      },
+      "ko": {
+        "name": "멕시코식 슈프프누델(독일식 감자국수)",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "de3fa9bdba968d42849c9ead31c0d50b976b8a9eabe4bf0e7e8172dedbce2a9b": {
+      "source": {
+        "name_de": "Gulasch vom Schwein Gärtnerin Art",
+        "components": [
+          "Spätzle",
+          "Alternativbeilage",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Pork Goulash Gardener's Style",
+        "components": [
+          "Spätzle",
+          "Alternative side dish",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "정원사 스타일 돼지고기 굴라시",
+        "components": [
+          "슈페츨레",
+          "대체 사이드 메뉴",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "02ad0291d6620f0bd2f355b105c194b3aeb2e70bc6cb9e19c31c9d30385d5612": {
+      "source": {
+        "name_de": "Vegan: Gemüse-Paella",
+        "components": [
+          "Kräuterdip",
+          "Pusztasalat",
+          "Pudding Karamel"
+        ]
+      },
+      "en": {
+        "name": "Vegan Vegetable Paella",
+        "components": [
+          "herb dip",
+          "Puszta salad",
+          "caramel pudding"
+        ]
+      },
+      "ko": {
+        "name": "비건 야채 파에야",
+        "components": [
+          "허브 딥",
+          "푸스타 샐러드",
+          "카라멜 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "1e5d00d123004ee8ca4fc678d97c22855e8d2848a271022fdbee2aca6a28f91f": {
+      "source": {
+        "name_de": "mensaVital: Pochierter Wildlachs mit Basilikumsoße",
+        "components": []
+      },
+      "en": {
+        "name": "Poached wild salmon with basil sauce",
+        "components": []
+      },
+      "ko": {
+        "name": "바질 소스를 곁들인 수비드 야생 연어",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "6bc1d0e8edea3ea1135ceca8c8be65190e3162d2977fc5a3ee790fe077a0b9ea": {
+      "source": {
+        "name_de": "Flammkuchen mit Mozzarella und Rucola",
+        "components": []
+      },
+      "en": {
+        "name": "Tarte Flambée with Mozzarella and Arugula",
+        "components": []
+      },
+      "ko": {
+        "name": "모짜렐라와 루콜라를 곁들인 플람쿠헨",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "4d7ced4579b1ed397087d27ffde82ba04624a282bf48038b3f64d206d98ba882": {
+      "source": {
+        "name_de": "Vegan: Erdnusspfännchen mit Gemüse und Soja",
+        "components": [
+          "Basmatireis (aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Vegan Peanut Pan with Vegetables and Soy",
+        "components": [
+          "Basmati rice (organic)"
+        ]
+      },
+      "ko": {
+        "name": "비건: 채소 소이 땅콩 볶음",
+        "components": [
+          "바스마티 쌀 (유기농)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "61ff3a1891da7f636d3ae95ce92e9a7714d3e6eb60eca2a448cceb91d3eaecfc": {
+      "source": {
+        "name_de": "Cevapcici",
+        "components": [
+          "Tzatziki",
+          "Pommes Frites",
+          "Alternativbeilage",
+          "Weisskrautsalat",
+          "Mandarinenquark"
+        ]
+      },
+      "en": {
+        "name": "Cevapcici",
+        "components": [
+          "Tzatziki",
+          "French fries",
+          "Alternative side dish",
+          "White cabbage salad",
+          "Mandarin orange quark"
+        ]
+      },
+      "ko": {
+        "name": "체바프치치",
+        "components": [
+          "차지키",
+          "감자튀김",
+          "대체 사이드 메뉴",
+          "화이트 양배추 샐러드",
+          "귤 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "3784bf224865d26529e2778bad8430e50502a3baf7e28c212a000c23f9f08c4e": {
+      "source": {
+        "name_de": "Herzhafter Kartoffelauflauf mit Blumenkohl und Broccoli",
+        "components": [
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Hearty potato bake with cauliflower and broccoli",
+        "components": [
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "콜리플라워와 브로콜리를 곁들인 하트형 감자 그라탱",
+        "components": [
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "912aa90668d43380779f247c6bab8ba74952967fb7a933463e7cde7ca9947f07": {
+      "source": {
+        "name_de": "Hähnchen-Cordon-Bleu (mit Putenschinken)",
+        "components": [
+          "Zitrone",
+          "Twister Fries"
+        ]
+      },
+      "en": {
+        "name": "Chicken Cordon Bleu (with turkey ham)",
+        "components": [
+          "lemon",
+          "twister fries"
+        ]
+      },
+      "ko": {
+        "name": "치킨 코르동 블루 (칠면조 햄 포함)",
+        "components": [
+          "레몬",
+          "트위스터 프라이"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
+      }
+    },
+    "38408c54d226d6dcfe49d2723104f44a2c92c5a326f9dd8655af079f526d105d": {
+      "source": {
+        "name_de": "Vegan: Rote-Bete-Gnocchi-Pfanne mit Spinat, Tomaten und Walnüssen",
+        "components": []
+      },
+      "en": {
+        "name": "Vegan Beetroot Gnocchi Pan with Spinach, Tomatoes and Walnuts",
+        "components": []
+      },
+      "ko": {
+        "name": "비건: 시금치, 토마토, 호두를 곁들인 비트 루트 뇨끼 팬",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
+        "backend": "99f632f4604bffaf5610bba80024aa24534c4454ed6b990318d705b013bf5f5a"
       }
     }
   },
@@ -4766,6 +5935,22 @@
     "Dinkel": {
       "en": "Spelt",
       "ko": "스펠트밀"
+    },
+    "Pistazien": {
+      "en": "Pistachios",
+      "ko": "피스타치오"
+    },
+    "Walnüsse": {
+      "en": "Walnuts",
+      "ko": "호두"
+    },
+    "geschwärzt": {
+      "en": "Blackened with iron compounds",
+      "ko": "철 화합물로 검게 착색 처리됨"
+    },
+    "mit tierischem LAB": {
+      "en": "Made with animal rennet",
+      "ko": "동물성 렌넷 사용"
     }
   }
 }

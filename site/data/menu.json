@@ -2,12 +2,12 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-05T09:08:34Z",
-    "sha256": "7784f0ff0cacbccb9cb1a64b7bdb536def722245d8748cd28742ea4428907919"
+    "fetched_at": "2026-10-07T17:12:05Z",
+    "sha256": "532c028f82942d3cd4e3b2ee19b9a9ea3680ec3de7f27881f9951c0c56b67faf"
   },
   "coverage": {
     "start": "2026-09-30",
-    "end": "2026-10-09"
+    "end": "2026-10-16"
   },
   "days": [
     {
@@ -1436,11 +1436,11 @@
       "date": "2026-10-06",
       "meals": [
         {
-          "id": "2026-10-06-df54d8fd16011c92a33ea06eb1fea7e293f2079849b3083daa996f52610b8e7d",
-          "translation_key": "b620ad2a7941b8aab57d377264816186af14234d26a1f60c11b066056fc9859f",
+          "id": "2026-10-06-f9f7b74ec4938623b29ec385532d7e2864c25e508a4a1f3dd0d140be7b09cc5c",
+          "translation_key": "629c69dd69ac3040a6f65e81e43509e26456a28fcc0f9a37801c99090a094b1a",
           "category": "Menü 1",
           "location": "Aufgang A",
-          "name_de": "Tomate-Mozzarella Bratling",
+          "name_de": "KlimaTeller: Tomate-Mozzarella Bratling",
           "components": [
             {
               "name_de": "Scharfer Tomatencreme-Dip",
@@ -1480,7 +1480,12 @@
               "notices": []
             }
           ],
-          "notices": [],
+          "notices": [
+            "Knoblauch",
+            "Ei",
+            "Milch und Laktose",
+            "Weizen"
+          ],
           "prices": {
             "student": 365,
             "staff": 670,
@@ -1490,7 +1495,7 @@
           "price_source": {
             "date": "2026-10-06",
             "category": "Menü 1",
-            "name": "Tomate-Mozzarella Bratling",
+            "name": "KlimaTeller: Tomate-Mozzarella Bratling",
             "raw": "S: 3,65 | M: 6,70 | G: 9,35"
           }
         },
@@ -1542,39 +1547,71 @@
           }
         },
         {
-          "id": "2026-10-06-d600dc82459962e1e0fb02684a951195301c501f63d6b557dc32eaddd5c5d5c8",
-          "translation_key": "a2543562d97d3555a165365d196be1e85827fd274098fabc3e788cba714eb8de",
+          "id": "2026-10-06-a2380aa1092ed6a121d260bf4faeea0b20217a5d5b954843cdd583f9894371e2",
+          "translation_key": "e370b601a7ad5dcb184047c1447ad33e736c8c364c68b274a2e68fd55a18dced",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Pizza Griechischer Art",
+          "name_de": "Tagesessen: Aktion: „Zu gut für die Tonne“: Hähnchenstreifen mit mediterranem Gemüse",
+          "components": [
+            {
+              "name_de": "Reis",
+              "notices": []
+            },
+            {
+              "name_de": "Solange der Vorrat reicht!",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "Milch und Laktose"
+          ],
+          "prices": {
+            "student": 230,
+            "staff": 330,
+            "guest": 400
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-06",
+            "category": "Wahlessen",
+            "name": "Tagesessen: Aktion: „Zu gut für die Tonne“: Hähnchenstreifen mit mediterranem Gemüse",
+            "raw": "S: 2,30 | M: 3,30 | G: 4,00"
+          }
+        },
+        {
+          "id": "2026-10-06-09a0c959328d7edc005314fa1234597208e3ae8af8d54d6e2361b44743d9253d",
+          "translation_key": "bec5eb3b47b6329d040202330192c5d6276a653c80dcbad260b0129b3b4c1029",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Pizza „Mediterrane“ Art",
           "components": [],
           "notices": [
             "Milch und Laktose",
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 570,
+            "staff": 685,
+            "guest": 755
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-06",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Pizza „Mediterrane“ Art",
+            "raw": "S: 5,70 | M: 6,85 | G: 7,55"
           }
         },
         {
           "id": "2026-10-06-737d555e9238b17c38e30ff48ac6516d86b2a423e5654526bdcf402d94d4df7d",
-          "translation_key": "df88f1df5a054ae2a498e837804e1d862f8440677c93e838dd628749a0c1736f",
+          "translation_key": "791207e376194aa48369b290c8e0ea4ba90716f81341bb62d984fde58effe42d",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "KlimaTeller: Vegane Wraps Griechische Art mit Sojagyros",
           "components": [
             {
-              "name_de": "Vegan:Knoblauch-Kräuter-Dip",
+              "name_de": "Vegan: Knoblauch-Kräuter-Dip",
               "notices": [
                 "Antioxidationsmittel",
                 "Knoblauch",
@@ -1593,22 +1630,21 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 475,
+            "staff": 590,
+            "guest": 660
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-06",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "KlimaTeller: Vegane Wraps Griechische Art mit Sojagyros",
+            "raw": "S: 4,75 | M: 5,90 | G: 6,60"
           }
         },
         {
           "id": "2026-10-06-19b97b9bad3b311a74d04b7012396c792d3ed3179004952c542fd2d6d2ce0684",
-          "translation_key": "2a6caa3e242c46ea917fd00488ac5d060035d78b83662bbb9ec82fe17a4940b4",
+          "translation_key": "ceedd2b0b00f094070a3919c9f61089fa37052742437fc3c0f0e9c1bd0749db6",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -1668,6 +1704,10 @@
             {
               "name_de": "Kräuter",
               "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -1704,13 +1744,17 @@
             "Soja",
             "Gerste"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 490,
+            "staff": 640,
+            "guest": 735
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-06",
             "category": "Mensacafé",
             "name": "KlimaTeller: Gemüse-Rohkost Bowl mit Gerste und Tofu",
-            "raw": null
+            "raw": "S: 4,90 | M: 6,40 | G: 7,35"
           }
         }
       ]
@@ -1720,7 +1764,7 @@
       "meals": [
         {
           "id": "2026-10-07-b97a4822209133aebeda9d9a691847b6aac7173c4e3300062aa5471c9d55d909",
-          "translation_key": "b0a59888c72b283c810d583b3ef6f1b43319f7224e9bd6507b57d76e4a88d2b3",
+          "translation_key": "e8dbe227fc114126c6970cad9a5131aa2e2fe6dc13c767322180175cb87c9467",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Cevapcici mit scharfer Gemüsesoße",
@@ -1741,7 +1785,7 @@
               ]
             },
             {
-              "name_de": "Vanillepudding",
+              "name_de": "Buttermilch Dessert",
               "notices": [
                 "Milch und Laktose",
                 "Weizen"
@@ -1822,28 +1866,27 @@
           }
         },
         {
-          "id": "2026-10-07-e067ff01796796bdfc90c87877c84c3e6caf72e495aa3f873ab5caab263b7da5",
-          "translation_key": "5dfaa492e4e418b8b2a1a049f635b60c6794c343059357170619b63259b72736",
+          "id": "2026-10-07-c538b8abb61f8ca2fd24974b828c7fe32cf86004466ad85e18afea6e6596a840",
+          "translation_key": "fdab72b6bf4c87fd9139fb02e15e7b9c223aba85a60f07fe66d98918404c9888",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Hoorische Saarländische Kartoffelspeise, Specksoße, Sauerkraut",
+          "name_de": "„Hoorische“ - Saarländische Kartoffelspeise, Specksoße, Sauerkraut",
           "components": [],
           "notices": [
             "Schweinefleisch",
             "Milch und Laktose"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 525,
+            "staff": 640,
+            "guest": 710
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "„Hoorische“ - Saarländische Kartoffelspeise, Specksoße, Sauerkraut",
+            "raw": "S: 5,25 | M: 6,40 | G: 7,10"
           }
         },
         {
@@ -1871,17 +1914,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 440,
+            "staff": 555,
+            "guest": 625
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Chicken Schnitzel Burger mit knackigem Salat",
+            "raw": "S: 4,40 | M: 5,55 | G: 6,25"
           }
         },
         {
@@ -1909,22 +1951,21 @@
             "Dinkel"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 390,
+            "staff": 505,
+            "guest": 575
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "KlimaTeller: Veggie Schnitzel Burger mit knackigem Salat",
+            "raw": "S: 3,90 | M: 5,05 | G: 5,75"
           }
         },
         {
           "id": "2026-10-07-1097e6fda0057a7b604bd53edd5730429c1e64db74745d7bdd32a0508cf7abe0",
-          "translation_key": "d462036047b80f4b9e6b361642b31c28f87cec74545a050e07aec05f691750a1",
+          "translation_key": "4b6bf68e2dc26f613188563423b3b1fb5d8caf72164dda42aba39cedf2be7073",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -1978,6 +2019,25 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Schnittlauch-Senfdressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -1996,15 +2056,16 @@
         },
         {
           "id": "2026-10-07-5688f4f7029abc442f052fd6f4df563e470939033f25532ef5ef81f4c684278c",
-          "translation_key": "17909caf47f4b51d2224c87e9caee2ae28fc057b6a669d780fc22bde95c43754",
+          "translation_key": "7ddc953f01d064fdc1e8fbf445d3a1db2e2c055a2db36736b66d61818fd3f7c0",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
           "name_de": "KlimaTeller: Vegan: Rote-Beete Sandwich",
           "components": [
             {
-              "name_de": "Vegan: Kräuter-Dip",
+              "name_de": "Vegan: Knoblauch-Kräuter-Dip",
               "notices": [
                 "Antioxidationsmittel",
+                "Knoblauch",
                 "Soja"
               ]
             }
@@ -2015,13 +2076,17 @@
             "Gerste",
             "Hafer"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 515,
+            "staff": 630,
+            "guest": 700
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-07",
             "category": "Mensacafé",
             "name": "KlimaTeller: Vegan: Rote-Beete Sandwich",
-            "raw": null
+            "raw": "S: 5,15 | M: 6,30 | G: 7,00"
           }
         }
       ]
@@ -2586,7 +2651,7 @@
         },
         {
           "id": "2026-10-09-858eb3c65b5d18499423120442c2e4c306462c48bf5d3c0898ed5d3ad4ea89b3",
-          "translation_key": "a298c0830179995a2d81871521b5f520f8b935ae8f08ef89a3893937611851a0",
+          "translation_key": "bfb29d398574e673cd947bb50228dcf2eacc6bddf6846bc84158241b5bb3fa98",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
           "name_de": "KlimaTeller: Bunter Blattsalatteller",
@@ -2595,6 +2660,16 @@
               "name_de": "Klare Salatsoße",
               "notices": [
                 "Senf"
+              ]
+            },
+            {
+              "name_de": "Geflügelfrikadelle",
+              "notices": [
+                "Geflügel",
+                "Sellerie",
+                "Senf",
+                "Weizen",
+                "Gerste"
               ]
             }
           ],
@@ -2629,6 +2704,1535 @@
             "date": "2026-10-09",
             "category": "Mensacafé",
             "name": "KlimaTeller: Bunter Blattsalatteller",
+            "raw": null
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-12",
+      "meals": [
+        {
+          "id": "2026-10-12-c8edbc94cb289dacc545b4fe35fca1741b282f88dd6c0024b7486a141877c513",
+          "translation_key": "78ca50f70c92e3430b40f8d83f4af3f5c49567670760e2b1c910413d8eb2308e",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Mini Bifteki vom Rind",
+          "components": [
+            {
+              "name_de": "Chili-Kräuterdip",
+              "notices": [
+                "Soja",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Petersilienkartoffel (aus biologischem Anbau)",
+              "notices": []
+            },
+            {
+              "name_de": "Alternativbeilage",
+              "notices": []
+            },
+            {
+              "name_de": "Bunter Weißkrautsalat",
+              "notices": [
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Grieß-Pudding",
+              "notices": [
+                "Milch und Laktose",
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Ei",
+            "Milch und Laktose"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-12",
+            "category": "Menü 1",
+            "name": "Mini Bifteki vom Rind",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
+          "id": "2026-10-12-8e073957793a83eb2de3e50762b91e46578754dae34a2455647c00a26aeb077c",
+          "translation_key": "5a849940c086a3f8b5928a4e4b2c75627a9f014e8cc55f89ec58419f1f984118",
+          "category": "Menü 2",
+          "location": "Aufgang B",
+          "name_de": "Chili-Pasta mit Knoblauch und Hartkäse",
+          "components": [
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Obst",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "mit tierischem LAB",
+            "Milch und Laktose",
+            "Weizen",
+            "Pistazien"
+          ],
+          "prices": {
+            "student": 310,
+            "staff": 560,
+            "guest": 780
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-12",
+            "category": "Menü 2",
+            "name": "Chili-Pasta mit Knoblauch und Hartkäse",
+            "raw": "S: 3,10 | M: 5,60 | G: 7,80"
+          }
+        },
+        {
+          "id": "2026-10-12-8b30c8cc2ab9c73fa5e078f65019832165394795a0de246ef6ebbfc5f813898b",
+          "translation_key": "188f7b501d7506c0a96a75a5172d4eca4ca0868cd0cfa58332588752e3f4d9cf",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Panierte Hühner-Filetspitzen",
+          "components": [
+            {
+              "name_de": "Kräuterdip",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Pommes Wedges",
+              "notices": [
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-12",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-12-1ae03f7a3b96b8ae487219def2dad1a5dd2a651c8c99543f8e7606c94471ad4c",
+          "translation_key": "0ccd37418a071c40a5e1ca78ad4483780653d55a40678e2d7f2cda157185e343",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Veganes Pilzragout",
+          "components": [
+            {
+              "name_de": "Kartoffelklöße",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Farbstoff",
+            "Alkohol",
+            "Senf",
+            "Schwefeldioxid / Sulfite",
+            "Hafer"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-12",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-12-47cad2c26052432dae5e050f74b1f15f322221ab1fe199875bce27bc018224ac",
+          "translation_key": "391c7a47691a64e79fc1e9ee34a154b353549144b8462490798e2c2520841844",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Salatbuffet",
+          "components": [
+            {
+              "name_de": "Tomatensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskraut",
+              "notices": []
+            },
+            {
+              "name_de": "Gurken",
+              "notices": []
+            },
+            {
+              "name_de": "Zwiebelringe",
+              "notices": []
+            },
+            {
+              "name_de": "Karotten",
+              "notices": []
+            },
+            {
+              "name_de": "Gemischter Paprika",
+              "notices": []
+            },
+            {
+              "name_de": "Mais",
+              "notices": []
+            },
+            {
+              "name_de": "Peperoni",
+              "notices": []
+            },
+            {
+              "name_de": "Lollo Bianco",
+              "notices": []
+            },
+            {
+              "name_de": "Lollo Rosso",
+              "notices": []
+            },
+            {
+              "name_de": "Radicchio",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-12",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-12-384d78bdd68b0af1b6e87659dcc0b95ef36a6d340e413822e393068811599d19",
+          "translation_key": "ffb0089b8ee2aa6eb151bc71cdfa79ae96d43baf73103f7722e0d26388b598ac",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Pfannengyros Hähnchen/Soja",
+          "components": [
+            {
+              "name_de": "Knoblauchsoße",
+              "notices": [
+                "Süßungsmittel",
+                "Knoblauch",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Krautsalat",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Pommes Frites",
+              "notices": [
+                "Backtriebmittel"
+              ]
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Soja",
+            "Milch und Laktose",
+            "Sellerie",
+            "Senf"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-12",
+            "category": "Mensacafé",
+            "name": "Pfannengyros Hähnchen/Soja",
+            "raw": null
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-13",
+      "meals": [
+        {
+          "id": "2026-10-13-8e416806a860be433f6a737aa5612c9a22804541698e8b654cb8b1cd249a43a4",
+          "translation_key": "061e0e0aaaa15ddf1b3abb128fc8b3f1b5f2755d612760a782cfad07a6f64f55",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Hähnchenbrustfilet Toscana",
+          "components": [
+            {
+              "name_de": "Tomatensoße mit Gemüse",
+              "notices": [
+                "Knoblauch"
+              ]
+            },
+            {
+              "name_de": "Reis",
+              "notices": []
+            },
+            {
+              "name_de": "Alternativbeilage",
+              "notices": []
+            },
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Obst",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Geflügel"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Menü 1",
+            "name": "Hähnchenbrustfilet Toscana",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
+          "id": "2026-10-13-f3af8cab3f977264a3ed1889cb579b41527cd5aa566ed34c220f5027644fa201",
+          "translation_key": "ba157e0911f94910e283e18a01a39aff9755526273cc97e66f6887a2b6988f01",
+          "category": "Menü 2",
+          "location": "Aufgang B",
+          "name_de": "Chili sin carne",
+          "components": [
+            {
+              "name_de": "Nachos",
+              "notices": [
+                "Farbstoff",
+                "Geschmacksverstärker"
+              ]
+            },
+            {
+              "name_de": "Karottensalat",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Sahnepudding",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "vegetarisch",
+            "vegan"
+          ],
+          "prices": {
+            "student": 310,
+            "staff": 560,
+            "guest": 780
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Menü 2",
+            "name": "Chili sin carne",
+            "raw": "S: 3,10 | M: 5,60 | G: 7,80"
+          }
+        },
+        {
+          "id": "2026-10-13-b117e1f423a97f0be4f5738e49687418eaf7aaab9b08591d6de493cbd67e39c8",
+          "translation_key": "7280d5827f6c85ec58b64bac16cd5be92314992d4cdc85b2519803b8375747a5",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "mensaVital: Bulgur-Tomaten-Rucolasalat mit Schweinerückensteak",
+          "components": [],
+          "notices": [
+            "Antioxidationsmittel",
+            "geschwefelt",
+            "Schweinefleisch",
+            "Schwefeldioxid / Sulfite",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-13-c6e0b9f39e5076a6ee1a49dd8e9c2a8e55deac2b1436877c55d6d42fba632a19",
+          "translation_key": "287dc354512260c180ae675b00df47894c4c4d1ae941fdd9e5942ba159854574",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Pizza Diavolo mit Peperoni, Salami und Paprika",
+          "components": [],
+          "notices": [
+            "Farbstoff",
+            "Konservierungsstoff",
+            "Antioxidationsmittel",
+            "Schweinefleisch",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-13-dd65d56a51bb8bc618413b254d52a0abb6a1adcb314924b0b4e89146c154219c",
+          "translation_key": "2158a5c6000818498df407942bf0be2a1cfb5bffaff4096b84052586fd240e22",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Pizza vegetarisch mit Oliven, Paprika,Broccoli und getrockneten Tomaten",
+          "components": [],
+          "notices": [
+            "Antioxidationsmittel",
+            "geschwärzt",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-13-83590bcb28131bcca84f52407a9a61f83caa06b864496828c70977acb6d22cac",
+          "translation_key": "c8dd5c0c4951af1cdbf16371d504652d3a8053b6473cb01378b4ed42325eb6c8",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Salatbuffet",
+          "components": [
+            {
+              "name_de": "Tomatensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskraut",
+              "notices": []
+            },
+            {
+              "name_de": "Gurken",
+              "notices": []
+            },
+            {
+              "name_de": "Zwiebelringe",
+              "notices": []
+            },
+            {
+              "name_de": "Karotten",
+              "notices": []
+            },
+            {
+              "name_de": "Gemischter Paprika",
+              "notices": []
+            },
+            {
+              "name_de": "Mais",
+              "notices": []
+            },
+            {
+              "name_de": "Peperoni",
+              "notices": []
+            },
+            {
+              "name_de": "Romasalat",
+              "notices": []
+            },
+            {
+              "name_de": "Kopfsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Radicchio",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-13-885b778c34c8813d4c7c0b9dd62eed59eaa85457590c48ccb81eaa64f9cde3e9",
+          "translation_key": "58aa8930ee2851be0e26635be761690d9976bea67de016d927ccd6cf3fe4ced7",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Vegan: Bunter Gemüseteller",
+          "components": [
+            {
+              "name_de": "Vegan: Kräuter-Dip",
+              "notices": [
+                "Antioxidationsmittel",
+                "Soja"
+              ]
+            },
+            {
+              "name_de": "Süsskartoffel Pommes",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "vegan"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-13",
+            "category": "Mensacafé",
+            "name": "Vegan: Bunter Gemüseteller",
+            "raw": null
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-14",
+      "meals": [
+        {
+          "id": "2026-10-14-eae9838e3427a1d671af4e0e0639995f93f111efeadbe7e10792f60728967e95",
+          "translation_key": "9557805a905d2b45f3e67b8139a4eddb4e5b650e984b1a61eca6249418f6e4e2",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Gebackener Fleischkäse",
+          "components": [
+            {
+              "name_de": "Ketchup",
+              "notices": []
+            },
+            {
+              "name_de": "Pommes Frites",
+              "notices": [
+                "Backtriebmittel"
+              ]
+            },
+            {
+              "name_de": "Alternativbeilage",
+              "notices": []
+            },
+            {
+              "name_de": "Bohnensalat",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Himbeerquark",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            }
+          ],
+          "notices": [
+            "Schweinefleisch"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Menü 1",
+            "name": "Gebackener Fleischkäse",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
+          "id": "2026-10-14-51dcc896d86e348e55c863690316e7c18e8e35d5d7f47a8d4db9302b971ffd33",
+          "translation_key": "ac33fb77be013cff8a87265b82ba0fe58cd90b8e06cce24a4d18233fa8b55c08",
+          "category": "Menü 2",
+          "location": "Aufgang B",
+          "name_de": "Punjabi Rajma (Indisches Gericht)",
+          "components": [
+            {
+              "name_de": "Reis",
+              "notices": []
+            },
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Obst",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 310,
+            "staff": 560,
+            "guest": 780
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Menü 2",
+            "name": "Punjabi Rajma (Indisches Gericht)",
+            "raw": "S: 3,10 | M: 5,60 | G: 7,80"
+          }
+        },
+        {
+          "id": "2026-10-14-25a7070cbe38a5f87e13eb2afc946f60fc2661d5809f12e316e695ad414d552e",
+          "translation_key": "b6f757537f7ce22bc3d006f3fc08c63109bc3a87a70e2efc68e9e9842ea16f94",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Dönerwrap mit Aiolisoße",
+          "components": [],
+          "notices": [
+            "Konservierungsstoff",
+            "Süßungsmittel",
+            "Geflügel",
+            "Knoblauch",
+            "vegetarisch",
+            "Backtriebmittel",
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Ei",
+            "Milch und Laktose",
+            "Senf",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-14-3385832a867dc430049ca639fcc8f1ed424a748b7ec8bc399379001eb59db41b",
+          "translation_key": "6fe696f0b2ef0e6b5f0ff23a14583a97b075c5de52fe586d93edde3179e59362",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Vegan: Paprika-Pilzgulasch",
+          "components": [
+            {
+              "name_de": "Bulgur",
+              "notices": [
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "vegan",
+            "Knoblauch"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-14-ede2bc30ab207c90439503821a7f7b5a00f7846969b5167e9c81a322d8a2c8af",
+          "translation_key": "d462036047b80f4b9e6b361642b31c28f87cec74545a050e07aec05f691750a1",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Salatbuffet",
+          "components": [
+            {
+              "name_de": "Tomatensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskraut",
+              "notices": []
+            },
+            {
+              "name_de": "Gurken",
+              "notices": []
+            },
+            {
+              "name_de": "Zwiebelringe",
+              "notices": []
+            },
+            {
+              "name_de": "Karotten",
+              "notices": []
+            },
+            {
+              "name_de": "Gemischter Paprika",
+              "notices": []
+            },
+            {
+              "name_de": "Mais",
+              "notices": []
+            },
+            {
+              "name_de": "Peperoni",
+              "notices": []
+            },
+            {
+              "name_de": "Lollo Bianco",
+              "notices": []
+            },
+            {
+              "name_de": "Eichblattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Radicchio",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-14-e0877d700884ee7299e7c37fe50a899a51a989fc26c1e2b59230bc8da65bf43e",
+          "translation_key": "3587b23634265d6e4b0725a700d1fa8a234e7afae71b4adf085c31682f1aa4fb",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Schupfnudeln Mexikanische Art",
+          "components": [],
+          "notices": [
+            "Schweinefleisch",
+            "Ei",
+            "Weizen"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Mensacafé",
+            "name": "Schupfnudeln Mexikanische Art",
+            "raw": null
+          }
+        },
+        {
+          "id": "2026-10-14-e0877d700884ee7299e7c37fe50a899a51a989fc26c1e2b59230bc8da65bf43e-2",
+          "translation_key": "3587b23634265d6e4b0725a700d1fa8a234e7afae71b4adf085c31682f1aa4fb",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Schupfnudeln Mexikanische Art",
+          "components": [],
+          "notices": [
+            "Schweinefleisch",
+            "Ei",
+            "Weizen"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-14",
+            "category": "Mensacafé",
+            "name": "Schupfnudeln Mexikanische Art",
+            "raw": null
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-15",
+      "meals": [
+        {
+          "id": "2026-10-15-ded40f9100cd6a127dea4f3ec7023d0d883c6bcc0e20e1f06493987c27347a4a",
+          "translation_key": "de3fa9bdba968d42849c9ead31c0d50b976b8a9eabe4bf0e7e8172dedbce2a9b",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Gulasch vom Schwein Gärtnerin Art",
+          "components": [
+            {
+              "name_de": "Spätzle",
+              "notices": [
+                "Ei",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Alternativbeilage",
+              "notices": []
+            },
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Obst",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Schweinefleisch"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Menü 1",
+            "name": "Gulasch vom Schwein Gärtnerin Art",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
+          "id": "2026-10-15-f4647a9e93610f778a793fd6c8be3ee840e513a43feb9ae8f8c4b48215557e28",
+          "translation_key": "02ad0291d6620f0bd2f355b105c194b3aeb2e70bc6cb9e19c31c9d30385d5612",
+          "category": "Menü 2",
+          "location": "Aufgang B",
+          "name_de": "Vegan: Gemüse-Paella",
+          "components": [
+            {
+              "name_de": "Kräuterdip",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Pusztasalat",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Pudding Karamel",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            }
+          ],
+          "notices": [
+            "vegan",
+            "Knoblauch"
+          ],
+          "prices": {
+            "student": 310,
+            "staff": 560,
+            "guest": 780
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Menü 2",
+            "name": "Vegan: Gemüse-Paella",
+            "raw": "S: 3,10 | M: 5,60 | G: 7,80"
+          }
+        },
+        {
+          "id": "2026-10-15-65598ec239d3e495c1ee834333d967ea42167f996fe9215c2fae62d5b75fb041",
+          "translation_key": "1e5d00d123004ee8ca4fc678d97c22855e8d2848a271022fdbee2aca6a28f91f",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "mensaVital: Pochierter Wildlachs mit Basilikumsoße",
+          "components": [],
+          "notices": [
+            "Fisch",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-15-10272cfd048ed2deaca43b31cc9635f6f5d0702dd9845cab877e8a03372e52f8",
+          "translation_key": "c87d37c527ff0abd5c4664c99e891969f32f924d34b9f90c5826d365a7e68890",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Flammkuchen Elsässer Art",
+          "components": [],
+          "notices": [
+            "Konservierungsstoff",
+            "Antioxidationsmittel",
+            "Schweinefleisch",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-15-0941e573b8f47b35d499cdb5bb531d25599bb24b4e28ee1127abc90ded89d8fb",
+          "translation_key": "6bc1d0e8edea3ea1135ceca8c8be65190e3162d2977fc5a3ee790fe077a0b9ea",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Flammkuchen mit Mozzarella und Rucola",
+          "components": [],
+          "notices": [
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-15-5a859fb28abcdb4088a996cfbb35c859a2bb5437126b1ce7a5f062190d8f54dd",
+          "translation_key": "b4d36dda8ed944e069cd6ccfe35be3c6af725829ecb737a87dd89f113c9a006a",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Salatbuffet",
+          "components": [
+            {
+              "name_de": "Tomatensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskraut",
+              "notices": []
+            },
+            {
+              "name_de": "Gurken",
+              "notices": []
+            },
+            {
+              "name_de": "Zwiebelringe",
+              "notices": []
+            },
+            {
+              "name_de": "Karotten",
+              "notices": []
+            },
+            {
+              "name_de": "Gemischter Paprika",
+              "notices": []
+            },
+            {
+              "name_de": "Mais",
+              "notices": []
+            },
+            {
+              "name_de": "Peperoni",
+              "notices": []
+            },
+            {
+              "name_de": "Chicoree",
+              "notices": []
+            },
+            {
+              "name_de": "Lollo Bianco",
+              "notices": []
+            },
+            {
+              "name_de": "Radicchio",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-15-dcb94f7034b3cbc9f2041d9d97d4e7a37918527ee0d46df20eb25904a097a82c",
+          "translation_key": "4d7ced4579b1ed397087d27ffde82ba04624a282bf48038b3f64d206d98ba882",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Vegan: Erdnusspfännchen mit Gemüse und Soja",
+          "components": [
+            {
+              "name_de": "Basmatireis (aus biologischem Anbau)",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "vegan",
+            "Knoblauch",
+            "Erdnüsse",
+            "Soja",
+            "Weizen"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-15",
+            "category": "Mensacafé",
+            "name": "Vegan: Erdnusspfännchen mit Gemüse und Soja",
+            "raw": null
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "meals": [
+        {
+          "id": "2026-10-16-e5eb834b8a9fe28766dfcbf4c2401bee450be841b09b69220f688f71b05f62f2",
+          "translation_key": "61ff3a1891da7f636d3ae95ce92e9a7714d3e6eb60eca2a448cceb91d3eaecfc",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Cevapcici",
+          "components": [
+            {
+              "name_de": "Tzatziki",
+              "notices": [
+                "Knoblauch",
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Pommes Frites",
+              "notices": [
+                "Backtriebmittel"
+              ]
+            },
+            {
+              "name_de": "Alternativbeilage",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskrautsalat",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Mandarinenquark",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            }
+          ],
+          "notices": [
+            "Schweinefleisch",
+            "Knoblauch",
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Ei"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Menü 1",
+            "name": "Cevapcici",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
+          "id": "2026-10-16-43740d978f109797d630aa44a12ab44327923512281aad33b56c55b5da5c59bc",
+          "translation_key": "3784bf224865d26529e2778bad8430e50502a3baf7e28c212a000c23f9f08c4e",
+          "category": "Menü 2",
+          "location": "Aufgang B",
+          "name_de": "Herzhafter Kartoffelauflauf mit Blumenkohl und Broccoli",
+          "components": [
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Obst",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "Ei",
+            "Milch und Laktose",
+            "Sellerie",
+            "Senf"
+          ],
+          "prices": {
+            "student": 310,
+            "staff": 560,
+            "guest": 780
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Menü 2",
+            "name": "Herzhafter Kartoffelauflauf mit Blumenkohl und Broccoli",
+            "raw": "S: 3,10 | M: 5,60 | G: 7,80"
+          }
+        },
+        {
+          "id": "2026-10-16-4f2db82b752040a512d5db2c9821b8adda985a36add74d8bedc512c7d9a9c18d",
+          "translation_key": "912aa90668d43380779f247c6bab8ba74952967fb7a933463e7cde7ca9947f07",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Hähnchen-Cordon-Bleu (mit Putenschinken)",
+          "components": [
+            {
+              "name_de": "Zitrone",
+              "notices": []
+            },
+            {
+              "name_de": "Twister Fries",
+              "notices": [
+                "Knoblauch",
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "Konservierungsstoff",
+            "Antioxidationsmittel",
+            "Phosphat",
+            "Ei",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-16-a174e0e05035e5b1284f3c1d938f699d2ed0b2c6b64f7137520126399f8b8fd6",
+          "translation_key": "38408c54d226d6dcfe49d2723104f44a2c92c5a326f9dd8655af079f526d105d",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Vegan: Rote-Bete-Gnocchi-Pfanne mit Spinat, Tomaten und Walnüssen",
+          "components": [],
+          "notices": [
+            "vegan",
+            "Knoblauch",
+            "Weizen",
+            "Walnüsse"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
+          "id": "2026-10-16-e65936484586d387ee2f9627167d3055232b47cb29b1bcd7dc284541216b9c92",
+          "translation_key": "8a6a0d4a720c0639c104271dcd8fddd89c3d4b1069747685e8186ebe7f9d3d15",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Salatbuffet",
+          "components": [
+            {
+              "name_de": "Tomatensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weisskraut",
+              "notices": []
+            },
+            {
+              "name_de": "Gurken",
+              "notices": []
+            },
+            {
+              "name_de": "Zwiebelringe",
+              "notices": []
+            },
+            {
+              "name_de": "Karotten",
+              "notices": []
+            },
+            {
+              "name_de": "Gemischter Paprika",
+              "notices": []
+            },
+            {
+              "name_de": "Mais",
+              "notices": []
+            },
+            {
+              "name_de": "Peperoni",
+              "notices": []
+            },
+            {
+              "name_de": "Kopfsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Endiviensalat",
+              "notices": []
+            },
+            {
+              "name_de": "Radicchio",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-16-b944683c88082a63c4beb2fc8d2566c353f0d4238f3bdd2ead01efd96f1a4c65",
+          "translation_key": "5da49a85df3cf8368d37d1d0cf766f5b4544de88a216b8341efd4cb7282ea18c",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Bunter Blattsalatteller",
+          "components": [
+            {
+              "name_de": "Balsamico-Dressing",
+              "notices": [
+                "Farbstoff",
+                "Antioxidationsmittel",
+                "geschwefelt",
+                "Senf",
+                "Schwefeldioxid / Sulfite"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Mensacafé",
+            "name": "Bunter Blattsalatteller",
+            "raw": null
+          }
+        },
+        {
+          "id": "2026-10-16-b944683c88082a63c4beb2fc8d2566c353f0d4238f3bdd2ead01efd96f1a4c65-2",
+          "translation_key": "5da49a85df3cf8368d37d1d0cf766f5b4544de88a216b8341efd4cb7282ea18c",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Bunter Blattsalatteller",
+          "components": [
+            {
+              "name_de": "Balsamico-Dressing",
+              "notices": [
+                "Farbstoff",
+                "Antioxidationsmittel",
+                "geschwefelt",
+                "Senf",
+                "Schwefeldioxid / Sulfite"
+              ]
+            }
+          ],
+          "notices": [],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Mensacafé",
+            "name": "Bunter Blattsalatteller",
             "raw": null
           }
         }
