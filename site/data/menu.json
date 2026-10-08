@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-08T07:01:54Z",
-    "sha256": "38ce0aa565d8458c5d0ce3367e76d2966a19a44ded93df2fdc7ca022b61e8131"
+    "fetched_at": "2026-10-08T08:05:56Z",
+    "sha256": "5bb1c115d8cbe6f2e0cfe7e60015df48e1088daeb084d0567b38f9e9079ffdc9"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -2203,11 +2203,11 @@
           }
         },
         {
-          "id": "2026-10-08-5d58d4110dabd8dabbc1dbfd7b3172c833a403f3f81922f0c5d413263c166ba6",
-          "translation_key": "ca7b92e31143294711eb07c59c9bf809c8a653b02ad3b81f918fd7fea1fac6d7",
+          "id": "2026-10-08-99019ad57e3f732ed0b27c1818a6d7264881c03ccefc6e9106b3c97a92de55cf",
+          "translation_key": "5c4a6f8b813de44edbe935b72c94ecc3fcbd8dff83adc54d8a02f2dfa9c97231",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Fish and chips",
+          "name_de": "KlimaTeller: Fish and chips",
           "components": [
             {
               "name_de": "Aiolisoße",
@@ -2230,17 +2230,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 520,
+            "staff": 635,
+            "guest": 705
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "KlimaTeller: Fish and chips",
+            "raw": "S: 5,20 | M: 6,35 | G: 7,05"
           }
         },
         {
@@ -2258,17 +2257,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 445,
+            "staff": 560,
+            "guest": 630
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Flammkuchen Elsässer Art",
+            "raw": "S: 4,45 | M: 5,60 | G: 6,30"
           }
         },
         {
@@ -2283,22 +2281,21 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 435,
+            "staff": 550,
+            "guest": 620
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Flammkuchen mit buntem Gemüse",
+            "raw": "S: 4,35 | M: 5,50 | G: 6,20"
           }
         },
         {
           "id": "2026-10-08-236a8bc9f2041e89507faf2f5484f9e20340019b2fd637c65f5404f33b0a3676",
-          "translation_key": "b4d36dda8ed944e069cd6ccfe35be3c6af725829ecb737a87dd89f113c9a006a",
+          "translation_key": "233604e16148fbb0e99cb5b00b82594bb4945d96de06d971e51244a984c6cd33",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -2352,6 +2349,25 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Weiße Salatsoße",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -2384,13 +2400,17 @@
             "Schwefeldioxid / Sulfite",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 395,
+            "staff": 510,
+            "guest": 580
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-08",
             "category": "Mensacafé",
             "name": "KlimaTeller: Vegan: Kanadische Poutine",
-            "raw": null
+            "raw": "S: 3,95 | M: 5,10 | G: 5,80"
           }
         }
       ]
