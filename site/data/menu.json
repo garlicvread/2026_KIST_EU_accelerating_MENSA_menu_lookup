@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-07T17:12:05Z",
-    "sha256": "532c028f82942d3cd4e3b2ee19b9a9ea3680ec3de7f27881f9951c0c56b67faf"
+    "fetched_at": "2026-10-08T07:01:54Z",
+    "sha256": "38ce0aa565d8458c5d0ce3367e76d2966a19a44ded93df2fdc7ca022b61e8131"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -2096,7 +2096,7 @@
       "meals": [
         {
           "id": "2026-10-08-699bd4d8b6d70a6ec9fc1c8e017a0c28abe5dfb6d235d25e4983413fa9a40bff",
-          "translation_key": "741fc75a0768109f8bf46e1f6a6561024999fc7f3069fc20cf657c55e85e947c",
+          "translation_key": "73c466a2487d9d813d6be6e90ae96d007b02a204793a756fba7c1613c7e53016",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Hähnchenbrustfilet Toscana",
@@ -2133,12 +2133,10 @@
               ]
             },
             {
-              "name_de": "White Donut",
+              "name_de": "Vanillegrießpudding",
               "notices": [
-                "Backtriebmittel",
                 "Milch und Laktose",
-                "Weizen",
-                "Roggen"
+                "Weizen"
               ]
             }
           ],
@@ -2160,7 +2158,7 @@
         },
         {
           "id": "2026-10-08-431b34bb9130785459b115be36f83e6c7224b94e52538a5cbd70fa5e445a3b95",
-          "translation_key": "9b148f33d82b19b4ff805b5f1185f34b94b87ab07cd4f084b21951a5de17b353",
+          "translation_key": "34e38d3cc5353580e6a8139e1eaaf4f789e664437bda18412fb725ab7126fa1b",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "KlimaTeller: Linsen-Gemüse-Chili",
@@ -2179,12 +2177,9 @@
               ]
             },
             {
-              "name_de": "White Donut",
+              "name_de": "Fruchtjoghurt",
               "notices": [
-                "Backtriebmittel",
-                "Milch und Laktose",
-                "Weizen",
-                "Roggen"
+                "Milch und Laktose"
               ]
             }
           ],
