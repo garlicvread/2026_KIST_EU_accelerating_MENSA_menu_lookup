@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-08T09:10:38Z",
-    "sha256": "5bb1c115d8cbe6f2e0cfe7e60015df48e1088daeb084d0567b38f9e9079ffdc9"
+    "fetched_at": "2026-10-09T07:11:49Z",
+    "sha256": "7b51b22a98bd55277b741f6867f62ce787b7fc63af49ce04867aced1aee1e801"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -2243,11 +2243,11 @@
           }
         },
         {
-          "id": "2026-10-08-6e4d558fd0feb687ee06977dce6f8f9b6de419bea84fbdbd895a5c4117928976",
-          "translation_key": "c87d37c527ff0abd5c4664c99e891969f32f924d34b9f90c5826d365a7e68890",
+          "id": "2026-10-08-928993cc95e6350e07857ed78437fb64e919336301cb66b3ad302558e98407a2",
+          "translation_key": "994625bd3b24c6d894503d2f7c6f60c59d920b6a9eff6809f03a29da4e548485",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Flammkuchen Elsässer Art",
+          "name_de": "Flammkuchen „Tex-Mex“",
           "components": [],
           "notices": [
             "Konservierungsstoff",
@@ -2265,7 +2265,7 @@
           "price_source": {
             "date": "2026-10-08",
             "category": "Wahlessen",
-            "name": "Flammkuchen Elsässer Art",
+            "name": "Flammkuchen „Tex-Mex“",
             "raw": "S: 4,45 | M: 5,60 | G: 6,30"
           }
         },
@@ -2480,7 +2480,7 @@
         },
         {
           "id": "2026-10-09-c573fad98470286943cff463e27ecc85b53f3bf202775915396dfc5b5e5b7190",
-          "translation_key": "181a6be0178c3f57a1dae660bc640dead3f94ae6650462b1ed023cd33cb63fc0",
+          "translation_key": "f3f00f3121f260eb35a416035e22271770f05a4d6c3d138bcecc18b5ff05f510",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "KlimaTeller: Buntes Gemüse in Cremiger Soße mit gebackenem Tofu und Vollkornpasta",
@@ -2507,7 +2507,7 @@
               ]
             },
             {
-              "name_de": "Fruchtjoghurt",
+              "name_de": "Ananasquark",
               "notices": [
                 "Milch und Laktose"
               ]
@@ -2532,6 +2532,32 @@
           }
         },
         {
+          "id": "2026-10-09-21a0fee8f82791c22faddc3c55d4574e115077a71f9a9b31786742ec59e93e23",
+          "translation_key": "4f798e644b3f82550582eeb105d7d2aabe80b1c9e1f9898721104550faddd307",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Tagesessen:",
+          "components": [
+            {
+              "name_de": "Solange der Vorrat reicht!",
+              "notices": []
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 230,
+            "staff": 330,
+            "guest": 400
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-09",
+            "category": "Wahlessen",
+            "name": "Tagesessen:",
+            "raw": "S: 2,30 | M: 3,30 | G: 4,00"
+          }
+        },
+        {
           "id": "2026-10-09-284073b36b8405f3d93c17989e269a27857e9643ac8b32bde223022bd743fbf0",
           "translation_key": "b6f757537f7ce22bc3d006f3fc08c63109bc3a87a70e2efc68e9e9842ea16f94",
           "category": "Wahlessen",
@@ -2552,17 +2578,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 480,
+            "staff": 595,
+            "guest": 665
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-09",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Dönerwrap mit Aiolisoße",
+            "raw": "S: 4,80 | M: 5,95 | G: 6,65"
           }
         },
         {
@@ -2579,22 +2604,21 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 450,
+            "staff": 565,
+            "guest": 635
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-09",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "KlimaTeller: Vegan: Süßkartoffel-Gnocchi-Pfanne mit Tomaten und Basilikum",
+            "raw": "S: 4,50 | M: 5,65 | G: 6,35"
           }
         },
         {
           "id": "2026-10-09-cfb8295d452d59828d45c580500591e49eeb36d3c9fc7bcd385a2edc5ca41626",
-          "translation_key": "8a6a0d4a720c0639c104271dcd8fddd89c3d4b1069747685e8186ebe7f9d3d15",
+          "translation_key": "7d16419cbf718b048544c2e02b2e660ef1eef478e97b1fdfa686c46d41c22f1d",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -2648,6 +2672,20 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Limetten-Joghurt-Dressing",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -2689,18 +2727,22 @@
             }
           ],
           "notices": [],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 420,
+            "staff": 535,
+            "guest": 605
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-09",
             "category": "Mensacafé",
             "name": "KlimaTeller: Bunter Blattsalatteller",
-            "raw": null
+            "raw": "S: 4,20 | M: 5,35 | G: 6,05"
           }
         },
         {
           "id": "2026-10-09-858eb3c65b5d18499423120442c2e4c306462c48bf5d3c0898ed5d3ad4ea89b3-2",
-          "translation_key": "a298c0830179995a2d81871521b5f520f8b935ae8f08ef89a3893937611851a0",
+          "translation_key": "26f401b94bce83f9c8b171439f8e21877b14cdf6a7fa3072bfcbbb3f73b7b3fe",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
           "name_de": "KlimaTeller: Bunter Blattsalatteller",
@@ -2710,16 +2752,26 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Vegan: Grünkohl-Hanf-Bratling",
+              "notices": [
+                "Backtriebmittel"
+              ]
             }
           ],
           "notices": [],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 440,
+            "staff": 555,
+            "guest": 625
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-09",
             "category": "Mensacafé",
             "name": "KlimaTeller: Bunter Blattsalatteller",
-            "raw": null
+            "raw": "S: 4,40 | M: 5,55 | G: 6,25"
           }
         }
       ]
@@ -3353,34 +3405,26 @@
       "meals": [
         {
           "id": "2026-10-14-eae9838e3427a1d671af4e0e0639995f93f111efeadbe7e10792f60728967e95",
-          "translation_key": "9557805a905d2b45f3e67b8139a4eddb4e5b650e984b1a61eca6249418f6e4e2",
+          "translation_key": "3cd795666a17c8bd30207ebb421c74e4fe19b17572ae03104c56d00abb1a2097",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Gebackener Fleischkäse",
           "components": [
             {
-              "name_de": "Ketchup",
-              "notices": []
+              "name_de": "Hausgemachter Kartoffelstampf",
+              "notices": [
+                "Milch und Laktose"
+              ]
             },
             {
-              "name_de": "Pommes Frites",
+              "name_de": "Erbsengemüse",
               "notices": [
-                "Backtriebmittel"
+                "Milch und Laktose"
               ]
             },
             {
               "name_de": "Alternativbeilage",
               "notices": []
-            },
-            {
-              "name_de": "Bohnensalat",
-              "notices": [
-                "Farbstoff",
-                "Süßungsmittel",
-                "Ei",
-                "Senf",
-                "Weizen"
-              ]
             },
             {
               "name_de": "Himbeerquark",
@@ -3784,16 +3828,14 @@
           }
         },
         {
-          "id": "2026-10-15-10272cfd048ed2deaca43b31cc9635f6f5d0702dd9845cab877e8a03372e52f8",
-          "translation_key": "c87d37c527ff0abd5c4664c99e891969f32f924d34b9f90c5826d365a7e68890",
+          "id": "2026-10-15-922035a812b988507d32189a1fc0e561376f6bc830d89398f80b1a2667bda008",
+          "translation_key": "3951c7f1974074692cbe0496cecbb80fe501ca0a3843a5a12fe06c3538f42872",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Flammkuchen Elsässer Art",
+          "name_de": "Flammkuchen mit Hackfleisch und Feta",
           "components": [],
           "notices": [
-            "Konservierungsstoff",
-            "Antioxidationsmittel",
-            "Schweinefleisch",
+            "aus zum Teil fein zerkleinertem Fleisch",
             "Milch und Laktose",
             "Weizen"
           ],
