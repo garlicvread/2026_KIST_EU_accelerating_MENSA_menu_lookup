@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-12T07:13:24Z",
-    "sha256": "13650b68b0e93278879c5d2eeda7242bd38c8df927c3c65af2d099c593a01476"
+    "fetched_at": "2026-10-12T08:03:57Z",
+    "sha256": "aa75d301b566df1fc42f25d7bccdef6c297ebd00df7204a2567a1db7e34d20ef"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -2841,11 +2841,11 @@
           }
         },
         {
-          "id": "2026-10-12-8e073957793a83eb2de3e50762b91e46578754dae34a2455647c00a26aeb077c",
-          "translation_key": "5a849940c086a3f8b5928a4e4b2c75627a9f014e8cc55f89ec58419f1f984118",
+          "id": "2026-10-12-7aa5e4014d2c9e5afa087bba4e72b150de0a017763c629242dc84bdf63957134",
+          "translation_key": "9e0bdfc0efa9afb5556bcd72ddd44b634c5234edb9c7f5b96887ce5b43fb68f7",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "Chili-Pasta mit Knoblauch und Hartkäse",
+          "name_de": "KlimaTeller: Chili-Pasta mit Knoblauch und Hartkäse",
           "components": [
             {
               "name_de": "Bunt gemischter Blattsalat",
@@ -2889,7 +2889,7 @@
           "price_source": {
             "date": "2026-10-12",
             "category": "Menü 2",
-            "name": "Chili-Pasta mit Knoblauch und Hartkäse",
+            "name": "KlimaTeller: Chili-Pasta mit Knoblauch und Hartkäse",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
@@ -2923,17 +2923,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 545,
+            "staff": 660,
+            "guest": 730
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-12",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Panierte Hühner-Filetspitzen",
+            "raw": "S: 5,45 | M: 6,60 | G: 7,30"
           }
         },
         {
@@ -2956,22 +2955,21 @@
             "Hafer"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
+            "student": 385,
+            "staff": 500,
             "guest": 570
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-12",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Veganes Pilzragout",
+            "raw": "S: 3,85 | M: 5,00 | G: 5,70"
           }
         },
         {
           "id": "2026-10-12-47cad2c26052432dae5e050f74b1f15f322221ab1fe199875bce27bc018224ac",
-          "translation_key": "391c7a47691a64e79fc1e9ee34a154b353549144b8462490798e2c2520841844",
+          "translation_key": "d20ce414e67214e554b176d4876778e5ee1f049dbdef1255f620c146e4dbad96",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -3025,6 +3023,20 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Limetten-Joghurt-Dressing",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -3042,11 +3054,11 @@
           }
         },
         {
-          "id": "2026-10-12-384d78bdd68b0af1b6e87659dcc0b95ef36a6d340e413822e393068811599d19",
-          "translation_key": "ffb0089b8ee2aa6eb151bc71cdfa79ae96d43baf73103f7722e0d26388b598ac",
+          "id": "2026-10-12-7f0316361ad6e029de3495f822861586a8261d17711b66d303fedfffdb5ec0eb",
+          "translation_key": "9d63b3262746576f7de53c7427689ee049e88e2ee6e2e117bfe5d30d58c4c4ce",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Pfannengyros Hähnchen/Soja",
+          "name_de": "KlimaTeller: Pfannengyros Hähnchen/Soja",
           "components": [
             {
               "name_de": "Knoblauchsoße",
@@ -3085,13 +3097,17 @@
             "Sellerie",
             "Senf"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 565,
+            "staff": 715,
+            "guest": 810
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-12",
             "category": "Mensacafé",
-            "name": "Pfannengyros Hähnchen/Soja",
-            "raw": null
+            "name": "KlimaTeller: Pfannengyros Hähnchen/Soja",
+            "raw": "S: 5,65 | M: 7,15 | G: 8,10"
           }
         }
       ]
