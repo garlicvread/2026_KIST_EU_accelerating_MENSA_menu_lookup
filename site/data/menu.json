@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-11T09:09:40Z",
-    "sha256": "13e73d7ee9f2bedf5894d435fb92cda860504dadd69b1f08ebb7f9348150f4bc"
+    "fetched_at": "2026-10-12T07:13:24Z",
+    "sha256": "13650b68b0e93278879c5d2eeda7242bd38c8df927c3c65af2d099c593a01476"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -2780,11 +2780,11 @@
       "date": "2026-10-12",
       "meals": [
         {
-          "id": "2026-10-12-c8edbc94cb289dacc545b4fe35fca1741b282f88dd6c0024b7486a141877c513",
-          "translation_key": "78ca50f70c92e3430b40f8d83f4af3f5c49567670760e2b1c910413d8eb2308e",
+          "id": "2026-10-12-171c8573393bca629dfb6cc904b884b0682e3490e5ea551d6e8706ccde53987b",
+          "translation_key": "96d35c8362ee68208ac24c6f8750b912d53b031330698beb2f28e185c7b0a91c",
           "category": "Menü 1",
           "location": "Aufgang A",
-          "name_de": "Mini Bifteki vom Rind",
+          "name_de": "Rinderbällchen mit Linsen",
           "components": [
             {
               "name_de": "Chili-Kräuterdip",
@@ -2822,9 +2822,10 @@
             }
           ],
           "notices": [
-            "aus zum Teil fein zerkleinertem Fleisch",
             "Ei",
-            "Milch und Laktose"
+            "Sellerie",
+            "Senf",
+            "Weizen"
           ],
           "prices": {
             "student": 365,
@@ -2835,7 +2836,7 @@
           "price_source": {
             "date": "2026-10-12",
             "category": "Menü 1",
-            "name": "Mini Bifteki vom Rind",
+            "name": "Rinderbällchen mit Linsen",
             "raw": "S: 3,65 | M: 6,70 | G: 9,35"
           }
         },
