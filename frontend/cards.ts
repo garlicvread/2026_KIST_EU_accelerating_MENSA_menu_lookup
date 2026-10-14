@@ -44,6 +44,7 @@ function cardOwner(document: Document, id: string, onDetails: (id: string, open:
   return { article, update(meal: Meal, state: AppState, titleTag: 'h3' | 'h4') {
     const language = state.language; const copy = copyFor(language); const cache = state.translations.status === 'ready' ? state.translations.value : null;
     const translated = translatedMeal(meal, cache, language);
+    article.setAttribute('data-location', meal.location);
     setText(category, meal.category); setText(location, ` · ${meal.location}`); syncChildren(counter, [category, location]);
     const labels = meal.notices.map(notice => notice.trim().toLowerCase());
     const diet = labels.includes('vegan') ? copy.vegan : labels.some(notice => notice === 'vegetarisch' || notice === 'vegetarian') ? copy.vegetarian : null;

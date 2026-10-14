@@ -406,6 +406,37 @@ h2 {
   padding: 23px 24px 12px
 }
 
+/* 판매대 위치별 색상은 일간·주간 카드에 동일하게 적용합니다. */
+.meal-card[data-location="Aufgang A"] {
+  background: #edf5ed;
+  border-color: #b9ceb9
+}
+
+.meal-card[data-location="Aufgang B"] {
+  background: #edf3f9;
+  border-color: #b9cbdc
+}
+
+.meal-card[data-location="Aufgang C"] {
+  background: #fcf2e8;
+  border-color: #dec6ac
+}
+
+.meal-card[data-location="Aufgang A"] .counter,
+.meal-card[data-location="Aufgang A"] .counter-location {
+  color: #416448
+}
+
+.meal-card[data-location="Aufgang B"] .counter,
+.meal-card[data-location="Aufgang B"] .counter-location {
+  color: #41617e
+}
+
+.meal-card[data-location="Aufgang C"] .counter,
+.meal-card[data-location="Aufgang C"] .counter-location {
+  color: #805b39
+}
+
 .card-top {
   gap: 8px;
   flex-wrap: wrap
