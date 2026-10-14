@@ -146,7 +146,7 @@ cd "$HOME/mensa"
 Mac 설치 프로그램은 작업 기록 폴더인 base의 접근 권한을 `0700`으로 설정합니다. 이 권한은 폴더 소유자만 내부 파일을 읽고 변경할 수 있다는 뜻입니다. 실행 프로그램은 다른 사용자가 접근할 수 있는 작업 폴더를 거부합니다. `State directory must have private permissions` 오류가 발생하면 LaunchAgent를 등록한 사용자가 설치 프로그램을 다시 실행해 주세요. 설치 프로그램은 기존 큐 기록·모델·메뉴 파일을 보존하고 폴더 권한을 바로잡습니다. 다음 명령의 `--write-only`는 자동 실행을 시작하지 않고 설치 설정과 폴더 권한만 준비합니다.
 
 ```sh
-python3 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa" --write-only
+/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa" --write-only
 ```
 
 메뉴 게시와 체크아웃 복구를 담당하는 `mensa/git_repository.py`는 알려지지 않은 저장소 변경을 거부합니다. 다만 Python이 `mensa/__pycache__/` 또는 `scripts/__pycache__/`에 생성했고 Git이 무시하는 일반 바이트코드 파일은 식단 변경으로 취급하지 않습니다. 프로그램은 이 캐시를 삭제하지 않습니다. 캐시 경로가 이동할 커밋의 추적 파일과 충돌하거나 다른 미확인 파일이 있으면 복구를 중단하여 기존 파일을 보호합니다.
