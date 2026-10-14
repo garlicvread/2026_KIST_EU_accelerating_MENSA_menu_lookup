@@ -25,6 +25,17 @@ def sample_menu():
 
 
 class NoticeAdapterTests(unittest.TestCase):
+    def test_reviewed_glossary_covers_pork_free_meals_and_components(self):
+        menu = {"days": [{"meals": [{
+            "notices": ["ohne Schweinefleisch"],
+            "components": [{"notices": ["ohne Schweinefleisch"]}],
+        }]}]}
+        expected = {"ohne Schweinefleisch": {
+            "en": "Without pork", "ko": "돼지고기 미포함",
+        }}
+        self.assertEqual(notices.translated_notices(menu), expected)
+        notices.require_notice_coverage(menu, {"notices": expected})
+
     def test_reviewed_glossary_covers_nuts_blackened_food_and_animal_rennet(self):
         # 실제 수집을 중단시킨 안내 문구를 메뉴와 구성품에서 검토 사전으로 조회합니다.
         menu = {"days": [{"meals": [{

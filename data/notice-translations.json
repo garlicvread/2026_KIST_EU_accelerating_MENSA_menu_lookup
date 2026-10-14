@@ -34,6 +34,7 @@
     "geschwefelt": {"en": "Treated with sulphites", "ko": "아황산염 처리됨"},
     "geschwärzt": {"en": "Blackened with iron compounds", "ko": "철 화합물로 검게 착색 처리됨"},
     "mit tierischem LAB": {"en": "Made with animal rennet", "ko": "동물성 렌넷 사용"},
+    "ohne Schweinefleisch": {"en": "Without pork", "ko": "돼지고기 미포함"},
     "vegan": {"en": "Vegan", "ko": "비건"},
     "vegetarisch": {"en": "Vegetarian", "ko": "채식"},
     "Dinkel": {"en": "Spelt", "ko": "스펠트밀"}
