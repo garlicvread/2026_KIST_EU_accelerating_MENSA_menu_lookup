@@ -175,10 +175,54 @@ class MenuSourceTests(unittest.TestCase):
             collector.validate_menu(result)
 
 
-    def test_suspicious_loss_of_meals_on_overlapping_day_is_rejected(self):
+    def test_meal_count_changes_on_overlapping_day_are_accepted(self):
         previous = self.parse(page("".join(meal(name=f"Dish {i}") for i in range(6))))
-        current = self.parse(page(meal(name="Dish 0")))
-        with self.assertRaises(ValueError):
+        for count in (1, 3, 6, 12):
+            with self.subTest(count=count):
+                current = self.parse(page("".join(meal(name=f"Dish {i}") for i in range(count))))
+                collector.validate_menu(current, previous)
+
+    def test_duplicate_meal_count_changes_with_prices_are_accepted(self):
+        previous = self.parse(page(meal() * 4))
+        for count in (3, 6):
+            with self.subTest(count=count):
+                current = self.parse(page(meal() * count))
+                collector.validate_menu(current, previous)
+
+    def test_replacing_or_removing_named_meals_is_accepted(self):
+        previous = self.parse(page("".join(meal(name=f"Old dish {i}") for i in range(6))))
+        current = self.parse(page(meal(name="Replacement dish")))
+        collector.validate_menu(current, previous)
+
+    def test_information_only_day_can_replace_previous_meals(self):
+        previous = self.parse()
+        current = self.parse(page(meal(name="Mensa geschlossen", category="Information", prices=""),
+                                  category="Information"))
+        self.assertEqual(current["days"][0]["meals"], [])
+        collector.validate_menu(current, previous)
+
+    def test_valid_empty_counter_can_replace_previous_meals(self):
+        previous = self.parse()
+        current = self.parse(page("<div>Heute geschlossen</div>"))
+        self.assertEqual(current["days"][0]["meals"], [])
+        collector.validate_menu(current, previous)
+
+    def test_valid_day_without_counters_can_replace_previous_meals(self):
+        previous = self.parse()
+        html = page("").replace("<div class='counter'><h3>Wahlessen</h3><p>Aufgang C</p></div>",
+                                "<div>Mensa geschlossen</div>")
+        current = self.parse(html)
+        self.assertEqual(current["days"][0]["meals"], [])
+        collector.validate_menu(current, previous)
+
+    def test_mixed_priced_and_pending_duplicates_remain_accepted(self):
+        previous = self.parse(page(meal() + meal(prices="")))
+        collector.validate_menu(copy.deepcopy(previous), previous)
+
+    def test_all_remaining_same_meal_prices_missing_is_rejected(self):
+        previous = self.parse(page(meal() * 3))
+        current = self.parse(page(meal(prices="") * 3))
+        with self.assertRaisesRegex(ValueError, "Previously published same-meal prices disappeared"):
             collector.validate_menu(current, previous)
 
 

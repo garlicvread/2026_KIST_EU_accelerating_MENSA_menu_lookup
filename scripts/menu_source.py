@@ -194,7 +194,8 @@ def parse_menu(html, fetched_at=None):
     fetched_at으로 수집 시간을 전달할 수 있으며, 값이 없으면 현재 UTC 시간을 기록합니다.
     반환값에는 원본 문자열의 SHA256과 추출 날짜 범위가 포함됩니다. Information 항목은
     구조 검사에 포함하지만 식사 목록에서 제외합니다. 파일이나 네트워크에 접근하지 않으며,
-    이전 메뉴와의 손실 비교는 호출자가 validate_menu에 previous를 전달하여 수행합니다.
+    빈 날짜·판매대는 빈 식단으로 반환하며, 이전 날짜·가격 연결 검사는 호출자가
+    validate_menu에 previous를 전달하여 수행합니다.
     """
     _require(isinstance(html, str) and html.strip(), "Empty HTML source")
     try:
@@ -253,7 +254,6 @@ def _parse_menu(html, fetched_at):
         day = tab_map[panel_id]
         records = []
         counters = panel.by_class("counter")
-        _require(counters, "Day has no menu counters")
         for counter in counters:
             # 자손 조회만으로는 중첩된 다른 판매대의 항목도 포함될 수 있으므로 가장 가까운
             # 소유 요소를 확인합니다. 메뉴와 구성품에도 같은 소유 관계 검사를 적용합니다.
@@ -269,7 +269,6 @@ def _parse_menu(html, fetched_at):
             location = _text(locations[0].text()) if locations else ""
             _require(location or category == "Information", "Empty counter location")
             meals = counter.by_class("meal")
-            _require(meals, "Counter has no source meals")
             counter_start = len(records)
             for source_meal in meals:
                 _require(_nearest(source_meal, lambda n: "counter" in n.classes) is counter,

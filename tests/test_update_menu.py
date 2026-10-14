@@ -22,6 +22,21 @@ def complete_cache(menu):
 
 class SnapshotTests(unittest.TestCase):
 
+    def test_update_publishes_changed_duplicate_counts_and_empty_days(self):
+        for count in (3, 6, 0):
+            with self.subTest(count=count), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                directory = root / 'site/data'
+                previous = parse_menu(page(meal(date='21.09.2099') * 4, date='21.09.2099'),
+                                      fetched_at='2026-10-01T09:00:00Z')
+                write_snapshot(directory, previous, complete_cache(previous))
+                html = page(meal(date='21.09.2099') * count if count else '<div>Heute geschlossen</div>',
+                            date='21.09.2099')
+                update(root, html=html)
+                stored = json.loads((directory / 'menu.json').read_text())
+                self.assertEqual(len(stored['days'][0]['meals']), count)
+                self.assertNotEqual(stored['source']['fetched_at'], previous['source']['fetched_at'])
+
     def test_update_keeps_published_earlier_days_across_successive_collections(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

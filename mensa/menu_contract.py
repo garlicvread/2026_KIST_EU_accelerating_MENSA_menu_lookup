@@ -1,4 +1,4 @@
-"""메뉴 검증 함수가 메뉴 JSON의 스키마·원본 출처·항목 식별 정보를 확인하고 이전 공개 스냅샷의 데이터 손실을 검사합니다."""
+"""메뉴 검증 함수가 메뉴 JSON의 스키마·원본 출처·항목 식별 정보와 이전 공개 스냅샷의 날짜·가격 연결을 검사합니다."""
 
 from collections import Counter
 from copy import deepcopy
@@ -72,7 +72,7 @@ def _notice_list(value):
 
 
 def validate_menu(menu, previous=None):
-    """validate_menu가 메뉴 JSON의 구조·가격 출처·항목 식별 정보를 검증하고, previous가 있으면 겹치는 날짜의 메뉴·가격 손실을 검사합니다."""
+    """validate_menu가 메뉴 JSON의 구조·가격 출처·항목 식별 정보를 검증하고, previous가 있으면 날짜 연결과 계속 존재하는 메뉴의 가격 소실을 검사합니다."""
     try:
         _validate_schema(menu)
         if previous is not None:
@@ -85,7 +85,7 @@ def validate_menu(menu, previous=None):
 def retain_published_days(menu, previous):
     """호출자가 검증한 새 메뉴에 원본 공개 범위보다 앞선 기존 날짜를 보존합니다.
 
-    호출자는 이 함수 전에 새 원본의 구조·손실·최신 날짜 범위를 검사해야 합니다.
+    호출자는 이 함수 전에 새 원본의 구조·날짜·가격 연결·최신 날짜 범위를 검사해야 합니다.
     같은 날짜는 새 원본을 사용하며, 새 범위 안에서 사라진 날짜나 범위 뒤의 미래
     날짜를 이전 자료로 채우지 않습니다. source는 마지막 수집의 출처를 유지하고,
     coverage는 보존한 날짜까지 포함합니다. 입력 사전은 수정하지 않습니다.
@@ -183,12 +183,10 @@ def _validate_previous(menu, previous):
             continue
         old_meals = old_day["meals"]
         current = current_days[old_day["date"]]
-        # _validate_previous는 작은 수정을 허용하지만, 이미 공개된 하루 메뉴의 4분의 1을 넘는 항목이 사라지면
-        # 자동 공개가 안전하지 않으므로 거부하고 검토를 요구합니다.
-        _require(len(current) >= len(old_meals) * 0.75, "Suspicious loss of source meals on overlapping day")
         current_identities = {(meal["category"], meal["name_de"]) for meal in current}
-        current_priced = Counter((meal["category"], meal["name_de"]) for meal in current if meal["prices"] is not None)
-        old_priced = Counter((meal["category"], meal["name_de"]) for meal in old_meals if meal["prices"] is not None)
-        for identity, count in old_priced.items():
-            if identity in current_identities:
-                _require(current_priced[identity] >= count, "Previously published same-meal prices disappeared")
+        current_priced = {(meal["category"], meal["name_de"]) for meal in current if meal["prices"] is not None}
+        old_priced = {(meal["category"], meal["name_de"]) for meal in old_meals if meal["prices"] is not None}
+        # 같은 메뉴의 중복 발생 수는 원본의 운영 변경에 따라 달라질 수 있습니다.
+        # 계속 존재하는 메뉴에 가격이 전혀 남아 있지 않은 경우만 가격 소실로 판단합니다.
+        for identity in old_priced & current_identities:
+            _require(identity in current_priced, "Previously published same-meal prices disappeared")
