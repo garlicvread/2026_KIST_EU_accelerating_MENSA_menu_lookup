@@ -931,7 +931,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "8a6a0d4a720c0639c104271dcd8fddd89c3d4b1069747685e8186ebe7f9d3d15": {
       "source": {
@@ -1172,7 +1172,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "f616f1b2bc479abe3f6e4fba7f82fb66a303f80f20bafb71c7f9fa124da9c51b": {
       "source": {
@@ -1393,7 +1393,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "e0b5f6ee42be271e035737affe923acd5ff720e4087e086c16770185dcc8e3f7": {
       "source": {
@@ -1600,7 +1600,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "e3069e97a04f090777aca384c6963d6676861055463422565851bc3afc818ef5": {
       "source": {
@@ -1818,7 +1818,7 @@
       },
       "origin": "editorial-draft",
       "model": "assistant-draft",
-      "prompt_version": "menu-v3"
+      "prompt_version": "menu-v4"
     },
     "019ca245dba6847377b297b0ca2de9838752057e5335c908c6b48eee4080bce3": {
       "source": {
@@ -2489,8 +2489,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "0f4fbdd88902d165f726551223d149adcacf53346b9a03457b76683c8213321e": {
@@ -2518,8 +2518,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "4fa8d37ba55caf119e10ed2ddcab7930e32fec796b9aeb7202198f0d7f3428ad": {
@@ -2541,8 +2541,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "e1aa1f8d9b5f473c400c69044e089b13b1745cd97ddbb2733a5e0a1d6bdc94dc": {
@@ -3000,7 +3000,13 @@
       },
       "origin": "model",
       "model": "gemma4:31b",
-      "prompt_version": "menu-v4"
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
     },
     "873bfa8a6533e2ee2de9ae95bcb00072726ff87639785f38dd73e69ff649a393": {
       "source": {
@@ -4237,8 +4243,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "5e605e098bd7e1b94eff854045bde881e6641e9829ae041e9e97aa1a201d29aa": {
@@ -4269,8 +4275,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "bc4a19774e9b21a247e79d2fd439b78d34b39bd2b2738ab4341fb0bf30fd6f9b": {
@@ -4301,8 +4307,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "97253b0dcfa0ad365b6e14234972021910ebd80d443aaacd2bceb617f3e9fa54": {
@@ -4333,8 +4339,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "25a4759ed539c9dd4d895ca3e03aec3eea6e0e0dab442f427d04738405fd2a71": {
@@ -4365,8 +4371,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "806b4932ccb71415d2045855486d940e88b4248f8f51e1865be57a6879f08263": {
@@ -4569,8 +4575,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "b0a59888c72b283c810d583b3ef6f1b43319f7224e9bd6507b57d76e4a88d2b3": {
@@ -4633,8 +4639,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "4b6bf68e2dc26f613188563423b3b1fb5d8caf72164dda42aba39cedf2be7073": {
@@ -4826,8 +4832,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "e370b601a7ad5dcb184047c1447ad33e736c8c364c68b274a2e68fd55a18dced": {
@@ -4858,8 +4864,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "bec5eb3b47b6329d040202330192c5d6276a653c80dcbad260b0129b3b4c1029": {
@@ -4881,8 +4887,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "791207e376194aa48369b290c8e0ea4ba90716f81341bb62d984fde58effe42d": {
@@ -4910,8 +4916,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "ceedd2b0b00f094070a3919c9f61089fa37052742437fc3c0f0e9c1bd0749db6": {
@@ -4975,8 +4981,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       },
       "component_policy_version": "semantic-components-v1"
     },
@@ -5011,8 +5017,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "fdab72b6bf4c87fd9139fb02e15e7b9c223aba85a60f07fe66d98918404c9888": {
@@ -5034,8 +5040,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "7ddc953f01d064fdc1e8fbf445d3a1db2e2c055a2db36736b66d61818fd3f7c0": {
@@ -5063,8 +5069,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "bfb29d398574e673cd947bb50228dcf2eacc6bddf6846bc84158241b5bb3fa98": {
@@ -5095,8 +5101,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "5a849940c086a3f8b5928a4e4b2c75627a9f014e8cc55f89ec58419f1f984118": {
@@ -5162,8 +5168,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "ffb0089b8ee2aa6eb151bc71cdfa79ae96d43baf73103f7722e0d26388b598ac": {
@@ -5244,8 +5250,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "ba157e0911f94910e283e18a01a39aff9755526273cc97e66f6887a2b6988f01": {
@@ -5302,8 +5308,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "287dc354512260c180ae675b00df47894c4c4d1ae941fdd9e5942ba159854574": {
@@ -5325,8 +5331,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "2158a5c6000818498df407942bf0be2a1cfb5bffaff4096b84052586fd240e22": {
@@ -5348,8 +5354,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "58aa8930ee2851be0e26635be761690d9976bea67de016d927ccd6cf3fe4ced7": {
@@ -5462,8 +5468,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "6fe696f0b2ef0e6b5f0ff23a14583a97b075c5de52fe586d93edde3179e59362": {
@@ -5558,8 +5564,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "02ad0291d6620f0bd2f355b105c194b3aeb2e70bc6cb9e19c31c9d30385d5612": {
@@ -5593,8 +5599,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "1e5d00d123004ee8ca4fc678d97c22855e8d2848a271022fdbee2aca6a28f91f": {
@@ -5616,8 +5622,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "6bc1d0e8edea3ea1135ceca8c8be65190e3162d2977fc5a3ee790fe077a0b9ea": {
@@ -5639,8 +5645,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "4d7ced4579b1ed397087d27ffde82ba04624a282bf48038b3f64d206d98ba882": {
@@ -5668,8 +5674,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "61ff3a1891da7f636d3ae95ce92e9a7714d3e6eb60eca2a448cceb91d3eaecfc": {
@@ -5709,8 +5715,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "3784bf224865d26529e2778bad8430e50502a3baf7e28c212a000c23f9f08c4e": {
@@ -5747,8 +5753,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "912aa90668d43380779f247c6bab8ba74952967fb7a933463e7cde7ca9947f07": {
@@ -5779,8 +5785,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "38408c54d226d6dcfe49d2723104f44a2c92c5a326f9dd8655af079f526d105d": {
@@ -5802,8 +5808,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "34e38d3cc5353580e6a8139e1eaaf4f789e664437bda18412fb725ab7126fa1b": {
@@ -5875,8 +5881,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "233604e16148fbb0e99cb5b00b82594bb4945d96de06d971e51244a984c6cd33": {
@@ -5969,8 +5975,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "994625bd3b24c6d894503d2f7c6f60c59d920b6a9eff6809f03a29da4e548485": {
@@ -5992,8 +5998,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "f3f00f3121f260eb35a416035e22271770f05a4d6c3d138bcecc18b5ff05f510": {
@@ -6030,8 +6036,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "4f798e644b3f82550582eeb105d7d2aabe80b1c9e1f9898721104550faddd307": {
@@ -6059,8 +6065,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "26f401b94bce83f9c8b171439f8e21877b14cdf6a7fa3072bfcbbb3f73b7b3fe": {
@@ -6091,8 +6097,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "3cd795666a17c8bd30207ebb421c74e4fe19b17572ae03104c56d00abb1a2097": {
@@ -6152,8 +6158,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "96d35c8362ee68208ac24c6f8750b912d53b031330698beb2f28e185c7b0a91c": {
@@ -6193,8 +6199,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "9e0bdfc0efa9afb5556bcd72ddd44b634c5234edb9c7f5b96887ce5b43fb68f7": {
@@ -6231,8 +6237,8 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     },
     "9d63b3262746576f7de53c7427689ee049e88e2ee6e2e117bfe5d30d58c4c4ce": {
@@ -6266,8 +6272,1127 @@
       "generation_identity": {
         "schema_version": 1,
         "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
-        "glossary": "121f655d301d6fbe40985d78391002782df4e764281e0d30866bcecc826bcec5",
-        "backend": "cab85835098689d6564b1084b614e3a65445e934dd407277dd3f0404e20b72a9"
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "74b1654902c68e3fa41dab8c8a90276103dfc75b21a1f11c4db951844a8aba13": {
+      "source": {
+        "name_de": "Pulled Pork Burger mit Coleslaw",
+        "components": []
+      },
+      "en": {
+        "name": "Pulled pork burger with coleslaw",
+        "components": []
+      },
+      "ko": {
+        "name": "코울슬로를 곁들인 풀드포크 버거",
+        "components": []
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "aa77d0779d91c5b11838d3eabf18380ac73cba749606bc6280e27b9bab5b9699": {
+      "source": {
+        "name_de": "KlimaTeller: Chili sin carne",
+        "components": [
+          "Nachos",
+          "Rohkostsalat",
+          "Dessert"
+        ]
+      },
+      "en": {
+        "name": "Chili sin carne",
+        "components": [
+          "Nachos",
+          "Raw vegetable salad",
+          "Dessert"
+        ]
+      },
+      "ko": {
+        "name": "칠리 신 카르네 (고기 없는 칠리)",
+        "components": [
+          "나초",
+          "생채소 샐러드",
+          "디저트"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "6454a3091c84c19ae4b3048b79af4c90e58751bdc4515efca1a17fb44701ac32": {
+      "source": {
+        "name_de": "Salatbuffet",
+        "components": [
+          "Tomatensalat",
+          "Weisskraut",
+          "Gurken",
+          "Zwiebelringe",
+          "Karotten",
+          "Gemischter Paprika",
+          "Mais",
+          "Peperoni",
+          "Romasalat",
+          "Kopfsalat",
+          "Radicchio",
+          "Klare Salatsoße",
+          "Cocktailsoße",
+          "Kräuter",
+          "Hülsenfrüchte"
+        ]
+      },
+      "en": {
+        "name": "Salad Buffet",
+        "components": [
+          "Tomato salad",
+          "White cabbage",
+          "Cucumber",
+          "Onion rings",
+          "Carrots",
+          "Mixed bell pepper",
+          "Corn",
+          "Chili peppers",
+          "Romaine lettuce",
+          "Lettuce",
+          "Radicchio",
+          "Clear salad dressing",
+          "Cocktail sauce",
+          "Herbs",
+          "Legumes"
+        ]
+      },
+      "ko": {
+        "name": "샐러드 뷔페",
+        "components": [
+          "토마토 샐러드",
+          "화이트 양배추",
+          "오이",
+          "양파 링",
+          "당근",
+          "모둠 파프리카",
+          "옥수수",
+          "고추",
+          "로메인 상추",
+          "양상추",
+          "라디키오",
+          "투명 샐러드 드레싱",
+          "칵테일 소스",
+          "허브",
+          "콩류"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      },
+      "component_policy_version": "semantic-components-v1"
+    },
+    "adec92ddbc3ee1bbc9cc6b03bc2526def0294e2f491aef94a263fdd767df59f2": {
+      "source": {
+        "name_de": "KlimaTeller: Vegan: Bunter Gemüseteller",
+        "components": [
+          "Vegan: Kräuter-Dip",
+          "Süsskartoffel Pommes"
+        ]
+      },
+      "en": {
+        "name": "Vegan Mixed Vegetable Plate",
+        "components": [
+          "Vegan herb dip",
+          "Sweet potato fries"
+        ]
+      },
+      "ko": {
+        "name": "비건 모둠 채소 접시",
+        "components": [
+          "비건 허브 딥",
+          "고구마 튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "cc1c1fee5a43a1707388c1710d78843e77a420195b3da363552169b2bc73ce23": {
+      "source": {
+        "name_de": "Gebackener Fleischkäse",
+        "components": [
+          "Hausgemachter Kartoffelstampf",
+          "Rahmsoße",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Alternativbeilage",
+          "Himbeerquark"
+        ]
+      },
+      "en": {
+        "name": "Cooked Meatloaf",
+        "components": [
+          "Homemade mashed potatoes",
+          "Cream sauce",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Alternative side dish",
+          "Raspberry quark"
+        ]
+      },
+      "ko": {
+        "name": "조리한 플라이쉬케제(독일식 고기빵)",
+        "components": [
+          "수제 으깬 감자",
+          "크림 소스",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "대체 사이드 메뉴",
+          "라즈베리 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "860adefcf7e843d805b87e8987a91bfd9f836a2392b7cb307105a0eb3247da6f": {
+      "source": {
+        "name_de": "Vegan: Sojageschnetzeltes mit frischen Pilzen",
+        "components": [
+          "Vegane Gnocchi"
+        ]
+      },
+      "en": {
+        "name": "Vegan: Sliced soy meat in sauce with fresh mushrooms",
+        "components": [
+          "Vegan gnocchi"
+        ]
+      },
+      "ko": {
+        "name": "비건: 신선한 버섯을 곁들인 소스를 곁들인 콩고기",
+        "components": [
+          "비건 뇨끼"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "c6ada005fcf07f53ae25c4372332bcd21cda998ad7a814e305ed3a8aa4f8f324": {
+      "source": {
+        "name_de": "Linseneintopf",
+        "components": [
+          "Brötchen",
+          "Wiener Würstchen"
+        ]
+      },
+      "en": {
+        "name": "Lentil Stew",
+        "components": [
+          "Bread roll",
+          "Vienna sausages"
+        ]
+      },
+      "ko": {
+        "name": "렌틸콩 스튜",
+        "components": [
+          "빵",
+          "비엔나 소시지"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "f4fab0deb2058e286289c257647d031c7a14ee3a16148126372c6ba3efa226bd": {
+      "source": {
+        "name_de": "Linseneintopf-vegan-",
+        "components": [
+          "Körnerbrötchen"
+        ]
+      },
+      "en": {
+        "name": "Vegan lentil stew",
+        "components": [
+          "grain roll"
+        ]
+      },
+      "ko": {
+        "name": "비건 렌틸콩 스튜",
+        "components": [
+          "곡물 빵"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "25e67f4d88cc04384dfd2a385d78fb239857e6aba337b933be3a4eafdddf2f13": {
+      "source": {
+        "name_de": "Paniertes Schnitzel vom Schwein",
+        "components": [
+          "Soße Balkan Art",
+          "Tomatenreis",
+          "Bunter Rohkostsalat",
+          "Schokoladenpudding"
+        ]
+      },
+      "en": {
+        "name": "Breaded Pork Schnitzel",
+        "components": [
+          "Balkan-style sauce",
+          "Tomato rice",
+          "Mixed raw vegetable salad",
+          "Chocolate pudding"
+        ]
+      },
+      "ko": {
+        "name": "빵가루를 입힌 돼지고기 슈니첼",
+        "components": [
+          "발칸 스타일 소스",
+          "토마토 밥",
+          "모둠 생채소 샐러드",
+          "초콜릿 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "8ec0b54b6f12f6ffb3cb259b62a6e7f135eab300f4e737ab70456cfe20ea5630": {
+      "source": {
+        "name_de": "Bandnudel mit Tomate, Zucchini und Hartkäse",
+        "components": [
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Flat noodles with tomato, zucchini and hard cheese",
+        "components": [
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "토마토, 주키니 호박, 하드 치즈를 곁들인 넓은 면",
+        "components": [
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일 (유기농 사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "2692035573afd69a0d1f295451c6d6bf8a4c4a76055af9ef1dd3b0ffa79aad71": {
+      "source": {
+        "name_de": "mensaVital: Putengeschnetzeltes Thailändische Art mit Duftreis",
+        "components": []
+      },
+      "en": {
+        "name": "Thai-style sliced turkey in sauce with fragrant rice",
+        "components": []
+      },
+      "ko": {
+        "name": "태국식 칠면조 고기 볶음과 향미로운 쌀밥",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "6490c19c88918c160e5f2f3f5b75720bc58290e7d29b5ba03c2affc0ec848b6d": {
+      "source": {
+        "name_de": "Vegan: Soja-Gyros aus der Pfanne",
+        "components": [
+          "Vegan:Knoblauch-Kräuter-Dip",
+          "Pommes Frites"
+        ]
+      },
+      "en": {
+        "name": "Vegan: Pan-fried Soy Gyros",
+        "components": [
+          "Vegan: Garlic Herb Dip",
+          "French Fries"
+        ]
+      },
+      "ko": {
+        "name": "비건: 팬에 구운 소이 자이로",
+        "components": [
+          "비건: 마늘 허브 딥",
+          "감자튀김"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "ded4943e9b0eb26997f583d96c39dee15c8ee71e4ceedf8bda0f090ba3452e45": {
+      "source": {
+        "name_de": "Chili-Cheese-Fritten mit Rinderhackfleisch",
+        "components": []
+      },
+      "en": {
+        "name": "Chili Cheese Fries with Ground Beef",
+        "components": []
+      },
+      "ko": {
+        "name": "소고기 다짐육을 곁들인 칠리 치즈 프라이",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "30444e089b71c51aae8da9a03c907cc1e481e2438e6b600fc71d1d09a6b2fc9a": {
+      "source": {
+        "name_de": "Chili-Cheese-Fritten",
+        "components": []
+      },
+      "en": {
+        "name": "Chili Cheese Fries",
+        "components": []
+      },
+      "ko": {
+        "name": "칠리 치즈 프라이",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "263f66eb1bf7206fc0cff81e7193d51f3a70671727d93a287d4718fd9173881a": {
+      "source": {
+        "name_de": "Vegan: Gebratene Bratwurst",
+        "components": [
+          "Currysoße",
+          "Backofenkartoffel (aus biologischem Anbau)",
+          "Gazpachosalat",
+          "Himbeer-Vanillejoghurt"
+        ]
+      },
+      "en": {
+        "name": "Vegan Fried Bratwurst",
+        "components": [
+          "curry sauce",
+          "baked potato (organic)",
+          "gazpacho salad",
+          "raspberry vanilla yogurt"
+        ]
+      },
+      "ko": {
+        "name": "비건 구운 브라트부르스트",
+        "components": [
+          "커리 소스",
+          "구운 감자 (유기농)",
+          "가스파초 샐러드",
+          "라즈베리 바닐라 요거트"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "2befb718fdf00ef26769cfcd25d6aedc111bcbc278d5091e8449292e4ea0d3db": {
+      "source": {
+        "name_de": "Germknödel mit Fruchtfüllung",
+        "components": [
+          "Vanillesoße",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Gemüsecremesuppe"
+        ]
+      },
+      "en": {
+        "name": "Yeast Dumplings with Fruit Filling",
+        "components": [
+          "Vanilla sauce",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Vegetable cream soup"
+        ]
+      },
+      "ko": {
+        "name": "과일 소를 넣은 게르름크뇌델(효모 빵 완자)",
+        "components": [
+          "바닐라 소스",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "야채 크림 수프"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "d3956267fe79149eb885e478750d47b57035316f16f33589aad800c6ef5c2eef": {
+      "source": {
+        "name_de": "Pizza mit frischen Champignons",
+        "components": []
+      },
+      "en": {
+        "name": "Pizza with fresh mushrooms",
+        "components": []
+      },
+      "ko": {
+        "name": "신선한 양송이버섯 피자",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "1a1cc7360e2500ba62b677ea3079d5c2170353d1442663b39543fcf0bc34d3cc": {
+      "source": {
+        "name_de": "Gemüseragout Mexikanische Art mit Brew Bites",
+        "components": [
+          "Gerstoni"
+        ]
+      },
+      "en": {
+        "name": "Mexican-style vegetable ragout with Brew Bites",
+        "components": [
+          "barley"
+        ]
+      },
+      "ko": {
+        "name": "멕시코식 채소 라구와 브루 바이트(Brew Bites)",
+        "components": [
+          "보리"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "92013660682158c0d13c8b987b1eb8ffef745afd28bea56e61891bed9e89adb2": {
+      "source": {
+        "name_de": "Ungarisches Gulasch von der Pute",
+        "components": [
+          "Reis (aus biologischem Anbau)",
+          "Jagsttalersalat",
+          "Aprikosenquark"
+        ]
+      },
+      "en": {
+        "name": "Hungarian Turkey Goulash",
+        "components": [
+          "Organic rice",
+          "Jagsttal salad",
+          "Apricot quark"
+        ]
+      },
+      "ko": {
+        "name": "칠면조 헝가리식 굴라시",
+        "components": [
+          "유기농 쌀밥",
+          "야그스트탈 샐러드",
+          "살구 쿼크"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "746894c9bb72b66169b80f4db55ff2abaa8c8cd7ccd4208e2d71f74a57703e38": {
+      "source": {
+        "name_de": "Nudelauflauf Havanna",
+        "components": [
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Havanna Pasta Bake",
+        "components": [
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "하바나 스타일 파스타 오븐 구이",
+        "components": [
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "투명 샐러드 드레싱",
+          "과일 (유기농 사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "63bf079b9a0d90b673730fafc569c369a99e6ea2c90bde4b1e0e05a6387d13f9": {
+      "source": {
+        "name_de": "ZiS: Spezialitätentag Aserbeidschan",
+        "components": [
+          "Sebzie Plov mit Rindfleisch"
+        ]
+      },
+      "en": {
+        "name": "ZiS: Azerbaijan Specialty Day",
+        "components": [
+          "Sebzie Plov with beef"
+        ]
+      },
+      "ko": {
+        "name": "ZiS: 아제르바이잔 특선 요일",
+        "components": [
+          "소고기를 곁들인 세브제 플로브"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "468f32984426a17985c19bd6e7284c95d7fa37aa4ab88f978eafed4212869889": {
+      "source": {
+        "name_de": "Veggie Hamburger Italian Bastard",
+        "components": []
+      },
+      "en": {
+        "name": "Veggie Hamburger Italian Bastard",
+        "components": []
+      },
+      "ko": {
+        "name": "베지 햄버거 이탈리안 바스타드",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "cb4f5c96ad03c2534e659d1692530e3eeea7044d74200279166366ca3de4cdbe": {
+      "source": {
+        "name_de": "Veggie Sandwich Chicken Style",
+        "components": [
+          "Coleslaw Topping",
+          "Barbecuesoße"
+        ]
+      },
+      "en": {
+        "name": "Veggie Chicken-Style Sandwich",
+        "components": [
+          "Coleslaw topping",
+          "Barbecue sauce"
+        ]
+      },
+      "ko": {
+        "name": "식물성 치킨 스타일 샌드위치",
+        "components": [
+          "코울슬로 토핑",
+          "바비큐 소스"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "8c91eb07d0cabb2d6a92e27a8f2ce591b0ca320d76f051da7cd087300d697201": {
+      "source": {
+        "name_de": "Hausgemachte Frikadelle",
+        "components": [
+          "Rahmsoße",
+          "Hausgemachter Kartoffelstampf",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Homemade Patty",
+        "components": [
+          "Cream sauce",
+          "Homemade mashed potatoes",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "수제 패티",
+        "components": [
+          "크림 소스",
+          "수제 으깬 감자",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "d732adbd70ddf86bf1a143513f00141d492a426271c16de78a4e5e76795552d8": {
+      "source": {
+        "name_de": "Indisches Linsencurry",
+        "components": [
+          "Reis (aus biologischem Anbau)",
+          "Karottensalat",
+          "Milchreis mit Zimt und Zucker"
+        ]
+      },
+      "en": {
+        "name": "Indian Lentil Curry",
+        "components": [
+          "Organic rice",
+          "Carrot salad",
+          "Rice pudding with cinnamon and sugar"
+        ]
+      },
+      "ko": {
+        "name": "인도식 렌틸콩 커리",
+        "components": [
+          "유기농 쌀밥",
+          "당근 샐러드",
+          "시나몬 설탕을 곁들인 쌀 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "e9bee4a593eaf508c8399f11d90a64f0d5324e1608ed54e5dbe2086da57f4a9a": {
+      "source": {
+        "name_de": "Hühnernuggets im Tempurateig",
+        "components": [
+          "Chili-Kräuterdip",
+          "Pommes Wedges"
+        ]
+      },
+      "en": {
+        "name": "Tempura Chicken Nuggets",
+        "components": [
+          "chili herb dip",
+          "potato wedges"
+        ]
+      },
+      "ko": {
+        "name": "텐푸라 닭고기 너겟",
+        "components": [
+          "칠리 허브 딥 소스",
+          "웨지 감자"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "55e5d3705e3686991f350b0bf78431a63848ce449bddaffca765301856927dea": {
+      "source": {
+        "name_de": "Flammkuchen Saarländische Art mit Lyoner und Kartoffelwürfel",
+        "components": []
+      },
+      "en": {
+        "name": "Saarland-style Tarte Flambée with Lyoner sausage and potato cubes",
+        "components": []
+      },
+      "ko": {
+        "name": "리요네 소시지와 감자 깍둑썰기를 곁들인 자를란트식 플람쿠헨",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "8fb74dd22b318e53f9940cbcc5b38d488fc2b17b01981c9fc12fb828b76b73e0": {
+      "source": {
+        "name_de": "Vegan: Penne mit Spinat-Erdnusssoße",
+        "components": []
+      },
+      "en": {
+        "name": "Vegan Penne with Spinach-Peanut Sauce",
+        "components": []
+      },
+      "ko": {
+        "name": "비건 펜네 파스타와 시금치 땅콩 소스",
+        "components": []
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "ec8aea8a5691b080e04075d69918ea5a9c8d08a8d47b171482d1a5bd99bbdeea": {
+      "source": {
+        "name_de": "Penne Rigate (aus biologischem Anbau)",
+        "components": [
+          "Bolognese Soße",
+          "Geriebener Käse",
+          "Pusztasalat",
+          "Sahnepudding"
+        ]
+      },
+      "en": {
+        "name": "Organic Penne Rigate",
+        "components": [
+          "Bolognese sauce",
+          "Grated cheese",
+          "Puszta salad",
+          "Cream pudding"
+        ]
+      },
+      "ko": {
+        "name": "유기농 펜네 리가테",
+        "components": [
+          "볼로네제 소스",
+          "갈은 치즈",
+          "푸스타 샐러드",
+          "크림 푸딩"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "82c64375f1eee190dfc452cc51336c7eb2d44ac3b91b6e887813b824e8a5b123": {
+      "source": {
+        "name_de": "Frühlingsrolle vegetarisch",
+        "components": [
+          "Soße süß-sauer",
+          "Tomatenreis",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Vegetarian spring roll",
+        "components": [
+          "Sweet and sour sauce",
+          "Tomato rice",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "채식 스프링롤",
+        "components": [
+          "새콤달콤 소스",
+          "토마토 밥",
+          "모둠 잎채소 샐러드",
+          "투명 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일 (유기농 사과)"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "9df62a59e76e70a3fbdc92ea347b2bc8796d2326f7f1a63777feb7347a8cca07": {
+      "source": {
+        "name_de": "Mit Kürbiskernen paniertes Schnitzel vom Huhn",
+        "components": [
+          "Zitrone",
+          "Twister Fries"
+        ]
+      },
+      "en": {
+        "name": "Pumpkin seed breaded chicken schnitzel",
+        "components": [
+          "lemon",
+          "twister fries"
+        ]
+      },
+      "ko": {
+        "name": "호박씨 빵가루를 입힌 치킨 슈니첼",
+        "components": [
+          "레몬",
+          "트위스터 프라이"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "47eae380254f17e1b0c114895b66bbcf8cb97dd2936539745bbd3a0d0791f036": {
+      "source": {
+        "name_de": "Vegan: Fagottini mit Tomaten-Basilikumfüllung",
+        "components": [
+          "Vegan: Tomaten-Bechamelsoße"
+        ]
+      },
+      "en": {
+        "name": "Vegan Fagottini with tomato and basil filling",
+        "components": [
+          "Vegan tomato béchamel sauce"
+        ]
+      },
+      "ko": {
+        "name": "비건 파고티니 (토마토 바질 소 충전물)",
+        "components": [
+          "비건 토마토 베샤멜 소스"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "77a782c04795f69e3a32fbdb3f5ba65da48bdeab2e7a1e6b858a6bd0bc551225": {
+      "source": {
+        "name_de": "Hausgemachte Erbsensuppe",
+        "components": [
+          "Brötchen",
+          "Wiener Würstchen"
+        ]
+      },
+      "en": {
+        "name": "Homemade pea soup",
+        "components": [
+          "bread roll",
+          "wiener sausage"
+        ]
+      },
+      "ko": {
+        "name": "수제 완두콩 수프",
+        "components": [
+          "빵",
+          "비엔나 소시지"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
+      }
+    },
+    "c20d02b0fc63f0ab275442c0b1010b31482d88ad60762bf362a8ee33581d2cc0": {
+      "source": {
+        "name_de": "Hausgemachte Erbsensuppe",
+        "components": [
+          "Körnerbrötchen"
+        ]
+      },
+      "en": {
+        "name": "Homemade pea soup",
+        "components": [
+          "grain roll"
+        ]
+      },
+      "ko": {
+        "name": "수제 완두콩 수프",
+        "components": [
+          "곡물 빵"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "031b076d1f9fd4fcfb2c8d82dbb5d3cb898cda37a20bbe9a354924e636e81d8c"
       }
     }
   },
@@ -6415,6 +7540,10 @@
     "mit tierischem LAB": {
       "en": "Made with animal rennet",
       "ko": "동물성 렌넷 사용"
+    },
+    "ohne Schweinefleisch": {
+      "en": "Without pork",
+      "ko": "돼지고기 미포함"
     }
   }
 }
