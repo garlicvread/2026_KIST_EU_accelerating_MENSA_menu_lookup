@@ -135,24 +135,35 @@ class SnapshotRepository:
         _require(_oid(value), 'Invalid Git object identity')
         return value
 
+    def _ignored_artifact(self, name):
+        root, separator, _ = name.partition('/')
+        if separator and root in ('.tmp', 'dist', 'node_modules'):
+            # 개발 출력 내부의 링크는 따라가지 않고 보존합니다. 루트의 링크·일반 파일은 허용하지 않습니다.
+            if not stat.S_ISDIR((self._checkout / root).lstat().st_mode):
+                return False
+            mode = (self._checkout / name).lstat().st_mode
+            return stat.S_ISREG(mode) or stat.S_ISDIR(mode) or stat.S_ISLNK(mode)
+        cache = re.fullmatch(
+            r'(?:mensa|scripts)/__pycache__/[A-Za-z_]\w*\.(?:cpython|pypy)-\d+(?:\.opt-[12])?\.pyc', name)
+        return bool(cache and stat.S_ISREG((self._checkout / name).lstat().st_mode))
+
     def _clean(self, *, include_ignored=True, target=None):
-        flags = ('--ignored',) if include_ignored else ()
-        changes = self._git('status', '--porcelain', '--untracked-files=all', *flags).splitlines()
+        flags = ('--ignored', '-z') if include_ignored else ()
+        output = self._git('status', '--porcelain', '--untracked-files=all', *flags)
+        changes = [entry for entry in output.split('\0') if entry] if include_ignored else output.splitlines()
         if include_ignored and changes:
             # NUL 구분자로 읽어 한글·줄바꿈이 있는 경로도 Git의 인용 표기 없이 비교합니다.
             tracked = set(self._git('ls-tree', '-r', '--name-only', '-z', target or 'HEAD').split('\0')) - {''}
             remaining = []
-            for line in changes:
-                name = line[3:]
-                # Python이 실행 중 만든 캐시는 식단 변경이 아닙니다. Git이 무시하는
-                # 정상 캐시 파일만 허용하며, 이동할 커밋의 파일과 충돌하면 거부합니다.
-                cache = re.fullmatch(r'(?:mensa|scripts)/__pycache__/[A-Za-z_]\w*\.(?:cpython|pypy)-\d+(?:\.opt-[12])?\.pyc', name)
-                collision = any(name == path or name.startswith(path + '/') or path.startswith(name + '/')
-                                for path in tracked)
-                if (line.startswith('!! ') and cache and not collision and
-                        stat.S_ISREG((self._checkout / name).lstat().st_mode)):
-                    continue
-                remaining.append(line)
+            for entry in changes:
+                if entry.startswith('!! '):
+                    # Git은 중첩 저장소를 끝에 /가 있는 폴더로 보고할 수 있습니다.
+                    name = entry[3:].removesuffix('/')
+                    collision = any(name == path or name.startswith(path + '/') or path.startswith(name + '/')
+                                    for path in tracked)
+                    if not collision and self._ignored_artifact(name):
+                        continue
+                remaining.append(entry)
             changes = remaining
         _require(not changes,
                  'Unknown or unprepared repository changes; inspect before recovery')

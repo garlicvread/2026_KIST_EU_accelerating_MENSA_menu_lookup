@@ -35,7 +35,7 @@ package.json, package-lock.json, tsconfig.json
                             잠긴 TypeScript 컴파일 및 엄격한 빌드 설정
 ```
 
-빌드 결과는 별도 새 디렉터리이며 기본 `.tmp/pages`입니다. 공개 결과의 `data/current.json`이 `data/releases/<ID>/menu.json`과 `translations.json`을 선택합니다. checkout/state/public은 서로 겹치지 않는 트리로 선언합니다. `.tmp`는 유지보수자가 사용할 수 있는 개발 출력 위치이며 제품 계약의 입력/상태 저장소가 아닙니다.
+빌드 결과는 별도 새 디렉터리이며 기본 `.tmp/pages`입니다. 공개 결과의 `data/current.json`이 `data/releases/<ID>/menu.json`과 `translations.json`을 선택합니다. checkout/state/public은 서로 겹치지 않는 트리로 선언합니다. `.tmp`는 유지보수자가 사용할 수 있는 개발 출력 위치이며 제품 계약의 입력/상태 저장소가 아닙니다. 워커는 Git이 무시하는 `.tmp/`, `dist/`, `node_modules/` 산출물을 보존하며 허용하고 대상 추적 경로와의 충돌은 거부합니다. 정확한 폴더·링크 조건은 [운영 문서](operations.md#개발-산출물과-체크아웃-검사)에 설명되어 있습니다.
 
 ## 흐름과 책임
 
@@ -185,6 +185,8 @@ Mac `--base`는 전용 checkout/runtime/ollama/models/logs와 고정 gemma4:31b/
 로그는 모델 시작 시 최신 실행으로 덮어쓰며 byte cap/과거 보존이 없습니다. 로그 회전과 디스크 감시는 운영자가 준비합니다. 롤백은 검증된 전체 정적 빌드와 같은 release의 JSON 쌍을 단위로 합니다. 비공개 상태 복구는 현재 게시 SHA/run과 백업의 period/IDs/저널을 대조한 뒤 같은 락 아래에서 수행합니다.
 
 ## 개발 확인과 반영 준비
+
+코드 수정과 검사는 운영 워커와 분리된 개발 체크아웃에서 진행해 주세요. 현재 Mac의 `~/mensa`는 새 워커 프로세스가 직접 읽으므로 미완성 코드를 두지 않고 검증한 커밋을 반영합니다.
 
 기존 개발 환경에서 변경된 기능에 맞는 Python 회귀 검사, `npm test`, 저장된 후보 validate-only를 실행해 주세요. 새 개발 체크아웃이거나 의존성 잠금 파일이 바뀐 경우에는 README의 `npm ci`로 컴파일러를 설치합니다. Python은 3.12 이상을 사용하며 현재 워커의 실행 파일과 Pages의 검사 버전은 README에 적혀 있습니다. 화면·게시 코드를 바꿨다면 새 빌드 경로에서 일간/주간·세 언어/가격·원문/상세·날짜 이동·작은 화면을 확인합니다. Python 빌더는 컴파일러를 실행하지 않으므로 compile 또는 npm build를 사용해 주세요.
 
