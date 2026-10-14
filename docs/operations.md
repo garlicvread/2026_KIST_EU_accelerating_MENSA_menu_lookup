@@ -2,7 +2,33 @@
 
 식단을 주기적으로 수집·번역해 JSON 파일을 준비하는 Python 프로그램을 이 문서에서는 워커라고 부릅니다. 운영자는 [`scripts/local_refresh.py`](../scripts/local_refresh.py)의 실행 명령과 Linux/Mac 자동 실행 설정을 관리합니다. 이 프로그램에는 웹 백엔드나 데이터베이스 엔진이 없으며 대기 작업·완료 번역·마지막 실행 결과를 파일로 저장합니다.
 
-운영자는 Python 3.12 이상과 `Europe/Berlin` 시간대 데이터를 준비해 주세요. 브라우저용 TypeScript 컴파일은 게시용 사이트를 만들 때 필요하며, 매일 식단 갱신 프로그램은 HTML/CSS/JavaScript를 만들지 않습니다.
+현재 환경을 이어받는 담당자는 아래 설치 현황과 상태 확인에서 시작합니다. 기존 시간대·모델·인증·자동 실행을 다시 준비할 필요는 없습니다. 브라우저용 TypeScript 컴파일은 게시용 사이트를 만들 때 필요하며, 매일 식단 갱신 프로그램은 HTML/CSS/JavaScript를 만들지 않습니다.
+
+## 현재 운영 환경
+
+2026년 10월 14일 기준으로 다음 설정을 사용합니다. 경로나 실행 계정을 실제로 바꾸는 경우 이 표와 연결된 자동 실행 설정도 함께 갱신합니다.
+
+| 대상 | 현재 설정 |
+| --- | --- |
+| 코드 | `~/mensa`, `main` 브랜치 |
+| 작업 기록·런타임 | `~/Library/Application Support/Mensa` |
+| 워커의 코드 연결 | 작업 폴더의 `checkout` 링크가 `~/mensa`를 가리킵니다. |
+| Python | `/opt/homebrew/opt/python@3.14/bin/python3.14` |
+| 모델 | 작업 폴더의 `runtime/ollama`와 `models`에 설치된 `gemma4:31b` |
+| 자동 실행 | 로그인 사용자의 `io.github.garlicvread.mensa-refresh`; 로그인 시와 900초 간격 |
+| 공개 방식 | 기존 GitHub 저장소와 Pages; Git/GitHub CLI 인증 사용 |
+| 날짜 기준 | `mensa/schedule.py`의 `Europe/Berlin`, 매일 09:00·10:00·11:00 |
+
+베를린 날짜 계산은 설치된 Python에서 이미 동작합니다. 담당자가 시간대 데이터를 별도로 설치하거나 시스템 시간대를 다시 맞추는 절차는 없습니다. 코드 폴더와 모델·큐·복구 기록은 서로 다른 위치에 있으므로 코드 변경이나 개발 체크아웃 정리 때문에 기존 런타임을 지우지 않습니다.
+
+기존 로그인 사용자로 상태를 확인합니다. 이 명령은 파일을 읽기만 하며 수집·모델·게시를 실행하지 않습니다.
+
+```sh
+cd "$HOME/mensa"
+/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
+```
+
+수동 처리와 오류 복구가 필요할 때는 [실행 계정과 상태](#상태-확인과-실제-실행을-맡는-os-계정), [실패 확인과 재시도](#실패-확인과-재시도)를 사용합니다. 자동 실행은 등록되어 있으므로 평소에 설치 프로그램을 다시 실행하지 않습니다.
 
 ## 매일 갱신할 때 날짜를 보존하는 방법
 
@@ -10,7 +36,20 @@
 
 워커는 보존 처리 전에 새 원본의 유효성을 검사하고, 보존 처리 후에는 지난 날짜까지 포함해 필요한 번역을 검사합니다. 기존 메뉴·번역 JSON은 이 과정의 입력이므로 운영자가 수동으로 비우지 마십시오. 날짜 보존 범위와 `source`·`coverage` 필드의 의미는 [데이터 규칙](data-contract.md#날짜별-식단을-갱신하고-보존하는-규칙)에 설명되어 있습니다.
 
-## 설정 파일에 지정하는 폴더와 모델
+## 새 환경에 설치할 때
+
+다른 컴퓨터·계정에서 처음 실행하거나 `--config` 기반 게시 방식을 새로 도입할 때의 절차입니다. 현재 Mac의 일상 운영에는 적용하지 않습니다.
+
+새 Mac에서는 Python 3.12 이상, Git/GitHub CLI와 해당 저장소의 게시 인증을 갖추고 검토한 `main` 코드를 사용할 폴더를 정합니다. 작업 폴더의 `checkout`이 그 코드를 가리키게 하고, `runtime/ollama`와 `models`에 사용할 실행 파일·모델을 배치한 뒤 아래 명령으로 로그인 사용자의 자동 실행을 한 번 등록합니다. 설치 프로그램은 모델 다운로드를 수행하지 않습니다. 다른 컴퓨터에서 가져온 기존 작업 기록이 있다면 초기화하지 말고 [복구 절차](#실패-확인과-재시도)에 따라 게시 상태와 대조합니다.
+
+```sh
+# 검토한 main 코드를 둔 프로젝트 폴더에서 실행합니다.
+python3 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa"
+```
+
+TOML 기반 Linux 또는 별도 게시 환경을 처음 구성하는 경우에는 아래 폴더·모델·계정 계약과 [Linux 자동 실행 설치](#linux-자동-실행-파일-설치)를 적용합니다. 현재 Mac의 `--base` 경로는 TOML을 사용하지 않습니다.
+
+### 설정 파일에 지정하는 폴더와 모델
 
 설정을 읽는 `load_worker_config` 함수([`mensa/config.py`](../mensa/config.py))는 운영자가 `--config`로 지정한 TOML 파일을 읽습니다. 파일에는 정확히 `[paths]`, `[inference]`, `[resources]`, `[publication]` 네 부분이 필요합니다. 이 함수는 필수 값의 누락이나 알 수 없는 키를 오류로 처리하며 생략한 값을 기본값으로 채우지 않습니다. 문자열은 빈 값으로 둘 수 없습니다.
 
@@ -45,7 +84,7 @@
 
 운영자는 [상대 경로 전체 설정 예제](../config/worker.example.toml) 또는 [Linux 절대 경로 전체 설정 예제](../deploy/worker.example.toml)를 복사해 실제 값을 채워 주세요. [개발 경로 예제](../config/development.example.toml)는 `load_worker_paths` 함수가 읽는 `[paths]` 전용 파일입니다. 네 부분을 요구하는 `local_refresh --config`에는 이 개발 파일을 사용할 수 없습니다.
 
-설정 함수는 값을 읽고 검사할 뿐입니다. 함수가 성공했다고 폴더·서비스·모델이 설치된 것은 아니며 모델 주소 접속, 가중치나 GitHub 연결도 확인하지 않습니다. 운영자는 실행 계정과 모델 파일을 별도로 준비해야 합니다.
+설정 함수는 값을 읽고 검사할 뿐입니다. 새 환경에 처음 설치할 때는 실행 계정·모델 파일·게시 인증을 갖춘 뒤 실제 워커 실행을 확인합니다. 현재 환경에서 설정 파일을 읽거나 유지보수하는 작업은 기존에 준비된 계정·모델·인증을 사용합니다.
 
 ## 모델 주소와 저장된 번역의 재사용
 
@@ -89,17 +128,18 @@ sudo -u mensa /usr/bin/python3.12 -m scripts.local_refresh --config /etc/mensa/w
 Mac `--base` 명령은 LaunchAgent를 등록한 로그인 사용자가 실행해 주세요. LaunchAgent는 그 사용자의 로그인 세션에서 프로그램을 자동 실행하는 macOS 기능입니다. 이 경로의 수동 실행을 다른 사용자로 수행하면 base 아래 작업 기록의 소유자가 달라질 수 있습니다.
 
 ```sh
-python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
-python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa"
+cd "$HOME/mensa"
+/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
+/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa"
 ```
 
-Mac 코드 폴더는 base/checkout, Ollama 실행 파일은 base/runtime/ollama, 모델 파일은 base/models, 로그는 base/logs입니다. 프로그램은 base의 queue.json/last-result.json에 진행 기록을 저장하고 고정 모델 gemma4:31b와 `garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup`의 `update-and-deploy.yml`을 사용합니다. 설치 프로그램 `scripts.install_local_worker.py`는 사용자 plist를 작성해 로그인 시와 900초 간격의 실행을 등록합니다. 사용자 로그인이 필요하며 컴퓨터 강제 깨우기나 모델 설치는 하지 않습니다.
+현재 Mac 코드 폴더는 `~/mensa`이고 base/checkout은 그 폴더를 가리키는 링크입니다. Ollama 실행 파일은 base/runtime/ollama, 모델 파일은 base/models, 로그는 base/logs입니다. 프로그램은 base의 queue.json/last-result.json에 진행 기록을 저장하고 고정 모델 gemma4:31b와 `garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup`의 `update-and-deploy.yml`을 사용합니다. 등록된 LaunchAgent는 현재 `~/mensa`에서 실행합니다. 사용자 로그인이 필요하며 컴퓨터 강제 깨우기나 모델 설치는 하지 않습니다.
 
 ### Mac의 로그인·화면 잠금·잠자기
 
 운영자가 화면만 잠그면 로그인 세션은 유지됩니다. Mac 자체가 깨어 있고 리소스 기준을 통과하면 LaunchAgent는 잠금 화면에서도 작업을 실행할 수 있습니다. 화면 잠금 해제를 매번 수행할 필요는 없습니다. 로그아웃은 로그인 세션을 종료하므로 다르며, 다시 로그인하면 LaunchAgent가 작업을 실행합니다.
 
-시스템 잠자기 동안에는 식단 수집·번역 프로그램이 실행되지 않습니다. Mac이 깨어난 뒤 다음 실행 기회에 큐가 최신 수집 시각을 판단합니다. 프로그램은 놓친 시간대마다 수집을 반복하지 않으며, 이미 진행 중인 게시와 서버가 정한 재시도 대기는 보존합니다. 운영자가 전원 연결 상태로 Mac을 서버처럼 사용하려면 [Apple의 잠자기 설정 안내](https://support.apple.com/guide/mac-help/set-sleep-and-wake-settings-mchle41a6ccd/mac)에 따라 자동 시스템 잠자기를 방지해 주세요. 화면을 끄는 설정과 시스템 잠자기는 별개입니다.
+시스템 잠자기 동안에는 식단 수집·번역 프로그램이 실행되지 않습니다. Mac이 깨어난 뒤 다음 실행 기회에 큐가 최신 수집 시각을 판단합니다. 프로그램은 놓친 시간대마다 수집을 반복하지 않으며, 이미 진행 중인 게시와 서버가 정한 재시도 대기는 보존합니다. 현재 Mac은 전원 연결 시 자동 시스템 잠자기가 꺼져 있으므로 같은 설정을 다시 할 필요는 없습니다. 새 Mac에서 이 운영 조건을 마련하거나 설정이 실제로 바뀌었을 때만 [Apple의 잠자기 설정 안내](https://support.apple.com/guide/mac-help/set-sleep-and-wake-settings-mchle41a6ccd/mac)를 참고합니다. 화면을 끄는 설정과 시스템 잠자기는 별개입니다.
 
 운영자는 `pmset -g custom`으로 AC Power의 `sleep` 값을 확인할 수 있습니다. `sleep 0`은 유휴 상태에 따른 자동 시스템 잠자기를 끈 설정입니다. 이 값은 덮개 닫기·수동 잠자기·전원 꺼짐까지 막는 설정은 아닙니다. FileVault가 켜진 Mac은 재부팅 후 사람이 첫 잠금 해제를 해야 하며, [자동 로그인도 사용할 수 없습니다](https://support.apple.com/en-us/102316). 식단 프로그램은 로그인 암호나 디스크 암호화를 변경하지 않습니다.
 
@@ -133,7 +173,9 @@ python3 -m scripts.install_local_worker --base "$HOME/Library/Application Suppor
 
 Mac --base의 고정 기준은 가용 메모리 32 GiB, 1분 평균 부하 `max(2, 0.6 × logical CPUs)` 이하, AC 전원 또는 배터리 없음의 명시적인 측정 결과입니다. 측정값이 알 수 없으면 프로그램은 준비되었다고 판단하지 않습니다.
 
-## 게시 방법별로 운영자가 준비할 것
+## 새 환경의 게시 방법별 준비
+
+아래 권한·인증·폴더 준비는 신규 설치 또는 실제 구성 변경에 적용합니다. 현재 Mac의 기존 경로·권한·인증을 그대로 사용하는 담당자는 다시 준비하지 않습니다.
 
 사이트 폴더에 직접 쓰는 `directory` 방식에서는 운영자가 먼저 [README의 사이트 생성 절차](../README.md#로컬에서-코드와-화면-확인하기)로 HTML/CSS/JavaScript와 초기 메뉴/번역을 준비합니다. 예제의 `/srv/www/mensa`를 정적 웹서버가 읽게 하고 실제 `/srv/www/mensa/data` 폴더의 기존 내용까지 mensa 계정이 쓸 수 있게 준비해 주세요. Python 프로그램은 이 data와 작업 기록만 갱신합니다.
 
@@ -153,7 +195,7 @@ GitHub를 거치는 `github` 방식에서는 운영자가 쓰기 가능한 전�
 
 자동 실행 시각을 적은 [`deploy/mensa-refresh.timer`](../deploy/mensa-refresh.timer)는 부팅 2분 뒤, 작업 종료 15분 뒤에 Python 프로그램을 실행하도록 하며 accuracy는 1분입니다. queue.py가 하루 세 번의 식단 갱신 작업과 놓친 수집 시각을 판단하므로 timer에 날짜 판단을 넣지 않습니다.
 
-운영자는 계정/권한·Python/시간대·모델 파일·GPU/메모리 측정과 실제 종료 동작을 대상 Linux에서 확인한 뒤 아래 파일을 설치해 주세요. 이 저장소의 예제 파일 자체는 실제 설치 결과가 아닙니다.
+새 Linux 환경에 설치하는 운영자는 실제 계정·권한·Python·모델과 실행 조건에 맞춰 예제를 조정한 뒤 아래 파일을 설치합니다. 이미 등록된 서비스의 일상 운영은 상태 확인과 복구 절차를 사용합니다.
 
 ```sh
 sudo cp deploy/mensa-refresh.service deploy/mensa-refresh.timer /etc/systemd/system/
@@ -167,11 +209,13 @@ sudo systemctl enable --now mensa-refresh.timer
 
 원본 수집과 데이터 검사를 통과한 새 메뉴·번역은 현재 공개 식단을 대체합니다. 웹사이트는 이전 수집 결과를 별도 메뉴로 추가하지 않습니다. 원본에서 가격이나 구성품을 바꾸면 다음 수집에서 반영하고, 원문이 같은 번역은 저장된 결과를 다시 사용합니다. 공개 파일의 게시 ID별 폴더는 메뉴와 번역을 같은 묶음으로 읽기 위한 파일 보관 방식이며, 화면에서 과거 수집 내역을 나열하기 위한 기능이 아닙니다.
 
+메뉴 추가·삭제·교체, 동일 메뉴의 중복 수 증감과 구조가 유효한 빈 날짜·판매대는 정상적인 수집 결과입니다. 이전 식단과 항목 개수·증감률·가격 있는 중복 개수를 비교해 갱신을 차단하지 않습니다. 원문 구조·날짜 연결·가격 출처와 계속 존재하는 메뉴의 가격이 전부 사라지는 경우는 여전히 검사합니다.
+
 ## 실패 확인과 재시도
 
 자동 갱신 프로그램은 알레르기·첨가물 등 원본 안내 문구를 `data/notice-translations.json`의 검토된 영어·한국어 번역으로 표시합니다. 프로그램은 이 안내 문구를 모델에 번역하도록 요청하지 않습니다. 원본 식단표에 사전에 없는 안내 문구가 등장하면 `Unknown notice labels` 오류로 새 식단 게시를 중단하고, 웹사이트에는 마지막으로 게시한 식단을 유지합니다.
 
-운영자는 오류에 나온 독일어 문구의 의미를 확인한 뒤, `notices` 안에 그 문구를 정확한 키로 추가하고 `en`·`ko` 번역을 모두 작성해 주세요. 운영자는 검사한 수정본을 Mac의 `base/checkout`에도 반영해야 합니다. 원인을 고친 뒤에는 기존 대기 작업을 재시도하며, `queue.json`이나 `snapshot-journal.json`을 삭제하지 않습니다. 아래의 `request_retry` 절차는 오류와 재시도 대기 조건을 해제하면서 대기 작업과 누적 시도 횟수를 보존합니다.
+유지보수자는 오류에 나온 독일어 문구의 의미를 확인한 뒤, `notices` 안에 그 문구를 정확한 키로 추가하고 `en`·`ko` 번역을 모두 작성합니다. `ohne Schweinefleisch`는 `Without pork` / `돼지고기 미포함`으로 등록되어 있습니다. 사전 조회와 게시 전 안내 번역 검사를 확인하고 검토한 수정본을 `main`과 현재 Mac의 `~/mensa`에 반영합니다. 모델을 다시 설치하거나 알 수 없는 문구 검증을 해제할 필요는 없습니다. 원인을 고친 뒤 기존 대기 작업을 재개하며 큐와 복구 기록을 보존합니다. 아래 `request_retry`는 대기 작업과 누적 시도 횟수를 유지하면서 오류와 재시도 대기 조건을 해제합니다.
 
 운영자는 `--status` 출력에서 `queue.completed_period`, `queue.pending`과 최근 결과를 함께 확인해 주세요. `completed`는 해당 수집 시각의 게시까지 완료한 결과이고, `idle`은 현재 할 작업이 없다는 뜻입니다. `waiting`은 재시도 시각을 기다리는 상태이므로 운영자는 `pending.last_error`에서 원인을 확인해야 합니다. `deferred`는 메모리·CPU·전원 조건을 통과하지 못한 상태이고, `failed`·`blocked`는 오류 확인이 필요한 상태입니다. 다른 프로세스가 잠금을 보유할 때 반환하는 `busy`는 큐와 최근 결과 파일을 덮어쓰지 않습니다.
 
@@ -189,8 +233,8 @@ sudo systemctl enable --now mensa-refresh.timer
 운영자는 오류의 원인인 설정·모델 버전·주의 표시 번역 등을 먼저 고칩니다. 자동 재시도가 중지된 모델 실패는 `request_retry` 함수([`mensa/queue.py`](../mensa/queue.py))로 중지를 해제할 수 있습니다. 전용 CLI 옵션은 없습니다. 아래 코드는 Mac 기본 작업 폴더와 정상 파일을 검사하고 잠금 안에서 queue.json을 저장합니다. Mac 운영자는 `base/checkout` 코드 폴더에서 실행해 주세요. Linux 운영자는 TOML의 `paths.checkout_dir` 코드 폴더에서 실행합니다. `--config` 실행을 복구하는 운영자는 명령 인자를 TOML의 `paths.state_dir` 값으로 바꿔 주세요. Linux 예제에서는 첫 줄의 이동 경로도 `paths.checkout_dir`로 바꿔 주세요. TOML 파일 이름을 인자로 전달하는 명령이 아닙니다. 갱신 날짜·처리 단계·시도 수·GitHub 게시 번호는 유지하므로 이미 진행한 작업을 잊지 않습니다. 운영자는 자동 실행과 같은 OS 계정에서 이 코드를 실행해 주세요.
 
 ```sh
-cd "$HOME/Library/Application Support/Mensa/checkout"
-python3 - "$HOME/Library/Application Support/Mensa" <<'PYTHON'
+cd "$HOME/mensa"
+/opt/homebrew/opt/python@3.14/bin/python3.14 - "$HOME/Library/Application Support/Mensa" <<'PYTHON'
 from pathlib import Path
 import os
 import stat

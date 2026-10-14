@@ -2,7 +2,13 @@
 
 이 사이트에는 두 실행 부분이 있습니다. 식단 갱신 Python 프로그램은 원본 페이지를 읽어 메뉴·번역 JSON을 준비합니다. 이용자의 브라우저에서 실행되는 JavaScript는 웹서버가 제공한 JSON을 읽어 화면을 만듭니다. 브라우저 요청을 처리하는 Python 웹 백엔드나 데이터베이스 엔진은 없습니다.
 
-이 문서에서 유지보수자는 코드와 번역 문구를 수정하는 사람이고, 운영자는 실행 계정·모델 파일·웹서버·자동 실행을 준비하는 사람입니다. 공개하지 않는 작업 기록 폴더와 브라우저가 읽는 웹사이트 폴더는 운영자가 따로 지정합니다.
+이 문서에서 유지보수자는 코드와 번역 문구를 수정하는 사람이고, 운영자는 설치된 워커와 게시 상태를 관리하는 사람입니다. 새로운 환경을 도입하거나 실제 구성을 바꿀 때는 운영자가 계정·경로·모델·자동 실행을 설정합니다. 현재 Mac의 모델·인증·LaunchAgent와 베를린 기준 갱신은 이미 준비되어 있으며, 인계받은 담당자가 같은 설정을 반복할 필요는 없습니다.
+
+## 현재 설치와 실행 위치
+
+현재 Mac은 `~/mensa`의 `main` 코드를 실행합니다. `~/Library/Application Support/Mensa/checkout`은 이 폴더를 가리키는 링크이며, 같은 작업 폴더에 모델·큐·로그·Git 복구 기록을 보존합니다. 등록된 LaunchAgent는 Python 3.14로 `scripts.local_refresh --base`를 로그인 시와 900초 간격에 호출하고, 완료된 JSON은 GitHub 작업이 검증·빌드하여 Pages에 게시합니다. 구체적인 경로와 읽기 전용 상태 명령은 [운영 환경](operations.md#현재-운영-환경)에 있습니다.
+
+`mensa/schedule.py`가 `ZoneInfo("Europe/Berlin")`로 날짜를 계산합니다. 이는 프로그램이 사용하는 날짜 규칙이며, 유지보수자가 매번 시간대 데이터를 준비하거나 컴퓨터의 시간대를 바꾸는 절차가 아닙니다. 수집·번역·게시 과정은 이용자의 브라우저 요청과 독립적으로 실행됩니다.
 
 ## 식단 갱신을 한 번 실행할 때
 
@@ -13,6 +19,8 @@
 예정 수집 시각을 계산하는 함수는 [`mensa/schedule.py`](../mensa/schedule.py)에 있고, 대기 작업과 실패 후 재시도 시간을 관리하는 함수들은 [`mensa/queue.py`](../mensa/queue.py)에 있습니다. JobRunner는 이 함수들이 반환한 내용을 파일에 저장합니다. 실패하면 JobRunner는 중간에 저장된 queue.json을 다시 읽고 다음 재시도 시간을 기록합니다. 프로그램 중지 요청은 위로 전달되어 파일 잠금이 해제됩니다.
 
 식단 갱신의 호출 순서를 관리하는 Python 클래스 `RefreshService`는 [`mensa/refresh_service.py`](../mensa/refresh_service.py)에 있습니다. 이 클래스는 원본 수집 함수를 호출하고, 새 원본의 메뉴/가격 검사와 현재 날짜 검사를 먼저 수행합니다. 검사를 통과하면 `retain_published_days` 함수가 새 원본의 시작 날짜보다 앞선 기존 식단을 보존합니다. 같은 날짜의 메뉴는 새 원본으로 교체합니다. 이어 보존한 날짜까지 포함한 메뉴를 번역 함수에 전달하고, 모든 필요한 번역과 주의 표시가 있는지 검사한 뒤 파일 게시 함수를 호출합니다. 실제 HTTP는 원본 수집 함수가, 모델 요청은 번역 함수가, 파일 쓰기는 게시 함수가 수행합니다. RefreshService는 Linux 자동 실행 설정 파일 `deploy/mensa-refresh.service`와 별개의 이름입니다.
+
+`scripts/menu_source.py`는 날짜·판매대 구조가 유효하면 비어 있는 메뉴 배열도 반환합니다. `mensa/menu_contract.py::_validate_previous`는 날짜 연결과 계속 존재하는 동일 메뉴의 실제 가격 소실을 검사합니다. 이전 식단과 현재 식단의 개수·증감률이나 가격 있는 중복 발생 수는 비교하지 않습니다. 동일 날짜·분류·독일어 이름의 현재 발생 중 하나라도 가격이 있으면 과거 중복 수가 줄었다는 이유로 거부하지 않으며, 현재 가격이 전혀 없으면 가격 소실로 거부합니다. 형식·원문 소유 관계·추출 누락·가격 출처 검증은 이 정책과 함께 유지합니다.
 
 유지보수자가 테스트할 때는 RefreshService에 원본/번역/게시 함수를 인자로 전달할 수 있습니다. 예를 들어 원본 페이지를 가져오는 함수 대신 저장된 HTML을 읽는 함수를 전달하면 네트워크 없이 같은 검사 순서를 확인할 수 있습니다. 데이터 검사 함수에는 HTTP나 파일 쓰기를 넣지 않고, 어느 함수를 어떤 순서로 실행할지는 RefreshService에서 관리해 주세요.
 
@@ -48,6 +56,8 @@ flowchart TD
 설정 기반 재개 함수 `resume_configured_translations`([`mensa/translation_runtime.py`](../mensa/translation_runtime.py))는 완료된 번역을 저장하는 `TranslationCheckpointStore`([`mensa/checkpoints.py`](../mensa/checkpoints.py))를 호출합니다. 저장 파일 `translation-checkpoint.json`에는 이미 검사를 통과한 요리별 번역이 들어갑니다. 일부 요리가 아직 미완료일 수 있으므로 운영자가 이 파일을 웹사이트에 직접 복사하면 안 됩니다. Mac 기본 `--base` 실행의 `RefreshJob.translate`는 이 재개 함수를 사용하지 않습니다. Mac 기본 경로는 공개 캐시의 완료 번역을 재사용하고 새 번역을 메모리에 보관하다가 전체 검사를 통과하면 저장합니다. 번역 도중 프로세스가 종료되면 그 실행에서 새로 만들던 번역은 다음 시도에서 다시 생성하며, 기존 공개 식단과 저장된 번역은 유지합니다.
 
 새 번역이 필요한 순간에만 모델 실행을 관리하는 `model_session` 함수([`mensa/model_runtime.py`](../mensa/model_runtime.py))를 호출합니다. `managed` 설정이면 이 함수는 준비된 Ollama 실행 파일을 별도 프로세스 그룹으로 시작하고 요청이 끝나면 자신이 만든 그룹만 종료합니다. 컴퓨터에서 따로 실행 중인 Ollama는 종료하지 않습니다. `external` 설정이면 이미 실행 중인 모델의 URL을 사용하며 그 프로세스를 시작하거나 종료하지 않습니다. 번역 재개 함수는 모델 정리를 끝낸 뒤에 메뉴/번역을 게시 함수에 넘깁니다.
+
+알레르기·첨가물·식재료 안내 문구는 `scripts/notices.py`가 읽는 `data/notice-translations.json`의 검토된 영어·한국어 대응표를 사용합니다. 사전에 없는 문구는 모델 요청에 앞서 `Unknown notice labels`로 거부합니다. 사전 전체는 번역의 생성 식별 정보에 포함되므로 사전 변경 후 기존 모델 번역이 다시 생성될 수 있습니다. 유지보수자는 대응표를 보완하고 검증한 코드에 반영하며, 운영자는 기존 대기 작업을 재개합니다.
 
 번역 요청을 보내는 `request_translation`([`mensa/generation.py`](../mensa/generation.py))은 응답 크기·완료 여부·언어별 결과·구성품 개수를 검사합니다. 실패 종류를 나타내는 `GenerationError`와 다시 요청할 수 있는 오류 구분은 [`mensa/errors.py`](../mensa/errors.py)에 있습니다.
 
