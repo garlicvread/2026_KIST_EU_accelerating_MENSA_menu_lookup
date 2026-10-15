@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-14T13:05:27Z",
-    "sha256": "500ef58969323d4bcf85ab2acd727f095babffe47875aa897e84a4bfe4e584f3"
+    "fetched_at": "2026-10-15T12:09:44Z",
+    "sha256": "80d39f1dfac55e9d6d6e41b055d49364e8c9bd3780ced6c4932d34845e9e1461"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -3761,7 +3761,7 @@
         },
         {
           "id": "2026-10-15-f4647a9e93610f778a793fd6c8be3ee840e513a43feb9ae8f8c4b48215557e28",
-          "translation_key": "02ad0291d6620f0bd2f355b105c194b3aeb2e70bc6cb9e19c31c9d30385d5612",
+          "translation_key": "8c5217b9027f780f12d43c5c544546916b9fb4bfa073999b4e63452d318f1aad",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "Vegan: Gemüse-Paella",
@@ -3778,7 +3778,7 @@
               ]
             },
             {
-              "name_de": "Pusztasalat",
+              "name_de": "Rohkostsalat",
               "notices": [
                 "Farbstoff",
                 "Süßungsmittel",
@@ -3789,7 +3789,7 @@
               ]
             },
             {
-              "name_de": "Pudding Karamel",
+              "name_de": "Dessert",
               "notices": [
                 "Milch und Laktose"
               ]
@@ -3814,54 +3814,61 @@
         },
         {
           "id": "2026-10-15-65598ec239d3e495c1ee834333d967ea42167f996fe9215c2fae62d5b75fb041",
-          "translation_key": "1e5d00d123004ee8ca4fc678d97c22855e8d2848a271022fdbee2aca6a28f91f",
+          "translation_key": "34e0867aabf828baf9601b5aa91556a28f42a758733bef93750158a19e745406",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "mensaVital: Pochierter Wildlachs mit Basilikumsoße",
-          "components": [],
+          "components": [
+            {
+              "name_de": "Bandnudeln",
+              "notices": [
+                "Ei",
+                "Weizen"
+              ]
+            }
+          ],
           "notices": [
             "Fisch",
             "Milch und Laktose",
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 535,
+            "staff": 650,
+            "guest": 720
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-15",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "mensaVital: Pochierter Wildlachs mit Basilikumsoße",
+            "raw": "S: 5,35 | M: 6,50 | G: 7,20"
           }
         },
         {
-          "id": "2026-10-15-922035a812b988507d32189a1fc0e561376f6bc830d89398f80b1a2667bda008",
-          "translation_key": "3951c7f1974074692cbe0496cecbb80fe501ca0a3843a5a12fe06c3538f42872",
+          "id": "2026-10-15-0050abeb708e2424096bd4d5f762415e3c1a460e659a6f56a93f00742a8aeed0",
+          "translation_key": "093d1529ec637b41622f542d17fc2f4f1095a9d35693c76530715c524b2acf47",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Flammkuchen mit Hackfleisch und Feta",
+          "name_de": "Flammkuchen mit Hähnchengyros und Feta",
           "components": [],
           "notices": [
             "aus zum Teil fein zerkleinertem Fleisch",
             "Milch und Laktose",
-            "Weizen"
+            "Weizen",
+            "Geflügel"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 480,
+            "staff": 590,
+            "guest": 660
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-15",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Flammkuchen mit Hähnchengyros und Feta",
+            "raw": "S: 4,80 | M: 5,90 | G: 6,60"
           }
         },
         {
@@ -3876,17 +3883,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 475,
+            "staff": 590,
+            "guest": 660
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-15",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Flammkuchen mit Mozzarella und Rucola",
+            "raw": "S: 4,75 | M: 5,90 | G: 6,60"
           }
         },
         {
@@ -3980,13 +3986,17 @@
             "Soja",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 345,
+            "staff": 460,
+            "guest": 530
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-15",
             "category": "Mensacafé",
             "name": "Vegan: Erdnusspfännchen mit Gemüse und Soja",
-            "raw": null
+            "raw": "S: 3,45 | M: 4,60 | G: 5,30"
           }
         }
       ]
@@ -3996,7 +4006,7 @@
       "meals": [
         {
           "id": "2026-10-16-e5eb834b8a9fe28766dfcbf4c2401bee450be841b09b69220f688f71b05f62f2",
-          "translation_key": "61ff3a1891da7f636d3ae95ce92e9a7714d3e6eb60eca2a448cceb91d3eaecfc",
+          "translation_key": "fd20e57d1a85db04f531556e213a207a824420945f8daaf214ca4f4e2f4e25ce",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Cevapcici",
@@ -4009,10 +4019,8 @@
               ]
             },
             {
-              "name_de": "Pommes Frites",
-              "notices": [
-                "Backtriebmittel"
-              ]
+              "name_de": "Backofenkartoffel (aus biologischem Anbau)",
+              "notices": []
             },
             {
               "name_de": "Alternativbeilage",
