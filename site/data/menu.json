@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-15T12:09:44Z",
-    "sha256": "80d39f1dfac55e9d6d6e41b055d49364e8c9bd3780ced6c4932d34845e9e1461"
+    "fetched_at": "2026-10-16T07:02:17Z",
+    "sha256": "0212f9e800e52a783cf87a3fac5d4ac1fc07b51ebb51e5ef83363d2f788f2602"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -4258,7 +4258,7 @@
         },
         {
           "id": "2026-10-16-08afb3b4778b29c98e52700368df7c6bf1b34f4ccbd3bf4fb8f0afe322e11909",
-          "translation_key": "c6ada005fcf07f53ae25c4372332bcd21cda998ad7a814e305ed3a8aa4f8f324",
+          "translation_key": "8589db55b9dce804d1f8577d7d28a1a92ff043eb96098ba25ad4419cc5935d09",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
           "name_de": "Linseneintopf",
@@ -4271,7 +4271,7 @@
               ]
             },
             {
-              "name_de": "Wiener Würstchen",
+              "name_de": "Fleischkäse gebacken",
               "notices": [
                 "Schweinefleisch"
               ]
