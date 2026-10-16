@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-16T08:11:22Z",
-    "sha256": "99d0eb1b30f019f912d4574d18c5a6b06bc5a0ce017cf149613632e5923e811a"
+    "fetched_at": "2026-10-16T09:27:20Z",
+    "sha256": "3e4f7af2bcdf42bea19193af9a18479dfad0939392324061802fefcb806778ca"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -4117,6 +4117,32 @@
           }
         },
         {
+          "id": "2026-10-16-8c5f24f5c60231cc4bdd6d2801c70bb94f9d3f5e4a35e9adee32d53c68ce2cf4",
+          "translation_key": "8b560d00a50fa904560b81ab5243bbad2480109154bde71b4f1634d9b575c331",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Tagesessen: Gulasch vom Schwein „Gärtnerin Art“",
+          "components": [
+            {
+              "name_de": "Pasta (aus biologischem Anbau) Solange der Vorrat reicht!",
+              "notices": []
+            }
+          ],
+          "notices": [],
+          "prices": {
+            "student": 230,
+            "staff": 330,
+            "guest": 400
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-16",
+            "category": "Wahlessen",
+            "name": "Tagesessen: Gulasch vom Schwein „Gärtnerin Art“",
+            "raw": "S: 2,30 | M: 3,30 | G: 4,00"
+          }
+        },
+        {
           "id": "2026-10-16-4f2db82b752040a512d5db2c9821b8adda985a36add74d8bedc512c7d9a9c18d",
           "translation_key": "912aa90668d43380779f247c6bab8ba74952967fb7a933463e7cde7ca9947f07",
           "category": "Wahlessen",
@@ -4144,17 +4170,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 530,
+            "staff": 640,
+            "guest": 715
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-16",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Hähnchen-Cordon-Bleu (mit Putenschinken)",
+            "raw": "S: 5,30 | M: 6,40 | G: 7,15"
           }
         },
         {
@@ -4171,17 +4196,16 @@
             "Walnüsse"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 595,
+            "staff": 710,
+            "guest": 780
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-16",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Vegan: Rote-Bete-Gnocchi-Pfanne mit Spinat, Tomaten und Walnüssen",
+            "raw": "S: 5,95 | M: 7,10 | G: 7,80"
           }
         },
         {
@@ -4283,13 +4307,17 @@
             "Sellerie",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 370,
+            "staff": 485,
+            "guest": 555
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-16",
             "category": "Mensacafé",
             "name": "Linseneintopf",
-            "raw": null
+            "raw": "S: 3,70 | M: 4,85 | G: 5,55"
           }
         },
         {
@@ -4315,13 +4343,17 @@
             "Sellerie",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 290,
+            "staff": 400,
+            "guest": 470
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-16",
             "category": "Mensacafé",
             "name": "Linseneintopf-vegan-",
-            "raw": null
+            "raw": "S: 2,90 | M: 4,00 | G: 4,70"
           }
         }
       ]
