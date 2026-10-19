@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-19T07:13:07Z",
-    "sha256": "9360c3e5fada9af110c0acca61daee004849f71e37b498a5b5b5e317299c5d83"
+    "fetched_at": "2026-10-19T08:06:02Z",
+    "sha256": "79f1570d004206098d1611fdb5f260b42eaebb213c3c45d50d5fea292eb59885"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -4414,11 +4414,11 @@
           }
         },
         {
-          "id": "2026-10-19-731918c3219fcfaa1e34f8a2dc5b11e632f625a70212ef8733381578684178ab",
-          "translation_key": "b606b9918e876ad45c84f36bd5a41b8eeee2eb9662f4d2e469a35d217d3f0020",
+          "id": "2026-10-19-f80c022b717d59da4cb71a2ae6d1cf6e6c1dc371cf272a410c10bca73d520ea5",
+          "translation_key": "174fb5ae5488981de22d1a7f1c705769ddb2d1c336600563b61f6e180050f96d",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "Bandnudeln mit Tomate, Zucchini und Hartkäse",
+          "name_de": "KlimaTeller: Bandnudeln mit Tomate, Zucchini und Hartkäse",
           "components": [
             {
               "name_de": "Bunt gemischter Blattsalat",
@@ -4461,7 +4461,7 @@
           "price_source": {
             "date": "2026-10-19",
             "category": "Menü 2",
-            "name": "Bandnudeln mit Tomate, Zucchini und Hartkäse",
+            "name": "KlimaTeller: Bandnudeln mit Tomate, Zucchini und Hartkäse",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
@@ -4491,14 +4491,14 @@
           }
         },
         {
-          "id": "2026-10-19-265ac600b820a07650ea6e1a87d78da4ec477c368e06366bf7782f7a91128dbd",
-          "translation_key": "6490c19c88918c160e5f2f3f5b75720bc58290e7d29b5ba03c2affc0ec848b6d",
+          "id": "2026-10-19-4975606df94712b5996e75b6bd229db2c0531d12b373b8816bf82f29d2d2843a",
+          "translation_key": "56cf848ecd2046e3c130ec81d569bf1c4af825e5542af256758759c20284ff8f",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Vegan: Soja-Gyros aus der Pfanne",
+          "name_de": "KlimaTeller: Vegan: Soja-Gyros aus der Pfanne",
           "components": [
             {
-              "name_de": "Vegan:Knoblauch-Kräuter-Dip",
+              "name_de": "Vegan: Knoblauch-Kräuter-Dip",
               "notices": [
                 "Antioxidationsmittel",
                 "Knoblauch",
@@ -4513,7 +4513,6 @@
             }
           ],
           "notices": [
-            "vegan",
             "Soja",
             "Sellerie",
             "Senf"
@@ -4527,13 +4526,13 @@
           "price_source": {
             "date": "2026-10-19",
             "category": "Wahlessen",
-            "name": "Vegan: Soja-Gyros aus der Pfanne",
+            "name": "KlimaTeller: Vegan: Soja-Gyros aus der Pfanne",
             "raw": "S: 5,30 | M: 6,45 | G: 7,15"
           }
         },
         {
           "id": "2026-10-19-71e91f811f44fda4382f33cf441422a2c3360e8379718cb9ddc9a6fa16b9543a",
-          "translation_key": "391c7a47691a64e79fc1e9ee34a154b353549144b8462490798e2c2520841844",
+          "translation_key": "d20ce414e67214e554b176d4876778e5ee1f049dbdef1255f620c146e4dbad96",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -4587,6 +4586,20 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Limetten-Joghurt-Dressing",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -4631,11 +4644,11 @@
           }
         },
         {
-          "id": "2026-10-19-17e65ecdb380bc041ef868b4641e02f61b493638371c5cc5f28c2099e7681ea1",
-          "translation_key": "30444e089b71c51aae8da9a03c907cc1e481e2438e6b600fc71d1d09a6b2fc9a",
+          "id": "2026-10-19-d9840aad84e2d01f37f6049b09f90034c3ebd210478820e50ebfd4e9edcc1862",
+          "translation_key": "7341325be2b520fbdd0eeea2cb3bb67d6619f8555195a92d423292de6bd21b0d",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Chili-Cheese-Fritten",
+          "name_de": "KlimaTeller: Chili-Cheese-Fritten",
           "components": [],
           "notices": [
             "Farbstoff",
@@ -4654,7 +4667,7 @@
           "price_source": {
             "date": "2026-10-19",
             "category": "Mensacafé",
-            "name": "Chili-Cheese-Fritten",
+            "name": "KlimaTeller: Chili-Cheese-Fritten",
             "raw": "S: 3,20 | M: 4,35 | G: 5,05"
           }
         }
