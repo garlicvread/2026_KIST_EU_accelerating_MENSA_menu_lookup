@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-19T08:06:02Z",
-    "sha256": "79f1570d004206098d1611fdb5f260b42eaebb213c3c45d50d5fea292eb59885"
+    "fetched_at": "2026-10-19T09:14:28Z",
+    "sha256": "144b6bb2c2448922c11b0dad8da93ae85cd540123838c390b01dfb6811e077d8"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -4363,7 +4363,7 @@
       "meals": [
         {
           "id": "2026-10-19-260ad47d5ebf3bb1aa71447f12a8bbfdac005210ad51f75d1101e202697cf987",
-          "translation_key": "25e67f4d88cc04384dfd2a385d78fb239857e6aba337b933be3a4eafdddf2f13",
+          "translation_key": "2011b154383f79eb61b5bd3ff60c2f2703f0652ce8426ee26c89c06be8743522",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Paniertes Schnitzel vom Schwein",
@@ -4375,8 +4375,14 @@
               ]
             },
             {
-              "name_de": "Tomatenreis",
-              "notices": []
+              "name_de": "Kartoffelauflauf",
+              "notices": [
+                "Knoblauch",
+                "Ei",
+                "Milch und Laktose",
+                "Sellerie",
+                "Senf"
+              ]
             },
             {
               "name_de": "Bunter Rohkostsalat",
@@ -4414,11 +4420,11 @@
           }
         },
         {
-          "id": "2026-10-19-f80c022b717d59da4cb71a2ae6d1cf6e6c1dc371cf272a410c10bca73d520ea5",
-          "translation_key": "174fb5ae5488981de22d1a7f1c705769ddb2d1c336600563b61f6e180050f96d",
+          "id": "2026-10-19-09f94a1ae14d635e85239781d97023ab141c5cd16d643b91247b43b3ed9bc17a",
+          "translation_key": "85e5a4dca5b59d37eb12c4275f44ccf6d6e01c4a93c7efb30a0c7bbd92baa5ba",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "KlimaTeller: Bandnudeln mit Tomate, Zucchini und Hartkäse",
+          "name_de": "KlimaTeller: Bandnudeln mit Tomate, Zucchini und Hartkäse oder Vegan: Rote-Bete-Gnocchi-Pfanne mit Spinat, Tomaten und Walnüssen",
           "components": [
             {
               "name_de": "Bunt gemischter Blattsalat",
@@ -4450,7 +4456,9 @@
             "mit tierischem LAB",
             "Ei",
             "Milch und Laktose",
-            "Weizen"
+            "Weizen",
+            "Knoblauch",
+            "Walnüsse"
           ],
           "prices": {
             "student": 310,
@@ -4461,7 +4469,7 @@
           "price_source": {
             "date": "2026-10-19",
             "category": "Menü 2",
-            "name": "KlimaTeller: Bandnudeln mit Tomate, Zucchini und Hartkäse",
+            "name": "KlimaTeller: Bandnudeln mit Tomate, Zucchini und Hartkäse oder Vegan: Rote-Bete-Gnocchi-Pfanne mit Spinat, Tomaten und Walnüssen",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
