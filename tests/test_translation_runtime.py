@@ -95,14 +95,15 @@ class TranslationRuntimeTests(unittest.TestCase):
         self.run_adapter(published, translate=Mock(side_effect=AssertionError('Already cached')))
         self.assertEqual(self.events, [])
 
-    def test_notice_runtime_failure_saves_original_source_fallback(self):
+    def test_notice_runtime_failure_propagates_without_saving_incomplete_success(self):
         label = 'New notice'
         self.menu['days'][0]['meals'][0]['notices'] = [label]
         published = self.cache(*(self.entry(source) for source in self.sources))
-        result = self.run_adapter(published, runtime=Mock(side_effect=GenerationError('network')))
-        self.assertNotIn(label, result['notices'])
+        with self.assertRaises(GenerationError) as error:
+            self.run_adapter(published, runtime=Mock(side_effect=GenerationError('network')))
+        self.assertTrue(error.exception.retryable)
         self.assertEqual(self.menu['days'][0]['meals'][0]['notices'], [label])
-        self.assertEqual(self.stored(), result)
+        self.assertIsNone(self.stored())
 
     def test_lazy_single_session_saves_real_json_and_closes_before_return(self):
         final = self.run_adapter()

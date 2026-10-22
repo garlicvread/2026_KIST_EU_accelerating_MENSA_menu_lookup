@@ -36,7 +36,7 @@ def translated_notices(menu, *, glossary=None):
 
     glossary를 제공하면 그 매핑을 사용하고, 생략하면 기본 파일을 읽습니다. 결과는
     용어집 항목의 복사본이며, 미등록 원본 문구의 번역은 포함하지 않습니다.
-    호출자는 모델 번역을 준비하거나 화면에 독일어 원문을 표시할 수 있습니다.
+    호출자는 모델로 누락된 번역을 준비하며, 게시 전에 전체 안내 번역을 검사합니다.
     """
     labels = source_notices(menu)
     if glossary is None:
@@ -55,7 +55,7 @@ def require_notice_coverage(menu, cache):
     expected = translated_notices(menu)
     notices = cache.get("notices", {})
     validate_notice_translations(notices)
-    missing = sorted(expected.keys() - notices.keys())
+    missing = sorted(source_notices(menu) - notices.keys())
     if missing:
         raise ValueError("Notice translations missing for: " + ", ".join(missing)
                          + "; rebuild translations before publication")

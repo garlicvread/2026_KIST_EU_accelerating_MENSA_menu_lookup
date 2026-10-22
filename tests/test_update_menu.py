@@ -80,7 +80,7 @@ class SnapshotTests(unittest.TestCase):
                 write_snapshot(absent, menu, cache)
             self.assertFalse(absent.exists())
 
-    def test_unknown_notice_during_update_publishes_new_source_without_hiding_it(self):
+    def test_unknown_notice_during_update_requires_model_translation(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             directory = root / "site" / "data"
@@ -88,10 +88,19 @@ class SnapshotTests(unittest.TestCase):
             cache = complete_cache(previous)
             write_snapshot(directory, previous, cache)
             changed = page(date="21.09.2099").replace("Weizen", "New unreviewed source label")
-            update(root, html=changed)
+            generated = {'en': {'name': 'New notice', 'components': []},
+                         'ko': {'name': '새 안내', 'components': []}}
+            before = {p.name: p.read_bytes() for p in directory.iterdir()}
+            with self.assertRaisesRegex(ValueError, 'Missing notice translation'):
+                update(root, html=changed)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
+            with patch('scripts.update_menu.model_config', return_value={'model': 'fixture'}), \
+                    patch('scripts.translations.request_translation', return_value=generated) as translate:
+                update(root, html=changed)
+            translate.assert_called_once()
             menu = json.loads((directory / "menu.json").read_text())
             self.assertIn("New unreviewed source label", menu['days'][0]['meals'][0]['notices'])
-            self.assertNotIn("New unreviewed source label", json.loads((directory / "translations.json").read_text())["notices"])
+            self.assertEqual(json.loads((directory / "translations.json").read_text())["notices"]["New unreviewed source label"]["ko"], '새 안내')
 
     def test_validate_only_requires_current_notice_coverage(self):
         menu = parse_menu(page())

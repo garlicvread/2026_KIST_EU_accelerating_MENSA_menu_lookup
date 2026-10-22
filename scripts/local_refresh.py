@@ -8,10 +8,9 @@ TOML의 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 �
 
 import argparse
 import copy
-from contextlib import contextmanager, ExitStack
+from contextlib import contextmanager
 from datetime import datetime, timezone, timedelta
 import json
-import logging
 import os
 from pathlib import Path
 import signal
@@ -65,11 +64,6 @@ def translation_needed(menu, cache):
     """
     if source_notices(menu) - (load_glossary().keys() | cache.get('notices', {}).keys()):
         return True
-    return meal_translation_needed(menu, cache)
-
-
-def meal_translation_needed(menu, cache):
-    """기본 모델로 번역할 요리가 남았는지 확인합니다. 안내 문구 실패와 구별합니다."""
     for day in menu['days']:
         for meal in day['meals']:
             entry = cache['entries'].get(meal['translation_key'])
@@ -289,16 +283,7 @@ class RefreshJob:
         """
         candidate = build_translations(menu, cache, phrases, None, checkpoint=checkpoint)
         if translation_needed(menu, candidate):
-            needs_meals = meal_translation_needed(menu, candidate)
-            with ExitStack() as stack:
-                try:
-                    config = stack.enter_context(local_model(self.base))
-                except (ValueError, OSError, RuntimeError):
-                    if needs_meals:
-                        raise
-                    logging.getLogger(__name__).warning(
-                        'Notice model unavailable; retaining German source notices')
-                    return candidate
+            with local_model(self.base) as config:
                 candidate = build_translations(menu, candidate, phrases, config, checkpoint=checkpoint)
         return candidate
 

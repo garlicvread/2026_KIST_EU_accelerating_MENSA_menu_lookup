@@ -92,22 +92,20 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         self.assertEqual(old, before)
 
-    def test_unknown_notice_without_model_or_on_invalid_response_preserves_source(self):
+    def test_unknown_notice_model_error_propagates_and_keeps_inputs_unchanged(self):
         old = build_translations(self.menu, {}, self.phrases, None)
         label = "Kann Spuren von Krebstieren enthalten"
         self.meal["components"][0]["notices"] = [label]
         before = copy.deepcopy(self.menu)
         from mensa.errors import GenerationError
-        for failure in (None, GenerationError("timeout"), {"en": {"name": "Unknown", "components": []}}):
+        old_before = copy.deepcopy(old)
+        for failure in (GenerationError("timeout"), {"en": {"name": "Unknown", "components": []}}):
             with self.subTest(failure=failure):
                 generate = unittest.mock.Mock(side_effect=failure) if isinstance(failure, Exception) else unittest.mock.Mock(return_value=failure)
-                config = {"model": "fixture"} if failure is not None else None
-                result = build_translations(self.menu, old, {}, config, translate=generate)
-                self.assertNotIn(label, result["notices"])
+                with self.assertRaises(ValueError):
+                    build_translations(self.menu, old, {}, {"model": "fixture"}, translate=generate)
                 self.assertEqual(self.menu, before)
-                self.assertEqual(result["entries"], old["entries"])
-                if config is None:
-                    generate.assert_not_called()
+                self.assertEqual(old, old_before)
 
     def test_notice_checkpoint_errors_propagate(self):
         old = build_translations(self.menu, {}, self.phrases, None)

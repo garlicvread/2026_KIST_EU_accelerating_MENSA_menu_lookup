@@ -1,7 +1,6 @@
 """TranslationService가 제공된 안내 용어집·편집 번역·기존 캐시를 사용하고, 필요한 항목만 생성 함수에 요청하여 번역 캐시를 구성합니다."""
 
 import copy
-import logging
 
 from mensa.notice_contract import source_notices, translate_notice_labels, validate_notice_translations
 from mensa.translation_contract import (
@@ -38,7 +37,8 @@ class TranslationService:
             _apply_name_policy(entry)
             _apply_component_policy(entry)
         # 검토된 사전 값을 우선하고, 새 문구는 캐시 또는 모델로 번역합니다.
-        # 번역이 없거나 실패한 문구도 menu의 독일어 원문으로 계속 표시합니다.
+        # 모델을 쓰지 않는 사전 구성 단계에서는 미완성 캐시를 반환할 수 있으나,
+        # 새 게시 전에 모든 안내 문구의 번역이 완성되어야 합니다.
         glossary = self._glossary_provider()
         labels = source_notices(menu)
         notices = cache.setdefault("notices", {})
@@ -47,16 +47,10 @@ class TranslationService:
             if config is None:
                 continue
             source = {"kind": "notice", "name_de": label, "components": []}
-            try:
-                result = self._translate(source, config)
-                validate_result(result, source)
-                translated = {language: result[language]["name"] for language in ("en", "ko")}
-                validate_notice_translations({label: translated})
-            except (ValueError, OSError) as error:
-                logging.getLogger(__name__).warning(
-                    "Notice translation unavailable; displaying German source: %r (%s)",
-                    label, type(error).__name__)
-                continue
+            result = self._translate(source, config)
+            validate_result(result, source)
+            translated = {language: result[language]["name"] for language in ("en", "ko")}
+            validate_notice_translations({label: translated})
             notices[label] = translated
             if checkpoint is not None:
                 validate_cache(cache)

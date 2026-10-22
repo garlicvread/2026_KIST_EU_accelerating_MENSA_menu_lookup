@@ -47,9 +47,10 @@ class PublicationTests(unittest.TestCase):
             self.validate()
 
 
-    def test_unknown_current_notice_allows_model_translation_or_original_source(self):
+    def test_unknown_current_notice_requires_translation_before_publication(self):
         self.record["notices"].append("Unreviewed notice")
-        self.validate()
+        with self.assertRaisesRegex(ValueError, "Missing notice translation.*Unreviewed notice"):
+            self.validate()
         self.cache["notices"]["Unreviewed notice"] = {"en": "Unknown", "ko": "미검토"}
         self.validate()
         self.cache["notices"]["Unreviewed notice"].pop("ko")

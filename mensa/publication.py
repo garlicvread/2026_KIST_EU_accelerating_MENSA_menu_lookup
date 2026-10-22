@@ -53,12 +53,9 @@ def validate_publication(menu, cache, *, notice_glossary, previous=None, today=N
 
     notices = cache.get("notices", {})
     for label in sorted(source_notices(menu)):
-        if label not in notice_glossary:
-            # 미등록 문구는 형식 검증된 모델 번역 또는 메뉴에 보존한 원문을 표시합니다.
-            continue
         if label not in notices:
             raise ValueError(f"Missing notice translation: {label!r}")
-        if notices[label] != notice_glossary[label]:
+        if label in notice_glossary and notices[label] != notice_glossary[label]:
             raise ValueError(f"Notice translation differs from reviewed glossary: {label!r}")
 
     if today is not None:

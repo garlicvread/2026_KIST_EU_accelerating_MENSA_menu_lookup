@@ -1,4 +1,4 @@
-"""새 안내 문구가 모델 번역과 원문 표시를 거쳐 갱신을 막지 않는지 검사합니다."""
+"""새 안내 문구를 모델로 번역하고, 실제 호출 오류를 갱신 성공으로 숨기지 않는지 검사합니다."""
 
 from contextlib import contextmanager
 import io
@@ -39,12 +39,12 @@ class NoticeModelTests(unittest.TestCase):
         self.assertEqual(result['notices'][LABEL]['ko'], RESULT['ko']['name'])
         self.assertEqual(result['entries'], self.cache['entries'])
 
-    def test_mac_model_start_failure_keeps_source_when_only_notice_needs_model(self):
+    def test_mac_notice_model_start_failure_propagates_for_worker_retry(self):
         with patch.object(worker, 'local_model', side_effect=GenerationError('network')):
-            result = worker.RefreshJob('/unused').translate(self.menu, self.cache, {})
-        self.assertNotIn(LABEL, result['notices'])
+            with self.assertRaises(GenerationError) as error:
+                worker.RefreshJob('/unused').translate(self.menu, self.cache, {})
+        self.assertTrue(error.exception.retryable)
         self.assertEqual(self.meal['notices'], [LABEL])
-        self.assertEqual(result['entries'], self.cache['entries'])
 
     def test_mac_does_not_hide_model_start_failure_for_untranslated_dish(self):
         with patch.object(worker, 'local_model', side_effect=GenerationError('network')):

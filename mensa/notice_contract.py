@@ -32,5 +32,5 @@ def translate_notice_labels(labels, glossary):
     if not isinstance(labels, (set, frozenset)) or not all(_label(label) for label in labels):
         raise ValueError("Notice labels must be a set of nonempty strings")
     validate_notice_translations(glossary)
-    # 없는 문구는 모델 번역 또는 화면의 독일어 원문 표시로 처리합니다.
+    # 없는 문구는 호출자가 모델로 번역하며, 게시 전에 전체 번역을 검사합니다.
     return {label: dict(glossary[label]) for label in sorted(labels & glossary.keys())}
