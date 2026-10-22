@@ -80,18 +80,18 @@ class SnapshotTests(unittest.TestCase):
                 write_snapshot(absent, menu, cache)
             self.assertFalse(absent.exists())
 
-    def test_unknown_notice_during_update_preserves_both_published_files(self):
+    def test_unknown_notice_during_update_publishes_new_source_without_hiding_it(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             directory = root / "site" / "data"
             previous = parse_menu(page(date="21.09.2099"))
             cache = complete_cache(previous)
             write_snapshot(directory, previous, cache)
-            before = {p.name: p.read_bytes() for p in directory.iterdir()}
             changed = page(date="21.09.2099").replace("Weizen", "New unreviewed source label")
-            with self.assertRaisesRegex(ValueError, "New unreviewed source label"):
-                update(root, html=changed)
-            self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
+            update(root, html=changed)
+            menu = json.loads((directory / "menu.json").read_text())
+            self.assertIn("New unreviewed source label", menu['days'][0]['meals'][0]['notices'])
+            self.assertNotIn("New unreviewed source label", json.loads((directory / "translations.json").read_text())["notices"])
 
     def test_validate_only_requires_current_notice_coverage(self):
         menu = parse_menu(page())

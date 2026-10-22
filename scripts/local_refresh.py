@@ -8,9 +8,10 @@ TOML의 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 �
 
 import argparse
 import copy
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from datetime import datetime, timezone, timedelta
 import json
+import logging
 import os
 from pathlib import Path
 import signal
@@ -33,6 +34,7 @@ from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
 from scripts.notices import load_glossary
+from mensa.notice_contract import source_notices
 from scripts.translations import build_translations, reusable_translation
 from scripts.update_menu import read_json, require_current_coverage, write_snapshot, summarize
 from scripts.refresh_queue import load_state, save_state, reconcile, resource_status, BERLIN
@@ -56,11 +58,18 @@ def process_queue(directory, now, resources, work):
 
 
 def translation_needed(menu, cache):
-    """메뉴에 기본 MODEL로 재사용할 수 없는 번역 항목이 하나라도 있는지 반환합니다.
+    """기본 MODEL로 번역할 요리나 사전·캐시에 없는 안내 문구가 남았는지 반환합니다.
 
     기본 --base 실행에서 모델 시작 여부를 정하는 검사이며, 번역의 의미적 정확성이나
     TOML에 선언된 모델 리비전을 확인하는 검사는 아닙니다.
     """
+    if source_notices(menu) - (load_glossary().keys() | cache.get('notices', {}).keys()):
+        return True
+    return meal_translation_needed(menu, cache)
+
+
+def meal_translation_needed(menu, cache):
+    """기본 모델로 번역할 요리가 남았는지 확인합니다. 안내 문구 실패와 구별합니다."""
     for day in menu['days']:
         for meal in day['meals']:
             entry = cache['entries'].get(meal['translation_key'])
@@ -280,7 +289,16 @@ class RefreshJob:
         """
         candidate = build_translations(menu, cache, phrases, None, checkpoint=checkpoint)
         if translation_needed(menu, candidate):
-            with local_model(self.base) as config:
+            needs_meals = meal_translation_needed(menu, candidate)
+            with ExitStack() as stack:
+                try:
+                    config = stack.enter_context(local_model(self.base))
+                except (ValueError, OSError, RuntimeError):
+                    if needs_meals:
+                        raise
+                    logging.getLogger(__name__).warning(
+                        'Notice model unavailable; retaining German source notices')
+                    return candidate
                 candidate = build_translations(menu, candidate, phrases, config, checkpoint=checkpoint)
         return candidate
 
