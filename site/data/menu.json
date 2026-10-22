@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-19T09:14:28Z",
-    "sha256": "144b6bb2c2448922c11b0dad8da93ae85cd540123838c390b01dfb6811e077d8"
+    "fetched_at": "2026-10-22T01:01:59Z",
+    "sha256": "7417159e2a52f97419039b1cd69c39d58b630efe011934154a5fe31add9140dd"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -4976,7 +4976,8 @@
           ],
           "notices": [
             "Antioxidationsmittel",
-            "Geflügel"
+            "Geflügel",
+            "Milch und Laktose"
           ],
           "prices": {
             "student": 365,
@@ -5044,11 +5045,11 @@
           }
         },
         {
-          "id": "2026-10-21-83c30d6cd696feaf5e96da2dbb160b27ce43841b791968a6055ef28394aa7e63",
-          "translation_key": "63bf079b9a0d90b673730fafc569c369a99e6ea2c90bde4b1e0e05a6387d13f9",
+          "id": "2026-10-21-9986482ecc747cac8313ad02d6527090534bd4dbef5f8f0dc49015bd594a8bc0",
+          "translation_key": "5c25acfa7b0070578af0d2b2ab6db5e2751db31af77910b7889c1a3373fd97a7",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "ZiS: Spezialitätentag Aserbeidschan",
+          "name_de": "ZiS: Spezialitätentag Aserbaidschan",
           "components": [
             {
               "name_de": "Sebzie Plov mit Rindfleisch",
@@ -5057,25 +5058,24 @@
           ],
           "notices": [],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 530,
+            "staff": 645,
+            "guest": 715
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-21",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "ZiS: Spezialitätentag Aserbaidschan",
+            "raw": "S: 5,30 | M: 6,45 | G: 7,15"
           }
         },
         {
-          "id": "2026-10-21-2174b9843d4a6fa530f638790984e8df4edc65df6dd76a704ab85c3651fda4d5",
-          "translation_key": "e5ac98c24d29136e29585fe16fe093599196a65e5f7d07fae400973cd9b1af12",
+          "id": "2026-10-21-e95d644f137dd2215d3e2498872bb136bca29d56f0b411200767b3700370a5f3",
+          "translation_key": "2d60b11ec1017cb8e7383ecc5247dcd8ceef3bd44b449cbf5c5b67ee8f02093f",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "mensaVital:Gedünstetes Kabeljaufilet(nachhaltiger Fischfang) auf Blattspinat mit Tomatentagliatelle",
+          "name_de": "mensaVital: Gedünstetes Kabeljaufilet auf Blattspinat mit Tomatentagliatelle",
           "components": [],
           "notices": [
             "Knoblauch",
@@ -5086,17 +5086,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 765,
+            "staff": 915,
+            "guest": 1010
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-21",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "mensaVital: Gedünstetes Kabeljaufilet auf Blattspinat mit Tomatentagliatelle",
+            "raw": "S: 7,65 | M: 9,15 | G: 10,10"
           }
         },
         {
@@ -5120,17 +5119,16 @@
             "Kaschunüsse"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 725,
+            "staff": 840,
+            "guest": 910
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-21",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Hamburger Italian Bastard",
+            "raw": "S: 7,25 | M: 8,40 | G: 9,10"
           }
         },
         {
@@ -5149,22 +5147,21 @@
             "Kaschunüsse"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 675,
+            "staff": 790,
+            "guest": 860
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-21",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Veggie Hamburger Italian Bastard",
+            "raw": "S: 6,75 | M: 7,90 | G: 8,60"
           }
         },
         {
           "id": "2026-10-21-853273dbd3181835f3067a0234e20d6c14b6287d642d4869454e770c0552aa76",
-          "translation_key": "d462036047b80f4b9e6b361642b31c28f87cec74545a050e07aec05f691750a1",
+          "translation_key": "4b6bf68e2dc26f613188563423b3b1fb5d8caf72164dda42aba39cedf2be7073",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -5218,6 +5215,25 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Schnittlauch-Senfdressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -5259,13 +5275,17 @@
             "Weizen",
             "Gerste"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 490,
+            "staff": 605,
+            "guest": 675
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-21",
             "category": "Mensacafé",
             "name": "Veggie Sandwich Chicken Style",
-            "raw": null
+            "raw": "S: 4,90 | M: 6,05 | G: 6,75"
           }
         }
       ]
@@ -6028,16 +6048,30 @@
           }
         },
         {
-          "id": "2026-10-26-523cf4c2fb4359b4676674069b25458cb914ca4cc9d82a0d1d2e6cbbac56733c",
-          "translation_key": "662dd30ed866dfbe1a17ec6d39123994f27264df122045bcfbbdcef4c8f05c37",
+          "id": "2026-10-26-f736d348fe9c60a67055f81b66d125bb26ddf7408a6504717c7fee0739cda06e",
+          "translation_key": "4ab0bcf12c43d79e06eecbb8b8fa9ee15dd831ed0f4b47877e2a8829de28ac0d",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "mensaVital: Putenragout Mango-Tomaten mit grünen Nudeln",
-          "components": [],
+          "name_de": "Indische Hähnchenkeule Tandoori",
+          "components": [
+            {
+              "name_de": "Raita",
+              "notices": [
+                "Knoblauch",
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Jasmin Reis",
+              "notices": []
+            }
+          ],
           "notices": [
             "Geflügel",
+            "Knoblauch",
             "Milch und Laktose",
-            "Weizen"
+            "Sellerie",
+            "Senf"
           ],
           "prices": {
             "student": 370,
@@ -6295,12 +6329,16 @@
           }
         },
         {
-          "id": "2026-10-27-a4b97454d3551498b092276f19544a266f3de94d5ec2e9250e19255d9343e3c6",
-          "translation_key": "f38ffc8991fe4e2bf44f2bd06198e11df40449cece2f5fbfa8a0f9418c30e135",
+          "id": "2026-10-27-1f6722bccfdfdf6a1e8191f6b0379e87df22282420dce2b257d6a40aa7828e43",
+          "translation_key": "d2e06572a73baae82f8762a49cbf18835a8be553e9e902e59abc258fc171fac7",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "Vegan: Vegetarisches Paprikaragout mit Reis",
+          "name_de": "Brew-Bites Frikassee mit Spargel",
           "components": [
+            {
+              "name_de": "Reis",
+              "notices": []
+            },
             {
               "name_de": "Karottensalat",
               "notices": [
@@ -6320,8 +6358,9 @@
             }
           ],
           "notices": [
-            "vegan",
-            "Farbstoff"
+            "Antioxidationsmittel",
+            "Milch und Laktose",
+            "Gerste"
           ],
           "prices": {
             "student": 310,
@@ -6332,23 +6371,25 @@
           "price_source": {
             "date": "2026-10-27",
             "category": "Menü 2",
-            "name": "Vegan: Vegetarisches Paprikaragout mit Reis",
+            "name": "Brew-Bites Frikassee mit Spargel",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
         {
           "id": "2026-10-27-8fc0aea1a5aa39fbf23a1eeb85fccb9b3086cde5824ae5f952a5f6c8154c6f96",
-          "translation_key": "d222c82ac95f0e3e3e272ea98632d5bbd4e7e4efe56ecbc149123f3d9589d1da",
+          "translation_key": "f4ff9d6d358f6e1308349e086cf5c27510837a8cbea594298fc5b8acf020f84d",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Aktionstheke WOK-Station",
           "components": [
             {
-              "name_de": "Gebratene Nudeln mit Rindfleisch",
+              "name_de": "Gebratene Nudeln mit Hühnchen",
               "notices": [
-                "ohne Schweinefleisch",
+                "Konservierungsstoff",
+                "Geflügel",
                 "Knoblauch",
-                "Erdnüsse",
+                "Krebstiere, Krusten- und Schalentiere",
+                "Fisch",
                 "Soja",
                 "Sellerie",
                 "Sesamsamen",
@@ -6535,29 +6576,6 @@
       "date": "2026-10-28",
       "meals": [
         {
-          "id": "2026-10-28-6d51695a76087396eae233ca0938c0b51d2f1cf6a66666a7ee021e805287a192",
-          "translation_key": "90742bb8e3c9b03b3d67a89d0082f56470ae08c1514a19859673c135e4574d32",
-          "category": "Menü 1",
-          "location": "Aufgang A",
-          "name_de": "Kartoffel-Lyonerpfanne",
-          "components": [],
-          "notices": [
-            "Schweinefleisch"
-          ],
-          "prices": {
-            "student": 365,
-            "staff": 670,
-            "guest": 935
-          },
-          "price_status": "verified",
-          "price_source": {
-            "date": "2026-10-28",
-            "category": "Menü 1",
-            "name": "Kartoffel-Lyonerpfanne",
-            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
-          }
-        },
-        {
           "id": "2026-10-28-23c425aa6707ecb1814b57027827ee53c7ee8925e9d1210d987efd87ceb6d08b",
           "translation_key": "a2c406068eb14258857845c8f313e48997799f945b5420f17b95c242a3641acb",
           "category": "Menü 2",
@@ -6614,45 +6632,20 @@
           }
         },
         {
-          "id": "2026-10-28-bed97747aac0e1d1657c3975803bfcd328e8d3ddc563453d1bb693c1f8585b0e",
-          "translation_key": "4d3c9d6b071dc30921c6d22bdd17df8685b9d38cff4ca774f1b602039672e241",
+          "id": "2026-10-28-91f4073829cc319e1e9552847bc8f5f0f51651d3539a54f6e15ea33ae3aa7e12",
+          "translation_key": "dfb50e09764e1656a3da36f15574f57f870ee96a29fb45a0c9d571300a0d5656",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "ZiS: Spezialitätentag",
-          "components": [],
-          "notices": [],
-          "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
-          },
-          "price_status": "verified",
-          "price_source": {
-            "date": "2026-10-28",
-            "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
-          }
-        },
-        {
-          "id": "2026-10-28-3ba01fa74c85048256d9964e4fa42794921ab5b784d4f2aaad540abbc8b95e35",
-          "translation_key": "3ea4368028227b841346412c662ecf0879264da6d78c4fb7e4e40b7947ad6c13",
-          "category": "Wahlessen",
-          "location": "Aufgang C",
-          "name_de": "Käse-Baconburger",
+          "name_de": "Iskender Kebap",
           "components": [],
           "notices": [
-            "Konservierungsstoff",
-            "Antioxidationsmittel",
-            "Süßungsmittel",
-            "Schweinefleisch",
+            "Geflügel",
+            "Knoblauch",
             "aus zum Teil fein zerkleinertem Fleisch",
-            "Ei",
             "Milch und Laktose",
-            "Senf",
             "Sesamsamen",
-            "Weizen"
+            "Weizen",
+            "Gerste"
           ],
           "prices": {
             "student": 370,
@@ -6669,20 +6662,27 @@
           }
         },
         {
-          "id": "2026-10-28-7c5ea87f6f2179cff1a08706755a58aff645cf79598a20a730f85e1048f54592",
-          "translation_key": "dc595c8bf96ecbc15b3df6dacce40bd829f1d5858a91ad1e9b82dec89153b907",
+          "id": "2026-10-28-7efe3eb331ea61f56684e11d7acb641b3c0d8895c4f0ae57dc1039f8d17c4418",
+          "translation_key": "da577d54453db9555995cf5ecc70e1dd405fe734c5b247ff200b8e9c415cb5be",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Vegetarischer Cheesburger",
-          "components": [],
+          "name_de": "Vegane Hackrolle mit Tomaten-Füllung",
+          "components": [
+            {
+              "name_de": "Vegan: Rahmsoße",
+              "notices": [
+                "Soja"
+              ]
+            },
+            {
+              "name_de": "Petersilienkartoffel (aus biologischem Anbau)",
+              "notices": []
+            }
+          ],
           "notices": [
-            "Süßungsmittel",
-            "Ei",
-            "Milch und Laktose",
-            "Sellerie",
             "Senf",
-            "Sesamsamen",
-            "Weizen"
+            "Weizen",
+            "Hafer"
           ],
           "prices": {
             "student": 370,
@@ -6802,19 +6802,16 @@
       "meals": [
         {
           "id": "2026-10-29-c26480e6b3047e4d60317a74773c18558bc817d65954dca7057f425f35e27b3b",
-          "translation_key": "501a6b7ce752bb01fee556f138f03f43c5b1d11eea9b72577a6ca11f08e6247a",
+          "translation_key": "4e15dc4bc45ae7ade24bb48ae584d3de47bed4e0259a09376d2f3496ff679ef8",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Paniertes Schnitzel vom Schwein",
           "components": [
             {
-              "name_de": "Nudelsalat Italienische Art",
+              "name_de": "Bunter Kartoffelsalat",
               "notices": [
                 "Farbstoff",
-                "Konservierungsstoff",
-                "Geschmacksverstärker",
-                "geschwärzt",
-                "Knoblauch",
+                "Süßungsmittel",
                 "Ei",
                 "Milch und Laktose",
                 "Senf",
@@ -6915,21 +6912,16 @@
         },
         {
           "id": "2026-10-29-f416a7e5ca4506b9f10465baece9ba051e04de08f9d5b371250f2f8228d9932b",
-          "translation_key": "ce6ecf20d45b4c77dab6345a421968a5eb0497bc9d2b18b854764c78f9b2c7f1",
+          "translation_key": "d0000e5ef8590247fdb702259bcd02705418080fdf7b815750b1a7358188d5d6",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Gebackenes Seelachsfilet im Reismantel",
           "components": [
             {
-              "name_de": "Dönerwrap mit Aiolisoße",
+              "name_de": "Aiolisoße",
               "notices": [
-                "Konservierungsstoff",
                 "Süßungsmittel",
-                "Geflügel",
                 "Knoblauch",
-                "vegetarisch",
-                "Backtriebmittel",
-                "aus zum Teil fein zerkleinertem Fleisch",
                 "Ei",
                 "Milch und Laktose",
                 "Senf",
@@ -7085,27 +7077,6 @@
             "category": "Wahlessen",
             "name": "Salatbuffet",
             "raw": "S: 3,70 | M: 4,90 | G: 5,70"
-          }
-        },
-        {
-          "id": "2026-10-29-62030776286fdd324edf5b79e3d9189235460ae5d7356276aea2bc82f561d381",
-          "translation_key": "dd2cd23e40248031ca54b2adb8bb469e1b865473680ed6adc4d28e5c48898148",
-          "category": "Mensacafé",
-          "location": "Erdgeschoss",
-          "name_de": "Vegan: Penne Rigate mit getrockneten Tomaten",
-          "components": [],
-          "notices": [
-            "geschwärzt",
-            "vegan",
-            "Weizen"
-          ],
-          "prices": null,
-          "price_status": "source_pending",
-          "price_source": {
-            "date": "2026-10-29",
-            "category": "Mensacafé",
-            "name": "Vegan: Penne Rigate mit getrockneten Tomaten",
-            "raw": null
           }
         }
       ]
@@ -7268,6 +7239,40 @@
           }
         },
         {
+          "id": "2026-10-30-10fc3cd8f07ab07eb309541e45010d449b156ce657a24651ad2e7a4209aca8d4",
+          "translation_key": "a09b66c0d6c57086d07238959311804c6a9fac6d01c8f2b7f443ed5d1a25aa37",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Vegan: Rote Bete Puffer paniert",
+          "components": [
+            {
+              "name_de": "Vegan: Scharfer Chilidip",
+              "notices": []
+            },
+            {
+              "name_de": "Petersilienkartoffel (aus biologischem Anbau)",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "vegan",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 370,
+            "staff": 490,
+            "guest": 570
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-30",
+            "category": "Wahlessen",
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
+          }
+        },
+        {
           "id": "2026-10-30-1c9f80410bd320bf4bc47d482fb2200273a91800d5a06c2753090a08899a4664",
           "translation_key": "8a6a0d4a720c0639c104271dcd8fddd89c3d4b1069747685e8186ebe7f9d3d15",
           "category": "Wahlessen",
@@ -7337,6 +7342,35 @@
             "category": "Wahlessen",
             "name": "Salatbuffet",
             "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-30-2a306780884fa02e55f10a71f22dc234ceb17829e609cc8d4877320371e613bf",
+          "translation_key": "0ac6652627312147a351277b4c222e1974a18354ac3d7d4f8e2232f0df5c435e",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Chili sin carne",
+          "components": [
+            {
+              "name_de": "Brötchen",
+              "notices": [
+                "Milch und Laktose",
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "vegetarisch",
+            "vegan"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-30",
+            "category": "Mensacafé",
+            "name": "Chili sin carne",
+            "raw": null
           }
         }
       ]
