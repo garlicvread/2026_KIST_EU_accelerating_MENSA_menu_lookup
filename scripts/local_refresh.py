@@ -33,6 +33,7 @@ from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
 from scripts.notices import load_glossary
+from mensa.notice_contract import source_notices
 from scripts.translations import build_translations, reusable_translation
 from scripts.update_menu import read_json, require_current_coverage, write_snapshot, summarize
 from scripts.refresh_queue import load_state, save_state, reconcile, resource_status, BERLIN
@@ -56,11 +57,13 @@ def process_queue(directory, now, resources, work):
 
 
 def translation_needed(menu, cache):
-    """메뉴에 기본 MODEL로 재사용할 수 없는 번역 항목이 하나라도 있는지 반환합니다.
+    """기본 MODEL로 번역할 요리나 사전·캐시에 없는 안내 문구가 남았는지 반환합니다.
 
     기본 --base 실행에서 모델 시작 여부를 정하는 검사이며, 번역의 의미적 정확성이나
     TOML에 선언된 모델 리비전을 확인하는 검사는 아닙니다.
     """
+    if source_notices(menu) - (load_glossary().keys() | cache.get('notices', {}).keys()):
+        return True
     for day in menu['days']:
         for meal in day['meals']:
             entry = cache['entries'].get(meal['translation_key'])

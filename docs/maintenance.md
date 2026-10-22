@@ -180,7 +180,7 @@ Mac `--base`는 전용 checkout/runtime/ollama/models/logs와 고정 gemma4:31b/
 
 먼저 원인을 수정합니다. 영구 generation 실패의 명시적 해제는 `mensa.queue.request_retry`를 사용하며 전용 CLI 옵션은 없습니다. 운영 문서의 락/파일 검사 snippet을 따라 period/phase/attempts/게시 IDs를 보존해 주세요. queue/checkpoint/journal 삭제나 임의 ID 초기화는 하지 않습니다. GitHub의 알려진 run을 먼저 조회하고 응답이 사라진 dispatch는 같은 SHA로 찾습니다. 대체 커밋과 원래 실행의 충돌·만료 후보·unknown 변경은 운영자 검토 대상입니다.
 
-`Unknown notice labels`는 검토 사전에 원본 안내 문구가 빠졌다는 뜻입니다. `data/notice-translations.json`에 정확한 독일어 키와 검토한 `en`·`ko`를 추가하고 검사한 커밋을 `~/mensa`에도 반영합니다. 예를 들어 `ohne Schweinefleisch`는 `Without pork` / `돼지고기 미포함`으로 등록되어 있습니다. 사전 전체가 생성 식별 정보에 포함되므로 사전을 바꾸면 기존 모델 번역도 다시 생성할 수 있습니다. 모델 재설치나 알 수 없는 안내 문구 검증 해제는 이 오류의 복구 절차가 아닙니다.
+이전 코드의 `Unknown notice labels`는 사전 미등록 문구 때문에 갱신을 중단한 오류입니다. 현재 코드는 사전·캐시를 우선하고 미등록 문구를 LLM으로 번역합니다. 미등록 안내 번역도 완성되어야 게시하며, 호출 오류는 작업 큐로 전달하고 일시적인 통신 오류는 재시도합니다. 사전에는 사람이 보정한 번역을 추가할 수 있으며 모델 캐시보다 우선합니다. 사전 전체가 요리 번역의 생성 식별 정보에 포함되므로 사전을 바꾸면 기존 모델 번역도 다시 생성할 수 있습니다. 이전 오류의 대기 작업은 수정본 반영 후 기록을 보존해 재개합니다.
 
 로그는 모델 시작 시 최신 실행으로 덮어쓰며 byte cap/과거 보존이 없습니다. 로그 회전과 디스크 감시는 운영자가 준비합니다. 롤백은 검증된 전체 정적 빌드와 같은 release의 JSON 쌍을 단위로 합니다. 비공개 상태 복구는 현재 게시 SHA/run과 백업의 period/IDs/저널을 대조한 뒤 같은 락 아래에서 수행합니다.
 

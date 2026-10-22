@@ -70,16 +70,53 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(calls, [])
         self.assertNotIn("notices", old)
 
-    def test_unknown_notice_fails_before_any_model_request_and_keeps_old_cache(self):
+    def test_unknown_notice_uses_model_even_with_cached_dishes_and_reuses_notice(self):
         old = build_translations(self.menu, {}, self.phrases, None)
         before = copy.deepcopy(old)
-        self.meal["components"][0]["notices"] = ["New unreviewed source label"]
+        label = "Krebstiere, Krusten- und Schalentiere"
+        self.meal["notices"] = [label]
+        self.meal["components"][0]["notices"] = [label]
         calls = []
-        with self.assertRaisesRegex(ValueError, "New unreviewed source label.*notice-translations.json"):
-            build_translations(self.menu, old, {}, {"model": "fixture"},
-                               translate=lambda *args: calls.append(args))
+        def generate(source, config):
+            calls.append(copy.deepcopy(source))
+            return {"en": {"name": "Crustaceans and shellfish", "components": []},
+                    "ko": {"name": "갑각류 및 조개류", "components": []}}
+        checkpoints = []
+        result = build_translations(self.menu, old, {}, {"model": "fixture"},
+                                    translate=generate, checkpoint=checkpoints.append)
+        self.assertEqual(calls, [{"kind": "notice", "name_de": label, "components": []}])
+        self.assertEqual(result["notices"][label], {"en": "Crustaceans and shellfish", "ko": "갑각류 및 조개류"})
+        self.assertEqual(checkpoints[-1]["notices"], result["notices"])
+        reused = build_translations(self.menu, result, {}, {"model": "fixture"}, translate=generate)
+        self.assertEqual(reused, result)
+        self.assertEqual(len(calls), 1)
         self.assertEqual(old, before)
-        self.assertEqual(calls, [])
+
+    def test_unknown_notice_model_error_propagates_and_keeps_inputs_unchanged(self):
+        old = build_translations(self.menu, {}, self.phrases, None)
+        label = "Kann Spuren von Krebstieren enthalten"
+        self.meal["components"][0]["notices"] = [label]
+        before = copy.deepcopy(self.menu)
+        from mensa.errors import GenerationError
+        old_before = copy.deepcopy(old)
+        for failure in (GenerationError("timeout"), {"en": {"name": "Unknown", "components": []}}):
+            with self.subTest(failure=failure):
+                generate = unittest.mock.Mock(side_effect=failure) if isinstance(failure, Exception) else unittest.mock.Mock(return_value=failure)
+                with self.assertRaises(ValueError):
+                    build_translations(self.menu, old, {}, {"model": "fixture"}, translate=generate)
+                self.assertEqual(self.menu, before)
+                self.assertEqual(old, old_before)
+
+    def test_notice_checkpoint_errors_propagate(self):
+        old = build_translations(self.menu, {}, self.phrases, None)
+        self.meal["notices"] = ["New source label"]
+        def fail(_):
+            raise OSError("checkpoint unavailable")
+        with self.assertRaisesRegex(OSError, "checkpoint unavailable"):
+            build_translations(self.menu, old, {}, {"model": "fixture"},
+                               translate=lambda *_: {"en": {"name": "Notice", "components": []},
+                                                     "ko": {"name": "안내", "components": []}},
+                               checkpoint=fail)
 
 
     def test_source_change_does_not_reuse_old_translation(self):

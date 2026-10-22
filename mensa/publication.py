@@ -53,11 +53,9 @@ def validate_publication(menu, cache, *, notice_glossary, previous=None, today=N
 
     notices = cache.get("notices", {})
     for label in sorted(source_notices(menu)):
-        if label not in notice_glossary:
-            raise ValueError(f"Unknown notice label in reviewed glossary: {label!r}")
         if label not in notices:
             raise ValueError(f"Missing notice translation: {label!r}")
-        if notices[label] != notice_glossary[label]:
+        if label in notice_glossary and notices[label] != notice_glossary[label]:
             raise ValueError(f"Notice translation differs from reviewed glossary: {label!r}")
 
     if today is not None:

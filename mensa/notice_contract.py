@@ -1,4 +1,4 @@
-"""안내 문구 검증 함수가 정확한 독일어 원본 표기와 검토된 en/ko 번역을 검사하고, 용어집에 없는 문구를 거부합니다."""
+"""독일어 원본 안내 문구와 en/ko 번역 형식을 검사하고 사전에서 알려진 번역을 선택합니다."""
 
 
 def _label(value):
@@ -32,8 +32,5 @@ def translate_notice_labels(labels, glossary):
     if not isinstance(labels, (set, frozenset)) or not all(_label(label) for label in labels):
         raise ValueError("Notice labels must be a set of nonempty strings")
     validate_notice_translations(glossary)
-    unknown = sorted(labels - glossary.keys())
-    if unknown:
-        raise ValueError("Unknown notice labels: " + ", ".join(repr(label) for label in unknown)
-                         + "; review and add en/ko translations to data/notice-translations.json before retrying")
-    return {label: dict(glossary[label]) for label in sorted(labels)}
+    # 없는 문구는 호출자가 모델로 번역하며, 게시 전에 전체 번역을 검사합니다.
+    return {label: dict(glossary[label]) for label in sorted(labels & glossary.keys())}

@@ -80,6 +80,31 @@ class TranslationRuntimeTests(unittest.TestCase):
     def stored(self):
         return TranslationCheckpointStore(self.state).load()
 
+    def test_notice_only_translation_opens_runtime_and_survives_checkpoint_resume(self):
+        label = 'Krebstiere, Krusten- und Schalentiere'
+        self.menu['days'][0]['meals'][0]['notices'] = [label]
+        published = self.cache(*(self.entry(source) for source in self.sources))
+        generated = {'en': {'name': 'Crustaceans and shellfish', 'components': []},
+                     'ko': {'name': '갑각류 및 조개류', 'components': []}}
+        translate = Mock(return_value=generated)
+        final = self.run_adapter(published, translate=translate)
+        self.assertEqual(self.events, ['open', 'close'])
+        self.assertEqual(translate.call_args.args[0], {'kind': 'notice', 'name_de': label, 'components': []})
+        self.assertEqual(self.stored()['notices'][label]['ko'], '갑각류 및 조개류')
+        self.events.clear()
+        self.run_adapter(published, translate=Mock(side_effect=AssertionError('Already cached')))
+        self.assertEqual(self.events, [])
+
+    def test_notice_runtime_failure_propagates_without_saving_incomplete_success(self):
+        label = 'New notice'
+        self.menu['days'][0]['meals'][0]['notices'] = [label]
+        published = self.cache(*(self.entry(source) for source in self.sources))
+        with self.assertRaises(GenerationError) as error:
+            self.run_adapter(published, runtime=Mock(side_effect=GenerationError('network')))
+        self.assertTrue(error.exception.retryable)
+        self.assertEqual(self.menu['days'][0]['meals'][0]['notices'], [label])
+        self.assertIsNone(self.stored())
+
     def test_lazy_single_session_saves_real_json_and_closes_before_return(self):
         final = self.run_adapter()
         self.assertEqual(self.events, ['open', 'Suppe A', 'Suppe B', 'close'])

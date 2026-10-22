@@ -1,7 +1,8 @@
 """검토된 안내 용어집 파일을 읽고 메뉴에 필요한 영어·한국어 안내 번역을 확인합니다.
 
-알레르기·첨가물 등의 원본 안내 문구는 정확한 독일어 키로 조회하며 모델에 번역을
-요청하지 않습니다. 파일의 스키마 버전은 이 모듈이 확인하고, 안내 매핑의 필드·문자열과
+알레르기·첨가물 등의 원본 안내 문구는 정확한 독일어 키로 조회합니다. 미등록 문구의
+모델 번역은 TranslationService가 담당합니다. 파일의 스키마 버전은 이 모듈이 확인하고,
+안내 매핑의 필드·문자열과
 원본 문구의 수집·조회 규칙은 mensa.notice_contract가 관리합니다. 용어집과 캐시를
 수정하거나 파일에 쓰는 작업은 수행하지 않습니다.
 """
@@ -34,8 +35,8 @@ def translated_notices(menu, *, glossary=None):
     """메뉴와 구성품의 안내 문구를 모아 해당 독일어 키의 en·ko 번역 사전을 반환합니다.
 
     glossary를 제공하면 그 매핑을 사용하고, 생략하면 기본 파일을 읽습니다. 결과는
-    용어집 항목의 복사본이며, 알 수 없는 원본 문구는 임의 번역으로 채우지 않고
-    ValueError로 거부하여 용어집 검토를 요구합니다.
+    용어집 항목의 복사본이며, 미등록 원본 문구의 번역은 포함하지 않습니다.
+    호출자는 모델로 누락된 번역을 준비하며, 게시 전에 전체 안내 번역을 검사합니다.
     """
     labels = source_notices(menu)
     if glossary is None:
@@ -54,7 +55,7 @@ def require_notice_coverage(menu, cache):
     expected = translated_notices(menu)
     notices = cache.get("notices", {})
     validate_notice_translations(notices)
-    missing = sorted(expected.keys() - notices.keys())
+    missing = sorted(source_notices(menu) - notices.keys())
     if missing:
         raise ValueError("Notice translations missing for: " + ", ".join(missing)
                          + "; rebuild translations before publication")

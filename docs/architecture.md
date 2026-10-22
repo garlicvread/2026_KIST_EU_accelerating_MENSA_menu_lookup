@@ -57,7 +57,7 @@ flowchart TD
 
 새 번역이 필요한 순간에만 모델 실행을 관리하는 `model_session` 함수([`mensa/model_runtime.py`](../mensa/model_runtime.py))를 호출합니다. `managed` 설정이면 이 함수는 준비된 Ollama 실행 파일을 별도 프로세스 그룹으로 시작하고 요청이 끝나면 자신이 만든 그룹만 종료합니다. 컴퓨터에서 따로 실행 중인 Ollama는 종료하지 않습니다. `external` 설정이면 이미 실행 중인 모델의 URL을 사용하며 그 프로세스를 시작하거나 종료하지 않습니다. 번역 재개 함수는 모델 정리를 끝낸 뒤에 메뉴/번역을 게시 함수에 넘깁니다.
 
-알레르기·첨가물·식재료 안내 문구는 `scripts/notices.py`가 읽는 `data/notice-translations.json`의 검토된 영어·한국어 대응표를 사용합니다. 사전에 없는 문구는 모델 요청에 앞서 `Unknown notice labels`로 거부합니다. 사전 전체는 번역의 생성 식별 정보에 포함되므로 사전 변경 후 기존 모델 번역이 다시 생성될 수 있습니다. 유지보수자는 대응표를 보완하고 검증한 코드에 반영하며, 운영자는 기존 대기 작업을 재개합니다.
+알레르기·첨가물·식재료 안내 문구는 `scripts/notices.py`가 읽는 `data/notice-translations.json`을 우선 사용합니다. `TranslationService`는 미등록 문구를 캐시에서 찾고, 없으면 `kind:notice` 요청으로 모델에 영어·한국어 번역을 요청합니다. `mensa/generation.py`는 안내 전용 지시문으로 부정·미량 함유 등의 한정 표현과 모든 물질을 보존하도록 요청하고 응답 형식을 검사합니다. 번역 성공 시 정확한 독일어 키로 캐시와 설정 기반 체크포인트에 저장합니다. 실패는 작업 큐로 전달하고 통신 오류는 기존 재시도 정책을 적용합니다. 게시 검사는 미등록 문구를 포함한 모든 안내 번역의 완성을 요구하고, 등록된 사전 값의 일치도 검사합니다. 브라우저는 원문 안내 문구를 항상 보존해 표시합니다. 사전 전체는 요리 번역의 생성 식별 정보에 포함됩니다.
 
 번역 요청을 보내는 `request_translation`([`mensa/generation.py`](../mensa/generation.py))은 응답 크기·완료 여부·언어별 결과·구성품 개수를 검사합니다. 실패 종류를 나타내는 `GenerationError`와 다시 요청할 수 있는 오류 구분은 [`mensa/errors.py`](../mensa/errors.py)에 있습니다.
 

@@ -2,7 +2,7 @@
 
 import copy
 
-from mensa.notice_contract import source_notices, translate_notice_labels
+from mensa.notice_contract import source_notices, translate_notice_labels, validate_notice_translations
 from mensa.translation_contract import (
     PROMPT_VERSION, source_for, source_key, _text, validate_result,
     _apply_name_policy, _apply_component_policy, reusable_translation,
@@ -36,10 +36,25 @@ class TranslationService:
         for entry in cache["entries"].values():
             _apply_name_policy(entry)
             _apply_component_policy(entry)
-        # build는 모든 요리의 번역이 캐시에 있어도 원본 안내 문구가 검토된 용어집에 있는지 확인합니다.
-        # build는 스냅샷 교체 사이에 중단되어도 기존 메뉴와 호환되도록 이전 안내 문구를 보존합니다.
+        # 검토된 사전 값을 우선하고, 새 문구는 캐시 또는 모델로 번역합니다.
+        # 모델을 쓰지 않는 사전 구성 단계에서는 미완성 캐시를 반환할 수 있으나,
+        # 새 게시 전에 모든 안내 문구의 번역이 완성되어야 합니다.
         glossary = self._glossary_provider()
-        cache.setdefault("notices", {}).update(translate_notice_labels(source_notices(menu), glossary))
+        labels = source_notices(menu)
+        notices = cache.setdefault("notices", {})
+        notices.update(translate_notice_labels(labels, glossary))
+        for label in sorted(labels - notices.keys()):
+            if config is None:
+                continue
+            source = {"kind": "notice", "name_de": label, "components": []}
+            result = self._translate(source, config)
+            validate_result(result, source)
+            translated = {language: result[language]["name"] for language in ("en", "ko")}
+            validate_notice_translations({label: translated})
+            notices[label] = translated
+            if checkpoint is not None:
+                validate_cache(cache)
+                checkpoint(copy.deepcopy(cache))
         identity = generation_identity(config, notice_glossary=glossary) if config else None
         for day in menu["days"]:
             for meal in day["meals"]:

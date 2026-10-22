@@ -124,9 +124,9 @@ Python에서 기존 묶음을 읽는 `DirectoryPublisher.load_current()`는 선�
 
 ## 사람이 검토하는 이름과 주의 표시
 
-유지보수자는 [`data/editorial-translations.json`](../data/editorial-translations.json)에 검토한 구문을, [`data/notice-translations.json`](../data/notice-translations.json)에 정확한 독일어 주의 표시와 영어/한국어 문구를 적습니다. 두 번째 대응표를 코드에서 glossary라고 부릅니다. 번역 코드는 현재 메뉴의 식재료·식단·알레르기·첨가물 표시에 이 표를 사용합니다. 표에 없는 독일어 표시가 있으면 모델 요청과 파일 게시 전에 중단합니다.
+유지보수자는 [`data/editorial-translations.json`](../data/editorial-translations.json)에 검토한 구문을, [`data/notice-translations.json`](../data/notice-translations.json)에 정확한 독일어 주의 표시와 영어/한국어 문구를 적습니다. 두 번째 대응표를 코드에서 glossary라고 부릅니다. 번역 코드는 이 표를 우선 사용하고, 미등록 주의 표시는 기존 캐시 또는 LLM으로 번역합니다. 안내 전용 요청은 원문을 `name_de`, 빈 `components`, `kind:notice`로 전달합니다. 결과의 두 언어 `name`을 `notices[독일어 원문]`의 `en`·`ko`로 저장하며, 요리 번역 항목과 섞지 않습니다.
 
-번역 검사 코드는 오래된 schema 1 파일에서 top-level notices가 생략되면 빈 표로 읽을 수 있습니다. 그러나 새 게시 검사 함수는 현재 메뉴에 나온 모든 주의 표시의 검토 번역을 요구합니다. 유지보수자는 생략 호환성을 이용해 새 표시 검사를 피하면 안 됩니다.
+번역 검사 코드는 오래된 schema 1 파일에서 top-level notices가 생략되면 빈 표로 읽을 수 있습니다. 새 게시 검사 함수는 현재 메뉴에 있는 모든 주의 표시의 영어·한국어 번역을 요구하며, 사전에 등록된 값은 정확히 일치해야 합니다. 미등록 문구의 모델 번역은 두 언어의 비어 있지 않은 문자열 형식을 검사합니다. 이 검사는 번역 의미의 정확성을 증명하지 않습니다. 모델 없이 구성한 중간 캐시는 미완성일 수 있으므로 바로 게시하지 않습니다. 미등록 문구는 모델로 번역한 후 게시하며, 모델 호출 실패는 작업 큐로 전달합니다. 브라우저가 번역 파일을 받기 전 원문을 표시하는 기능은 미완성 식단의 게시를 허용한다는 뜻이 아닙니다. 원문 주의 표시를 메뉴에서 제거하거나 임의의 알레르기를 추가하지 않습니다.
 
 이름 표현을 정리하는 [`mensa/translation_contract.py`](../mensa/translation_contract.py)는 mensaVital/KlimaTeller를 독일어 원문에 남기고 번역 제목을 설명형으로 정리합니다. 정확한 Wikingertopf는 “Meatball stew”/“고기완자 스튜”, Köttbullar는 “Swedish meatballs”/“스웨덴식 미트볼”, 구성품 Peperoni는 “Chili peppers”/“고추”입니다. 코드와 유지보수자는 vegan 등 식단 의미와 구성품 순서를 보존하고 원문에 없는 재료를 더하지 않습니다.
 
