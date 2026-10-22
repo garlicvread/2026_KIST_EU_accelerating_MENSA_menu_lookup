@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-22T01:01:59Z",
-    "sha256": "7417159e2a52f97419039b1cd69c39d58b630efe011934154a5fe31add9140dd"
+    "fetched_at": "2026-10-22T14:09:22Z",
+    "sha256": "edff6c373dd1c0ec7b41597d164ba112c7deddc2cde5a3247fb1f7055bb51368"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -5295,7 +5295,7 @@
       "meals": [
         {
           "id": "2026-10-22-d1a6259fa4abf85ac3547d93008dd872e8d757503827f06a2a3dbfc26937d2ea",
-          "translation_key": "8c91eb07d0cabb2d6a92e27a8f2ce591b0ca320d76f051da7cd087300d697201",
+          "translation_key": "d39082070908bc46a3576b04bb414fcebab89ac8ea4913e3866e52592048c591",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Hausgemachte Frikadelle",
@@ -5307,9 +5307,9 @@
               ]
             },
             {
-              "name_de": "Hausgemachter Kartoffelstampf",
+              "name_de": "Pommes Frites",
               "notices": [
-                "Milch und Laktose"
+                "Backtriebmittel"
               ]
             },
             {
@@ -5439,17 +5439,48 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 565,
+            "staff": 680,
+            "guest": 750
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-22",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Hühnernuggets im Tempurateig",
+            "raw": "S: 5,65 | M: 6,80 | G: 7,50"
+          }
+        },
+        {
+          "id": "2026-10-22-54aec0a4c49cdf03ccbe14d25566a651b78003ccd9b809c3e1f01b5541ff1972",
+          "translation_key": "71824e62184be941a9fde0bd74d9a86e2dad123b333d32451016f76d3f0011e4",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "Tagesessen: Gedünstetes Kabeljaufilet mit Tomatentagliatelle",
+          "components": [
+            {
+              "name_de": "Solange der Vorrat reicht!",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "Ei",
+            "Fisch",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 230,
+            "staff": 330,
+            "guest": 400
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-22",
+            "category": "Wahlessen",
+            "name": "Tagesessen: Gedünstetes Kabeljaufilet mit Tomatentagliatelle",
+            "raw": "S: 2,30 | M: 3,30 | G: 4,00"
           }
         },
         {
@@ -5466,17 +5497,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 465,
+            "staff": 580,
+            "guest": 650
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-22",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Flammkuchen Saarländische Art mit Lyoner und Kartoffelwürfel",
+            "raw": "S: 4,65 | M: 5,80 | G: 6,50"
           }
         },
         {
@@ -5491,22 +5521,21 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 455,
+            "staff": 570,
+            "guest": 640
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-22",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Flammkuchen mit buntem Gemüse",
+            "raw": "S: 4,55 | M: 5,70 | G: 6,40"
           }
         },
         {
           "id": "2026-10-22-80436cf30581d6355792702d82d714b3447290844d499952ebc7605b58419dfa",
-          "translation_key": "b4d36dda8ed944e069cd6ccfe35be3c6af725829ecb737a87dd89f113c9a006a",
+          "translation_key": "233604e16148fbb0e99cb5b00b82594bb4945d96de06d971e51244a984c6cd33",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -5560,6 +5589,25 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Weiße Salatsoße",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -5590,13 +5638,17 @@
             "Weizen",
             "Hafer"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 315,
+            "staff": 430,
+            "guest": 500
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-22",
             "category": "Mensacafé",
             "name": "Vegan: Penne mit Spinat-Erdnusssoße",
-            "raw": null
+            "raw": "S: 3,15 | M: 4,30 | G: 5,00"
           }
         }
       ]
