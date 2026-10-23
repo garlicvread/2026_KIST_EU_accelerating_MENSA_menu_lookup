@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-22T14:09:22Z",
-    "sha256": "edff6c373dd1c0ec7b41597d164ba112c7deddc2cde5a3247fb1f7055bb51368"
+    "fetched_at": "2026-10-23T07:03:58Z",
+    "sha256": "ae75fc05a7732edcc8f3242f191199fb1b35a3e39f536b92059beb0ef0c2394a"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -5658,7 +5658,7 @@
       "meals": [
         {
           "id": "2026-10-23-4212655bd085a18445db94cdd3196c37118090efe9b07fe3740b76a7873d8de3",
-          "translation_key": "ec8aea8a5691b080e04075d69918ea5a9c8d08a8d47b171482d1a5bd99bbdeea",
+          "translation_key": "b0afcc0912436849346a3020b7fb41eeeec19ad544d114a61ce6df2fb23f0874",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Penne Rigate (aus biologischem Anbau)",
@@ -5688,9 +5688,12 @@
               ]
             },
             {
-              "name_de": "Sahnepudding",
+              "name_de": "White Donut",
               "notices": [
-                "Milch und Laktose"
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
               ]
             }
           ],
@@ -5712,7 +5715,7 @@
         },
         {
           "id": "2026-10-23-8bbf854b33951b9ea3c4f18295b39c3c6b9d66cf13dd82d1b740c3e77801c7d8",
-          "translation_key": "dd1d6dff18d0ebdf8f97d003fb8d54d68e532d3ee9ee68fa70f25a08810dcb5c",
+          "translation_key": "e5dee87431381fe352814652441e145b93bcf2ff28246224946859d4eae57fc8",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "Frühlingsrolle vegetarisch",
@@ -5754,8 +5757,13 @@
               ]
             },
             {
-              "name_de": "Obst",
-              "notices": []
+              "name_de": "White Donut",
+              "notices": [
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
+              ]
             }
           ],
           "notices": [
@@ -5994,7 +6002,7 @@
       "meals": [
         {
           "id": "2026-10-26-7c302a8d7e96b6d72406231103348a488f8ac0755ce720a693982dcf20fd36e7",
-          "translation_key": "e3aaf952251443d9f91d97d7e2b9a37e6696a737d6a65a55933d0e7daf15379a",
+          "translation_key": "15d9abcd645329992b55a069245b0b44bfe5eab2ad859f9a14dbc4e9216705bb",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Picadillo Argentinisches Hackfleischgericht",
@@ -6021,7 +6029,7 @@
               ]
             },
             {
-              "name_de": "Mandarinenquark",
+              "name_de": "Pfirsichquark",
               "notices": [
                 "Milch und Laktose"
               ]
@@ -6628,6 +6636,61 @@
       "date": "2026-10-28",
       "meals": [
         {
+          "id": "2026-10-28-3d500570b137de6a93453f0ee7193fc1b9a0e1b5dc883867bb042b49fbd58a43",
+          "translation_key": "503e12f29205b49e619b9f91e34350761928f6f91f6fbdd8165ce0c26f7c6c88",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Hähnchengyros mit Balkangemüse",
+          "components": [
+            {
+              "name_de": "Knoblauchsoße",
+              "notices": [
+                "Süßungsmittel",
+                "Knoblauch",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Pommes Frites",
+              "notices": [
+                "Backtriebmittel"
+              ]
+            },
+            {
+              "name_de": "Alternativbeilage",
+              "notices": []
+            },
+            {
+              "name_de": "Stracciatella-Sahnequark",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Milch und Laktose",
+            "Sellerie",
+            "Senf"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-28",
+            "category": "Menü 1",
+            "name": "Hähnchengyros mit Balkangemüse",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        },
+        {
           "id": "2026-10-28-23c425aa6707ecb1814b57027827ee53c7ee8925e9d1210d987efd87ceb6d08b",
           "translation_key": "a2c406068eb14258857845c8f313e48997799f945b5420f17b95c242a3641acb",
           "category": "Menü 2",
@@ -7130,6 +7193,58 @@
             "name": "Salatbuffet",
             "raw": "S: 3,70 | M: 4,90 | G: 5,70"
           }
+        },
+        {
+          "id": "2026-10-29-60dafc1f8d9f3cf906e825c42cd7ddb97f6cca55d64c5d7d830ec80f1ff05dea",
+          "translation_key": "92a210938e9f34b68a609eb87d3f6396a6ae4b17c9096166751748f71cd2d349",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Bami Goreng mit Nudeln",
+          "components": [],
+          "notices": [
+            "Farbstoff",
+            "Antioxidationsmittel",
+            "Geflügel",
+            "Knoblauch",
+            "Soja",
+            "Sellerie",
+            "Senf",
+            "Weizen"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-29",
+            "category": "Mensacafé",
+            "name": "Bami Goreng mit Nudeln",
+            "raw": null
+          }
+        },
+        {
+          "id": "2026-10-29-7cb538ba0be554ddd75bc4840f0e372c1d68c12777d320881a42972bc37170a6",
+          "translation_key": "ea4bef5e742d8b81baf9538f1f13aa65c0aeb6061164349c181b8e4807935896",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Vegan: Bami Goreng mit Nudeln",
+          "components": [],
+          "notices": [
+            "vegan",
+            "Farbstoff",
+            "Antioxidationsmittel",
+            "Knoblauch",
+            "Soja",
+            "Sellerie",
+            "Senf",
+            "Weizen"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-29",
+            "category": "Mensacafé",
+            "name": "Vegan: Bami Goreng mit Nudeln",
+            "raw": null
+          }
         }
       ]
     },
@@ -7252,11 +7367,11 @@
           }
         },
         {
-          "id": "2026-10-30-736edbbe64eaa10dde3060811ef91c9bbfad83a18cfe7408d9e930c4632905eb",
-          "translation_key": "a547d712ef8a017e5e5b973184b6f1e73cedddc4e5f1c213133324273ef74bbc",
+          "id": "2026-10-30-1cd79764ddab6dc9a2d4a0923cc172ba2018db9b9738184f420a5e6b9473a00f",
+          "translation_key": "610b0c62fa3617eb9fe168e4d69f58a7e2e53f718bef7cd320a0ef23edc5ca34",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Cordon bleu vom Schwein",
+          "name_de": "Chicken Frites",
           "components": [
             {
               "name_de": "Vegan: Scharfer Chilidip",
@@ -7270,11 +7385,9 @@
             }
           ],
           "notices": [
-            "Konservierungsstoff",
-            "Antioxidationsmittel",
-            "Schweinefleisch",
-            "Milch und Laktose",
-            "Weizen"
+            "Geflügel",
+            "Weizen",
+            "Gerste"
           ],
           "prices": {
             "student": 370,
@@ -7394,6 +7507,34 @@
             "category": "Wahlessen",
             "name": "Salatbuffet",
             "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-10-30-27266601c72a4d89924e67c432688a1f11590c0666af231d1bc3a6a9b3d40baa",
+          "translation_key": "3eccb20eab6fa92c08b0798fb0b4bf7715e0b64cf4059827fb74a3e42849e9a9",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "Chili con carne",
+          "components": [
+            {
+              "name_de": "Brötchen",
+              "notices": [
+                "Milch und Laktose",
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "Knoblauch"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-10-30",
+            "category": "Mensacafé",
+            "name": "Chili con carne",
+            "raw": null
           }
         },
         {
