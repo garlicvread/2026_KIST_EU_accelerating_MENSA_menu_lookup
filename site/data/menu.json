@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-23T07:03:58Z",
-    "sha256": "ae75fc05a7732edcc8f3242f191199fb1b35a3e39f536b92059beb0ef0c2394a"
+    "fetched_at": "2026-10-23T12:47:18Z",
+    "sha256": "0a5d5ddb29c468e6c895cfef421ee093d61415cea0d7673d68defd8bba40226c"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -5657,19 +5657,12 @@
       "date": "2026-10-23",
       "meals": [
         {
-          "id": "2026-10-23-4212655bd085a18445db94cdd3196c37118090efe9b07fe3740b76a7873d8de3",
-          "translation_key": "b0afcc0912436849346a3020b7fb41eeeec19ad544d114a61ce6df2fb23f0874",
+          "id": "2026-10-23-d0a46508b6fda25bb01b80911c5a72f67955b2d81a2939889dfa253f01b1fdea",
+          "translation_key": "279bbbbdccdec551968827752ff114e3af4d11bf0d8e5adb1a37d2e7d938e2a2",
           "category": "Menü 1",
           "location": "Aufgang A",
-          "name_de": "Penne Rigate (aus biologischem Anbau)",
+          "name_de": "Penne Rigate (aus biologischem Anbau) mit Bolognese Soße",
           "components": [
-            {
-              "name_de": "Bolognese Soße",
-              "notices": [
-                "Knoblauch",
-                "Sellerie"
-              ]
-            },
             {
               "name_de": "Geriebener Käse",
               "notices": [
@@ -5677,15 +5670,18 @@
               ]
             },
             {
-              "name_de": "Pusztasalat",
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
               "notices": [
-                "Farbstoff",
-                "Süßungsmittel",
-                "Ei",
-                "Milch und Laktose",
-                "Senf",
-                "Weizen"
+                "Senf"
               ]
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing (1,9,Ei,La,Sf,We",
+              "notices": []
             },
             {
               "name_de": "White Donut",
@@ -5698,7 +5694,9 @@
             }
           ],
           "notices": [
-            "Weizen"
+            "Weizen",
+            "Knoblauch",
+            "Sellerie"
           ],
           "prices": {
             "student": 365,
@@ -5709,7 +5707,7 @@
           "price_source": {
             "date": "2026-10-23",
             "category": "Menü 1",
-            "name": "Penne Rigate (aus biologischem Anbau)",
+            "name": "Penne Rigate (aus biologischem Anbau) mit Bolognese Soße",
             "raw": "S: 3,65 | M: 6,70 | G: 9,35"
           }
         },
@@ -5809,17 +5807,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 525,
+            "staff": 640,
+            "guest": 710
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-23",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Mit Kürbiskernen paniertes Schnitzel vom Huhn",
+            "raw": "S: 5,25 | M: 6,40 | G: 7,10"
           }
         },
         {
@@ -5844,22 +5841,21 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 450,
+            "staff": 565,
+            "guest": 635
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-23",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Vegan: Fagottini mit Tomaten-Basilikumfüllung",
+            "raw": "S: 4,50 | M: 5,65 | G: 6,35"
           }
         },
         {
           "id": "2026-10-23-27825c9c049f4adcc44c587e69efa1c0081ef1e954e0ab80e9268af0d0967da9",
-          "translation_key": "8a6a0d4a720c0639c104271dcd8fddd89c3d4b1069747685e8186ebe7f9d3d15",
+          "translation_key": "7d16419cbf718b048544c2e02b2e660ef1eef478e97b1fdfa686c46d41c22f1d",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -5913,6 +5909,22 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Limetten-Joghurt-Dressing",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": [
+                "Knoblauch"
+              ]
             }
           ],
           "notices": [],
@@ -5931,7 +5943,7 @@
         },
         {
           "id": "2026-10-23-e0704f9bee0e23c334c13a069d9f96e1668edaf1232c45b1cb34ce9758dc3e97",
-          "translation_key": "77a782c04795f69e3a32fbdb3f5ba65da48bdeab2e7a1e6b858a6bd0bc551225",
+          "translation_key": "f4cd051c59a1d4192c18876381af201d6fff8c9e50fc6247ecaba94239b2ecbb",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
           "name_de": "Hausgemachte Erbsensuppe",
@@ -5944,7 +5956,7 @@
               ]
             },
             {
-              "name_de": "Wiener Würstchen",
+              "name_de": "Fleischwurst",
               "notices": [
                 "Schweinefleisch"
               ]
@@ -5955,13 +5967,17 @@
             "Sellerie",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 455,
+            "staff": 605,
+            "guest": 700
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-23",
             "category": "Mensacafé",
             "name": "Hausgemachte Erbsensuppe",
-            "raw": null
+            "raw": "S: 4,55 | M: 6,05 | G: 7,00"
           }
         },
         {
@@ -5986,13 +6002,17 @@
             "Sellerie",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 305,
+            "staff": 420,
+            "guest": 490
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-23",
             "category": "Mensacafé",
             "name": "Hausgemachte Erbsensuppe",
-            "raw": null
+            "raw": "S: 3,05 | M: 4,20 | G: 4,90"
           }
         }
       ]
