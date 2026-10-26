@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-26T08:10:27Z",
-    "sha256": "244e8b528b76d09e856c143ab2bd70c5d2dbe5ca4e603ad87d49d03be1c53030"
+    "fetched_at": "2026-10-26T09:28:45Z",
+    "sha256": "b8f59a2ea6ed0953ad9f3acc7367d733e1a717a0ea2d675616713da79f5fcf54"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -6022,7 +6022,7 @@
       "meals": [
         {
           "id": "2026-10-26-7c302a8d7e96b6d72406231103348a488f8ac0755ce720a693982dcf20fd36e7",
-          "translation_key": "15d9abcd645329992b55a069245b0b44bfe5eab2ad859f9a14dbc4e9216705bb",
+          "translation_key": "e3aaf952251443d9f91d97d7e2b9a37e6696a737d6a65a55933d0e7daf15379a",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Picadillo Argentinisches Hackfleischgericht",
@@ -6049,7 +6049,7 @@
               ]
             },
             {
-              "name_de": "Pfirsichquark",
+              "name_de": "Mandarinenquark",
               "notices": [
                 "Milch und Laktose"
               ]
@@ -6072,19 +6072,12 @@
           }
         },
         {
-          "id": "2026-10-26-fabd15bb3ccecffcb777b17c34cad323e5458f95610c05fa42948843f145bde2",
-          "translation_key": "2664e09c1c781be54504af39b3140dba136e9a3eb526f1ffd41ab0580a34c88b",
+          "id": "2026-10-26-461b2aef00787256032a8eb9fd22a3561e8e45adfb3d667125d98ddbea3e108d",
+          "translation_key": "36f1051e4825379a7f6bd55a6170e639140f3e2779e1847d257797b1544a6ef2",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "PastaBoccolotti",
+          "name_de": "Pasta Boccolotti mit Tomaten-Zucchini-Bechamelsoße",
           "components": [
-            {
-              "name_de": "Tomaten-Zucchini-Bechamelsoße",
-              "notices": [
-                "Knoblauch",
-                "Milch und Laktose"
-              ]
-            },
             {
               "name_de": "Bunt gemischter Blattsalat",
               "notices": []
@@ -6112,7 +6105,9 @@
             }
           ],
           "notices": [
-            "Weizen"
+            "Weizen",
+            "Knoblauch",
+            "Milch und Laktose"
           ],
           "prices": {
             "student": 310,
@@ -6123,7 +6118,7 @@
           "price_source": {
             "date": "2026-10-26",
             "category": "Menü 2",
-            "name": "PastaBoccolotti",
+            "name": "Pasta Boccolotti mit Tomaten-Zucchini-Bechamelsoße",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
@@ -6194,7 +6189,7 @@
         },
         {
           "id": "2026-10-26-fab0a57e8565891051ae85c9dc74ea139ae88a5bb6b70f2ee1dc7c4d5a14bffb",
-          "translation_key": "391c7a47691a64e79fc1e9ee34a154b353549144b8462490798e2c2520841844",
+          "translation_key": "d20ce414e67214e554b176d4876778e5ee1f049dbdef1255f620c146e4dbad96",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -6248,6 +6243,20 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Limetten-Joghurt-Dressing",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -6302,11 +6311,11 @@
           }
         },
         {
-          "id": "2026-10-26-8e8aae52ee401e4d06420d53868c3af587c3fb7e30eab1e5b7fffd823c3ff693",
-          "translation_key": "e2567d05719f40efc4cc3b6c807812542b104da84e99113aa0fbeb9768b04091",
+          "id": "2026-10-26-b49317f1a736970e6c2327a67acc497531b0622c3d5c936fb996e34b200aff4f",
+          "translation_key": "149d8859ef98a384cb5e3765f557828240b21431a74274ea96c0165c2378c326",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Vegan: Gebratene Bratwurst",
+          "name_de": "Vegane Bratwurst",
           "components": [
             {
               "name_de": "Ketchup",
@@ -6322,9 +6331,7 @@
               ]
             }
           ],
-          "notices": [
-            "vegan"
-          ],
+          "notices": [],
           "prices": {
             "student": 400,
             "staff": 515,
@@ -6334,7 +6341,7 @@
           "price_source": {
             "date": "2026-10-26",
             "category": "Mensacafé",
-            "name": "Vegan: Gebratene Bratwurst",
+            "name": "Vegane Bratwurst",
             "raw": "S: 4,00 | M: 5,15 | G: 5,85"
           }
         }
