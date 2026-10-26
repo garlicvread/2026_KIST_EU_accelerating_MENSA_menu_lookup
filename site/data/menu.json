@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-25T12:15:14Z",
-    "sha256": "d944c0accf289888966ecfbce63a15ed8d8a5e32c2cb5a28389b2ba2428d9a46"
+    "fetched_at": "2026-10-26T08:10:27Z",
+    "sha256": "244e8b528b76d09e856c143ab2bd70c5d2dbe5ca4e603ad87d49d03be1c53030"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -6155,16 +6155,15 @@
           ],
           "prices": {
             "student": 370,
-            "staff": 490,
-            "guest": 570
+            "staff": 485,
+            "guest": 555
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-26",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Indische Hähnchenkeule Tandoori",
+            "raw": "S: 3,70 | M: 4,85 | G: 5,55"
           }
         },
         {
@@ -6181,17 +6180,16 @@
             "Senf"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
+            "student": 385,
+            "staff": 500,
             "guest": 570
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-26",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Vegan: Tomaten-Curry mit Falafel",
+            "raw": "S: 3,85 | M: 5,00 | G: 5,70"
           }
         },
         {
@@ -6290,13 +6288,17 @@
           "notices": [
             "Schweinefleisch"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 355,
+            "staff": 470,
+            "guest": 540
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-26",
             "category": "Mensacafé",
             "name": "Bratwurst",
-            "raw": null
+            "raw": "S: 3,55 | M: 4,70 | G: 5,40"
           }
         },
         {
@@ -6323,13 +6325,17 @@
           "notices": [
             "vegan"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 400,
+            "staff": 515,
+            "guest": 585
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-26",
             "category": "Mensacafé",
             "name": "Vegan: Gebratene Bratwurst",
-            "raw": null
+            "raw": "S: 4,00 | M: 5,15 | G: 5,85"
           }
         }
       ]
@@ -7708,16 +7714,26 @@
           }
         },
         {
-          "id": "2026-11-02-4915bf20253b55e6e00a12a78e755db1fd1e8eb2c05edc9b2b8ab9c6cd251ec8",
-          "translation_key": "fb32bf90461deda47cbfd7775268125da9c200a54a2a6cab2754bbc0aef3817c",
+          "id": "2026-11-02-952c6884e4c5b987d6dc201d5851f77b038968f71f656dd41caf30ac6bb5b00d",
+          "translation_key": "0e675f5f718ab81dacd3c53607a0629ce86c1326f85456633cd3b82e252c2dc2",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "mensaVital: Hähnchenbruststeak Kokos-Currysoße und Reis",
-          "components": [],
-          "notices": [
-            "Geflügel",
-            "Weizen"
+          "name_de": "Hühnerfilet in Southern Fried Panade",
+          "components": [
+            {
+              "name_de": "Tomatensalsa",
+              "notices": [
+                "Knoblauch"
+              ]
+            },
+            {
+              "name_de": "Pommes Wedges",
+              "notices": [
+                "Weizen"
+              ]
+            }
           ],
+          "notices": [],
           "prices": {
             "student": 370,
             "staff": 490,
@@ -8004,16 +8020,17 @@
             "Hafer"
           ],
           "prices": {
-            "student": 470,
-            "staff": 585,
-            "guest": 655
+            "student": 370,
+            "staff": 490,
+            "guest": 570
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-11-03",
             "category": "Wahlessen",
-            "name": "Grünes Spargelrisotto",
-            "raw": "S: 4,70 | M: 5,85 | G: 6,55"
+            "name": "Salatbuffet",
+            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
+            "scope": "counter"
           }
         },
         {
@@ -8089,23 +8106,27 @@
           }
         },
         {
-          "id": "2026-11-03-55d42f19e48bce17846592f6bef799a712cb4c9c73f664d7a25a4b803c733747",
-          "translation_key": "55a4bb85fec4444d0513b2c8e5434e6b8e87304b13d46937cb4fc4a243b0abe8",
+          "id": "2026-11-03-d432943b6999473c8e4899b9fd63c3aecec52c3657482879c65f90a96553ffef",
+          "translation_key": "55069767f18bd69fdb8f6ea4ab2ef45134457c18c54c00f20c9fae40aa31d7f0",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Vegan: Burrito mit Grünkernfüllung",
-          "components": [],
+          "name_de": "Veganes Grünes Thai-Curry mit Brew Bites",
+          "components": [
+            {
+              "name_de": "Jasmin Reis",
+              "notices": []
+            }
+          ],
           "notices": [
-            "Knoblauch",
-            "vegan",
-            "Weizen"
+            "Soja",
+            "Gerste"
           ],
           "prices": null,
           "price_status": "source_pending",
           "price_source": {
             "date": "2026-11-03",
             "category": "Mensacafé",
-            "name": "Vegan: Burrito mit Grünkernfüllung",
+            "name": "Veganes Grünes Thai-Curry mit Brew Bites",
             "raw": null
           }
         }
