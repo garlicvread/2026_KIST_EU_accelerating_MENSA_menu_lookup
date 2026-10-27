@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-27T08:05:42Z",
-    "sha256": "ad8aa9f161bf7040beea33920c98b12483784b23a40335ae34fd5d38b4e3ed14"
+    "fetched_at": "2026-10-27T09:00:52Z",
+    "sha256": "143aa43d01253b7da943a7fef51c586b938d65b7b5dcb17cbe8a172fc3e5d88c"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -6494,17 +6494,16 @@
           ],
           "notices": [],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 560,
+            "staff": 675,
+            "guest": 745
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-27",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Aktionstheke WOK-Station",
+            "raw": "S: 5,60 | M: 6,75 | G: 7,45"
           }
         },
         {
@@ -6522,17 +6521,16 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 655,
+            "staff": 770,
+            "guest": 840
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-27",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Pizza Barbecue mit Rinderhackfleisch und Dürrfleisch",
+            "raw": "S: 6,55 | M: 7,70 | G: 8,40"
           }
         },
         {
@@ -6547,22 +6545,21 @@
             "Weizen"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 625,
+            "staff": 740,
+            "guest": 810
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-27",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Pizza mit frischen Champignons",
+            "raw": "S: 6,25 | M: 7,40 | G: 8,10"
           }
         },
         {
           "id": "2026-10-27-19810fcd5ffe6e6bc6c3406c2e3674e88e3211e8196abda8b4b67ac70f7647c6",
-          "translation_key": "c8dd5c0c4951af1cdbf16371d504652d3a8053b6473cb01378b4ed42325eb6c8",
+          "translation_key": "6454a3091c84c19ae4b3048b79af4c90e58751bdc4515efca1a17fb44701ac32",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -6616,6 +6613,24 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Cocktailsoße",
+              "notices": [
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter",
+              "notices": []
+            },
+            {
+              "name_de": "Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
@@ -6656,13 +6671,17 @@
             "vegan",
             "Backtriebmittel"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 565,
+            "staff": 715,
+            "guest": 810
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-27",
             "category": "Mensacafé",
             "name": "Vegan: Grünkohl-Hanf-Bratling",
-            "raw": null
+            "raw": "S: 5,65 | M: 7,15 | G: 8,10"
           }
         }
       ]
