@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-26T10:08:38Z",
-    "sha256": "f1eea090589204e39d49a9913190f040e33925daf8e4e4120bb460c0c104f4f0"
+    "fetched_at": "2026-10-27T08:05:42Z",
+    "sha256": "ad8aa9f161bf7040beea33920c98b12483784b23a40335ae34fd5d38b4e3ed14"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -6072,11 +6072,11 @@
           }
         },
         {
-          "id": "2026-10-26-461b2aef00787256032a8eb9fd22a3561e8e45adfb3d667125d98ddbea3e108d",
-          "translation_key": "36f1051e4825379a7f6bd55a6170e639140f3e2779e1847d257797b1544a6ef2",
+          "id": "2026-10-26-35d13c8f61c558aebb91662205c21cb0d76207e8636090bd578ffa88a31306e9",
+          "translation_key": "bbd5c2c4d94d8303a50d4b6ac30dd3935f9fc83c77b687f673df7ba91aaa4654",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "Pasta Boccolotti mit Tomaten-Zucchini-Bechamelsoße",
+          "name_de": "Pasta mit Tomaten-Zucchini-Bechamelsoße",
           "components": [
             {
               "name_de": "Bunt gemischter Blattsalat",
@@ -6118,16 +6118,16 @@
           "price_source": {
             "date": "2026-10-26",
             "category": "Menü 2",
-            "name": "Pasta Boccolotti mit Tomaten-Zucchini-Bechamelsoße",
+            "name": "Pasta mit Tomaten-Zucchini-Bechamelsoße",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
         {
-          "id": "2026-10-26-f736d348fe9c60a67055f81b66d125bb26ddf7408a6504717c7fee0739cda06e",
-          "translation_key": "4ab0bcf12c43d79e06eecbb8b8fa9ee15dd831ed0f4b47877e2a8829de28ac0d",
+          "id": "2026-10-26-f93ae8f84c115555a1480aad57e78fa182b6ba853a7827fdf539044e24cd71a9",
+          "translation_key": "ef88ee744aca8dfd125e6d2b49a0cbaf87598dc7504acf803164d30d4200cd61",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Indische Hähnchenkeule Tandoori",
+          "name_de": "Chicken Frites",
           "components": [
             {
               "name_de": "Raita",
@@ -6146,7 +6146,9 @@
             "Knoblauch",
             "Milch und Laktose",
             "Sellerie",
-            "Senf"
+            "Senf",
+            "Weizen",
+            "Gerste"
           ],
           "prices": {
             "student": 370,
@@ -6157,7 +6159,7 @@
           "price_source": {
             "date": "2026-10-26",
             "category": "Wahlessen",
-            "name": "Indische Hähnchenkeule Tandoori",
+            "name": "Chicken Frites",
             "raw": "S: 3,70 | M: 4,85 | G: 5,55"
           }
         },
@@ -7606,7 +7608,7 @@
       "meals": [
         {
           "id": "2026-11-02-f6be3a72671aa1e27ac57eb220b0d49ca107a95060386c9469532fbbc52f6443",
-          "translation_key": "eb1f602c23d2da5fe38c4277bef57cf1b2e64332a10772f87971bfa1cf3273ea",
+          "translation_key": "7391065ffdfefbc1a7dc3a198818b7ca02ad4ee403878a77c99e50450ae10177",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Wikingertopf",
@@ -7631,22 +7633,22 @@
               ]
             },
             {
-              "name_de": "Panna Cotta",
+              "name_de": "White Donut",
               "notices": [
-                "Milch und Laktose"
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
               ]
             }
           ],
           "notices": [
             "Schweinefleisch",
             "Knoblauch",
+            "aus zum Teil fein zerkleinertem Fleisch",
             "Ei",
-            "Soja",
             "Milch und Laktose",
-            "Sellerie",
-            "Senf",
-            "Weizen",
-            "Gerste"
+            "Weizen"
           ],
           "prices": {
             "student": 365,
@@ -7663,7 +7665,7 @@
         },
         {
           "id": "2026-11-02-31f718cd008e355719d0ef3223d3c9bfd92d8157ceac3f7ddfad7e06a3efec06",
-          "translation_key": "8655bb10fdb8741e20794e0e45d4c2f9e50f2b4d03eb5c0eec3504bd83f0e958",
+          "translation_key": "599c112960ceb1e772f9048b17421d52fc561f97910ceaffad377a657349080b",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "Süßkartoffel-Curry",
@@ -7697,7 +7699,7 @@
               ]
             },
             {
-              "name_de": "Obst (Äpfel aus biologischem Anbau)",
+              "name_de": "Obst",
               "notices": []
             }
           ],
@@ -7854,51 +7856,39 @@
           }
         },
         {
-          "id": "2026-11-02-ce1ea381a22789bf29436f397c71170832f0c7380e4023e9f0013b578ced0ba9",
-          "translation_key": "f20789bb8333cbdff77059b431514c212304f775fa41e0bbd5c4e6be71bddbdd",
+          "id": "2026-11-02-da8de72a575790ad5b046baa24acf02d899ad7c548bda5ed7010fcf89dde5994",
+          "translation_key": "ff236597c055479b7c11fdfc2ecef6efc9309babc882e4c8ffccb1c6ade05a6d",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Chili Cheese Fries mit Rinderhackfleisch",
-          "components": [],
+          "name_de": "Tortelloni Quinoa-Spinat",
+          "components": [
+            {
+              "name_de": "Salbei-Buttersoße",
+              "notices": [
+                "Knoblauch",
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Hartkäse",
+              "notices": [
+                "Konservierungsstoff",
+                "Ei",
+                "Milch und Laktose"
+              ]
+            }
+          ],
           "notices": [
-            "Farbstoff",
-            "Konservierungsstoff",
-            "ohne Schweinefleisch",
             "Knoblauch",
-            "Backtriebmittel",
-            "Ei",
-            "Milch und Laktose",
-            "Senf"
+            "vegetarisch",
+            "Weizen"
           ],
           "prices": null,
           "price_status": "source_pending",
           "price_source": {
             "date": "2026-11-02",
             "category": "Mensacafé",
-            "name": "Chili Cheese Fries mit Rinderhackfleisch",
-            "raw": null
-          }
-        },
-        {
-          "id": "2026-11-02-0b017a57a7d8a31e4d206795fe349addb01950fab549956d35ab1fc194565d4c",
-          "translation_key": "30444e089b71c51aae8da9a03c907cc1e481e2438e6b600fc71d1d09a6b2fc9a",
-          "category": "Mensacafé",
-          "location": "Erdgeschoss",
-          "name_de": "Chili-Cheese-Fritten",
-          "components": [],
-          "notices": [
-            "Farbstoff",
-            "Konservierungsstoff",
-            "Ei",
-            "Milch und Laktose",
-            "Senf"
-          ],
-          "prices": null,
-          "price_status": "source_pending",
-          "price_source": {
-            "date": "2026-11-02",
-            "category": "Mensacafé",
-            "name": "Chili-Cheese-Fritten",
+            "name": "Tortelloni Quinoa-Spinat",
             "raw": null
           }
         }
@@ -7909,7 +7899,7 @@
       "meals": [
         {
           "id": "2026-11-03-fa4912a9bd0a5ff23ab20efafad9a5dbccd535f85fc0d423cd05e52d865db9f3",
-          "translation_key": "3838538d99346b9b14af75ad779ee333b08891038063292126a10426939e7634",
+          "translation_key": "68e65e887dcda40c62b477ab0fd0151d899da938051f60bf23c6ebbf8c4eb1c2",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Gemüseschnitzel",
@@ -7918,9 +7908,7 @@
               "name_de": "Rahmsoße mit Champignons",
               "notices": [
                 "Antioxidationsmittel",
-                "Milch und Laktose",
-                "Weizen",
-                "Gerste"
+                "Milch und Laktose"
               ]
             },
             {
@@ -7956,12 +7944,11 @@
               ]
             },
             {
-              "name_de": "Obst (Äpfel aus biologischem Anbau)",
+              "name_de": "Obst",
               "notices": []
             }
           ],
           "notices": [
-            "vegan",
             "Weizen"
           ],
           "prices": {
@@ -7987,7 +7974,12 @@
             {
               "name_de": "Bunter Rohkostsalat",
               "notices": [
-                "Farbstoff"
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
               ]
             },
             {
@@ -8016,15 +8008,21 @@
           }
         },
         {
-          "id": "2026-11-03-7f7e10f39ebc38506d04a29d9c096c5e1c581c15ce460d4278355e644297dcf6",
-          "translation_key": "b26ff64484cbcbde8fb7e84139b270700efa6334702c42d630e47fa85122627f",
+          "id": "2026-11-03-4b42693d188054f992ef32557c77bd925a9dfffbb099d18ef3e9c9ae52f6dfda",
+          "translation_key": "5005e96ceaf739d2ed295715a2ddb60f4428ece97bd45bad60aca82943627bfb",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Grünes Spargelrisotto",
+          "name_de": "Veganer Dönerwrap mit Knoblauchsoße",
           "components": [],
           "notices": [
+            "Konservierungsstoff",
+            "Antioxidationsmittel",
             "Knoblauch",
-            "Hafer"
+            "Backtriebmittel",
+            "Soja",
+            "Sellerie",
+            "Senf",
+            "Weizen"
           ],
           "prices": {
             "student": 370,
@@ -8143,11 +8141,11 @@
       "date": "2026-11-04",
       "meals": [
         {
-          "id": "2026-11-04-1d4d1e8f59198fab874d94ba35432d489bcda5a2fc821433e19ffc57393baece",
-          "translation_key": "129b91d9d84abea6cae58f441b1fcbbd70372e8a371aa809b4bbee01c203d9e5",
+          "id": "2026-11-04-fc2203bc18fb684c626c477031e4e9e2e2d08558b21f6fcdd49b2ffcbf8ca68e",
+          "translation_key": "aef725165442093b558e4385f75f05c4cc211a07fb29b05fafb3b9197022c55e",
           "category": "Menü 1",
           "location": "Aufgang A",
-          "name_de": "Mini Bifteki vom Schwein und Rind",
+          "name_de": "Party-Geflügel-Frikadelle mit Gersteanteil",
           "components": [
             {
               "name_de": "Knoblauchsoße",
@@ -8161,7 +8159,7 @@
               ]
             },
             {
-              "name_de": "Reis (aus biologischem Anbau)",
+              "name_de": "Reis",
               "notices": []
             },
             {
@@ -8187,8 +8185,10 @@
             }
           ],
           "notices": [
+            "Geflügel",
             "Ei",
-            "Milch und Laktose"
+            "Weizen",
+            "Gerste"
           ],
           "prices": {
             "student": 365,
@@ -8199,13 +8199,13 @@
           "price_source": {
             "date": "2026-11-04",
             "category": "Menü 1",
-            "name": "Mini Bifteki vom Schwein und Rind",
+            "name": "Party-Geflügel-Frikadelle mit Gersteanteil",
             "raw": "S: 3,65 | M: 6,70 | G: 9,35"
           }
         },
         {
           "id": "2026-11-04-dca79fe255b4a0f916d51d78cfc79bff697b8464d657094498996ab6d19f230e",
-          "translation_key": "217b125b881664f218b78add16ea9760188f4c0ff1179b6c435a62e382b33bd0",
+          "translation_key": "cec8adc92656ee31445c655082f775b5462e099ab18d33dc1616f19fb5141f59",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "PastaBoccolotti",
@@ -8246,7 +8246,7 @@
               ]
             },
             {
-              "name_de": "Obst (Äpfel aus biologischem Anbau)",
+              "name_de": "Obst",
               "notices": []
             }
           ],
@@ -8264,54 +8264,6 @@
             "category": "Menü 2",
             "name": "PastaBoccolotti",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
-          }
-        },
-        {
-          "id": "2026-11-04-74c678bc54486b7980ceaa7fcca0d78b984766478244ce48332c475129f661a4",
-          "translation_key": "d58b14ff87b83789a7d9fb500451f1373c443d838555f0e95c127ef0214ad93b",
-          "category": "Wahlessen",
-          "location": "Aufgang C",
-          "name_de": "Cheesburger Bowl",
-          "components": [
-            {
-              "name_de": "Pommes Wedges",
-              "notices": [
-                "Weizen"
-              ]
-            },
-            {
-              "name_de": "Ketchup",
-              "notices": []
-            },
-            {
-              "name_de": "Mayonnaise",
-              "notices": [
-                "Süßungsmittel",
-                "Ei",
-                "Senf",
-                "Weizen"
-              ]
-            }
-          ],
-          "notices": [
-            "Farbstoff",
-            "ohne Schweinefleisch",
-            "Milch und Laktose",
-            "Sesamsamen",
-            "Weizen"
-          ],
-          "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
-          },
-          "price_status": "verified",
-          "price_source": {
-            "date": "2026-11-04",
-            "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
           }
         },
         {
@@ -8414,70 +8366,21 @@
           }
         },
         {
-          "id": "2026-11-04-818213ce5f05a4dbb6d29868c67f88e52b6323f6c0d99b80f14cae7adfa72704",
-          "translation_key": "62c1dcc61023c5c638bbb52d56955653dd9c0b6e03b7e3d9bdc40e8d0823e322",
+          "id": "2026-11-04-b646a02936e4fab68909433792f053005fc5dcd39dae7311d6e0378da356b8d5",
+          "translation_key": "475a41eadd80fbad9d99f83e183e73fc196244cd4ffb87af390670da40a00a01",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Rindfleischfrikadelle",
-          "components": [
-            {
-              "name_de": "Pfefferrahmsoße",
-              "notices": [
-                "Milch und Laktose",
-                "Weizen",
-                "Gerste"
-              ]
-            },
-            {
-              "name_de": "Steakhouse Pommes",
-              "notices": []
-            }
-          ],
+          "name_de": "Mexico Bowl mit Nachos",
+          "components": [],
           "notices": [
-            "ohne Schweinefleisch",
-            "aus zum Teil fein zerkleinertem Fleisch",
-            "Ei",
-            "Weizen"
+            "Milch und Laktose"
           ],
           "prices": null,
           "price_status": "source_pending",
           "price_source": {
             "date": "2026-11-04",
             "category": "Mensacafé",
-            "name": "Rindfleischfrikadelle",
-            "raw": null
-          }
-        },
-        {
-          "id": "2026-11-04-656c7bb9c13e03f302cfc2d41993f406f6c122e626dadbd340491169e0a7222d",
-          "translation_key": "164a8864aedf761120e5c3171d1c5fb1b469fc3c8b1f7ca9bd542dd16b022aa6",
-          "category": "Mensacafé",
-          "location": "Erdgeschoss",
-          "name_de": "Vegan: Knusperfrikadelle",
-          "components": [
-            {
-              "name_de": "Pfefferrahmsoße",
-              "notices": [
-                "Milch und Laktose",
-                "Weizen",
-                "Gerste"
-              ]
-            },
-            {
-              "name_de": "Steakhouse Pommes",
-              "notices": []
-            }
-          ],
-          "notices": [
-            "vegan",
-            "Weizen"
-          ],
-          "prices": null,
-          "price_status": "source_pending",
-          "price_source": {
-            "date": "2026-11-04",
-            "category": "Mensacafé",
-            "name": "Vegan: Knusperfrikadelle",
+            "name": "Mexico Bowl mit Nachos",
             "raw": null
           }
         }
@@ -8488,7 +8391,7 @@
       "meals": [
         {
           "id": "2026-11-05-4d055d3f25d6d6dd1004afd2f5d7ced97c9efdd7cbdba9042f6b7537e0f9b70f",
-          "translation_key": "0c2f425f6a3ee5d0c0deebaef688050e76c84185596e47d8b6ae343982ded29c",
+          "translation_key": "e6b797d777438a2b2ca941cb37cdc16e7df7472937c5d3ab8c691a70de54e381",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Gebackene Hähnchenkeule",
@@ -8503,9 +8406,12 @@
               ]
             },
             {
-              "name_de": "Pommes Frites",
+              "name_de": "Taboulé-Arabischer Cous-Coussalat",
               "notices": [
-                "Backtriebmittel"
+                "Farbstoff",
+                "geschwärzt",
+                "Senf",
+                "Weizen"
               ]
             },
             {
@@ -8534,7 +8440,7 @@
               ]
             },
             {
-              "name_de": "Obst (Äpfel aus biologischem Anbau)",
+              "name_de": "Obst",
               "notices": []
             }
           ],
@@ -8555,11 +8461,11 @@
           }
         },
         {
-          "id": "2026-11-05-3f9b20857ef1c055e0542f8414a399752caca98816eff8d29c62fed504b1ee48",
-          "translation_key": "390d02de183bc74ebc994cc7b1d6e804c3475fe15adba0bf10e575057e89f531",
+          "id": "2026-11-05-1458a8f7efc5a7ea2102e6f941bbf3635e67f885c77d87698a5c8b28d37dd541",
+          "translation_key": "46fe473ae62d9c866b6aa2974f79c986f09c38992fa031f50cd353ce6566f7e6",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "Vegan: Erdnusssuppe mit Kartoffeln und Pak Choi",
+          "name_de": "Erdnusssuppe mit Kartoffeln und Pak Choi",
           "components": [
             {
               "name_de": "Brötchen",
@@ -8586,7 +8492,6 @@
             }
           ],
           "notices": [
-            "vegan",
             "Konservierungsstoff",
             "Geschmacksverstärker",
             "Knoblauch",
@@ -8604,7 +8509,7 @@
           "price_source": {
             "date": "2026-11-05",
             "category": "Menü 2",
-            "name": "Vegan: Erdnusssuppe mit Kartoffeln und Pak Choi",
+            "name": "Erdnusssuppe mit Kartoffeln und Pak Choi",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
@@ -8776,27 +8681,22 @@
           }
         },
         {
-          "id": "2026-11-05-b6ad45e4481eea24785a78fdff1a5eb298f71ec2032eb48c00adeaadcabdac86",
-          "translation_key": "259f5571661957e4f4cdb35959cb7ee74ab6d5a3b41e554e4944e564312bded6",
+          "id": "2026-11-05-41f0c14c608b84b7f21a3f0006a898d7ad08bdf1f1de4a81b7c599e9babbe6a6",
+          "translation_key": "2a8fe58ec03e1722452eb2fa0796d59d63c39b8d0ed5d8aeb8c2f59a131d638b",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Vegan: Rotes Linsengemüse(Mediterran)",
-          "components": [
-            {
-              "name_de": "Basmatireis (aus biologischem Anbau)",
-              "notices": []
-            }
-          ],
+          "name_de": "Vegan: Zucchinigemüse mit Linsen, Rucola auf Penne Rigate (biologischer Anbau)",
+          "components": [],
           "notices": [
             "vegan",
-            "Knoblauch"
+            "Weizen"
           ],
           "prices": null,
           "price_status": "source_pending",
           "price_source": {
             "date": "2026-11-05",
             "category": "Mensacafé",
-            "name": "Vegan: Rotes Linsengemüse(Mediterran)",
+            "name": "Vegan: Zucchinigemüse mit Linsen, Rucola auf Penne Rigate (biologischer Anbau)",
             "raw": null
           }
         }
@@ -8807,7 +8707,7 @@
       "meals": [
         {
           "id": "2026-11-06-b4556f9f2495c12476ca8d50561d5848ec7f8d8c864ccf5d8ee02f87fd6068a0",
-          "translation_key": "ae641d8e04f6164ef91c0fe202f063558d2e3458ee6e65041d4a5ba8913b41c0",
+          "translation_key": "684bfd274a4db83595938c5821f873dd37af13c8b5c65d4351b6a53dc3b1258c",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Paniertes Schnitzel vom Schwein",
@@ -8820,16 +8720,12 @@
                 "Schweinefleisch",
                 "Alkohol",
                 "Milch und Laktose",
-                "Schwefeldioxid / Sulfite",
-                "Weizen",
-                "Gerste"
+                "Schwefeldioxid / Sulfite"
               ]
             },
             {
-              "name_de": "Pommes Frites",
-              "notices": [
-                "Backtriebmittel"
-              ]
+              "name_de": "Rosmarinkartoffel",
+              "notices": []
             },
             {
               "name_de": "Krautsalat",
@@ -8869,7 +8765,7 @@
         },
         {
           "id": "2026-11-06-7e135d150fac90fb5cd6c9b760aae4be4a123aa3be4faea4ea2e0b51b5c5d31d",
-          "translation_key": "e8ff4b0bec83183fd45f58fb53afd640c67cbee6b1db2604321a044582020a13",
+          "translation_key": "d97153ac6763e8fed535c5ba8c367087f54f26774f000c934f1269e34d06243e",
           "category": "Menü 2",
           "location": "Aufgang B",
           "name_de": "Mac&Cheese",
@@ -8896,7 +8792,7 @@
               ]
             },
             {
-              "name_de": "Obst (Äpfel aus biologischem Anbau)",
+              "name_de": "Obst",
               "notices": []
             }
           ],
@@ -8923,28 +8819,22 @@
           }
         },
         {
-          "id": "2026-11-06-c41d96d445a5bd684f315df5a36f67686fbc6cd7190e234d7ca6cb4c2b82a7a3",
-          "translation_key": "8a7edeadd83e02c77418c8fe47115871fcb97e3bd3ed7f35d08141cfcd3bb28a",
+          "id": "2026-11-06-3c0ca047267ce4e685d75cb2934329d56e7348122c25a7dbab01e9613cdae369",
+          "translation_key": "630ab70bbf10bfcc2c9b41b92ba8069e21c6ef25dee0f245ec3d4e6137c9e931",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Panierte Hühner-Filetspitzen",
-          "components": [
-            {
-              "name_de": "Tomaten-Frischkäse-Dip",
-              "notices": [
-                "Milch und Laktose"
-              ]
-            },
-            {
-              "name_de": "Pommes Wedges",
-              "notices": [
-                "Weizen"
-              ]
-            }
-          ],
+          "name_de": "Pulled Turkey Burger mit Coleslaw",
+          "components": [],
           "notices": [
+            "Farbstoff",
+            "Süßungsmittel",
             "Geflügel",
-            "Weizen"
+            "Knoblauch",
+            "Ei",
+            "Milch und Laktose",
+            "Senf",
+            "Weizen",
+            "Gerste"
           ],
           "prices": {
             "student": 370,
@@ -9056,6 +8946,30 @@
             "category": "Wahlessen",
             "name": "Salatbuffet",
             "raw": "S: 3,70 | M: 4,90 | G: 5,70"
+          }
+        },
+        {
+          "id": "2026-11-06-554fd11393624a7fd85a9834fd67d8217d81a1b2b8e6219766419f4c4480f2dc",
+          "translation_key": "2e9efca8563762ff716cbdb655ad8a7c6f8ce81b6d2ac26fc1d77084f4bc0e84",
+          "category": "Mensacafé",
+          "location": "Erdgeschoss",
+          "name_de": "mensaVital: Tofugulasch Szegediner Art mit Kräuterkartoffel",
+          "components": [],
+          "notices": [
+            "Alkohol",
+            "vegetarisch",
+            "vegan",
+            "Soja",
+            "Schwefeldioxid / Sulfite",
+            "Weizen"
+          ],
+          "prices": null,
+          "price_status": "source_pending",
+          "price_source": {
+            "date": "2026-11-06",
+            "category": "Mensacafé",
+            "name": "mensaVital: Tofugulasch Szegediner Art mit Kräuterkartoffel",
+            "raw": null
           }
         }
       ]
