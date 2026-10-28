@@ -275,15 +275,19 @@ def configure(base, checkout, data_dir, remote, folder_id, *, source_data=None, 
                     raise ValueError(f'Existing {name} changed before the queue lock was acquired')
         destinations = {path: _directory(path, missing=True, private=path == base)
                         for path in (base, checkout, data_dir, data_dir.parent)}
+        if pair is not None and prepared is not None and prepared['release_id'] != release_id:
+            raise ValueError('Existing Drive preparation contains a different release')
         factory = DrivePublisher if publisher is None else publisher
         drive = factory(remote, folder_id, file_id=expected_id)
         if not callable(getattr(drive, 'load_current', None)) or not callable(getattr(drive, 'publish', None)):
             raise ValueError('Drive publisher must provide load_current and publish methods')
+        observed = drive.load_current()
         if pair is None:
-            observed = drive.load_current()
             if observed is None:
                 raise ValueError('Drive has no current data; provide an explicit --source-data directory')
             pair, release_id = _validate_pair(observed, glossary, today)
+        elif observed is not None and _pair_identity(observed) != release_id:
+            raise ValueError('Existing Drive publication contains different data')
         if selected is not None and selected != release_id:
             raise ValueError('Existing local staging selects different data')
         if prepared is not None and prepared['release_id'] != release_id:

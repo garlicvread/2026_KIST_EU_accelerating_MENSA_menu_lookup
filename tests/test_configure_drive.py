@@ -149,6 +149,25 @@ class ConfigureDriveTests(unittest.TestCase):
         self.assertEqual(self.command.uploads, [])
         self.assertEqual((tracked / 'menu.json').read_text(), 'invalid tracked data')
 
+    def test_source_bootstrap_rejects_different_published_data_without_writes(self):
+        corrected = copy.deepcopy(self.cache)
+        corrected['entries'][self.key]['en']['name'] = 'Published correction'
+        remote = self.command.add(envelope(self.menu, corrected))
+        remote_before = copy.deepcopy(remote)
+        before = self.state_files()
+        with self.assertRaisesRegex(ValueError, 'different data'):
+            self.configure()
+        self.assertEqual(remote, remote_before)
+        self.assertEqual(self.command.uploads, [])
+        self.assertEqual(self.state_files(), before)
+        self.assertFalse(self.staging.exists())
+
+    def test_source_bootstrap_reuses_identical_published_data(self):
+        self.command.add(envelope(self.menu, self.cache))
+        result = self.configure()
+        self.assertEqual(result['file_id'], FILE_ID)
+        self.assertEqual(self.command.uploads, [])
+
     def test_missing_remote_pair_has_no_implicit_source_fallback(self):
         tracked = self.checkout / 'site/data'
         tracked.mkdir(parents=True)

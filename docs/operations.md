@@ -65,7 +65,7 @@ python3 -m scripts.configure_drive \
 
 `FOLDER_ID`는 목적지 폴더 ID로, `OLD_PAIR_DIR`는 `menu.json`·`translations.json`을 보존한 폴더로 바꿉니다. 구버전 체크아웃에 있던 `site/data`를 사용하려면 그 두 파일이 제거되는 코드 반영 전에 별도로 보존합니다. 이미 유효한 Drive `current.json`에서 인계받으면 `--source-data`를 생략합니다. 원격 파일이 없는 신규 목적지에는 명시한 검증 쌍이 필요합니다.
 
-명령은 기존 큐·완료 번역·모델·로그를 비우지 않고 `BASE/worker.toml`을 준비하며 `config_path`, `file_id`, `release_id`, `data_dir`를 반환합니다. 현재 Mac의 기본 모델 경로와 `gemma4:31b`, revision `gemma4-31b-local-v1`, 메모리 32 GiB·부하 계수 0.6 정책을 사용합니다. 명시한 원본 폴더와 준비 폴더는 겹칠 수 없고, 기존 준비 데이터·설정과 충돌하면 교체하지 않고 중단합니다. 기존 유효한 파일의 ID를 재사용하고 예상하지 못한 원격 내용을 덮어쓰지 않습니다. 실패하면 보존한 입력과 실제 원격 결과를 확인한 뒤 같은 대상에 재개합니다.
+명령은 기존 큐·완료 번역·모델·로그를 비우지 않고 `BASE/worker.toml`을 준비하며 `config_path`, `file_id`, `release_id`, `data_dir`를 반환합니다. 현재 Mac의 기본 모델 경로와 `gemma4:31b`, revision `gemma4-31b-local-v1`, 메모리 32 GiB·부하 계수 0.6 정책을 사용합니다. 명시한 원본 폴더와 준비 폴더는 겹칠 수 없고, 기존 준비 데이터·설정과 충돌하면 교체하지 않고 중단합니다. `--source-data`를 지정해도 기존 Drive 묶음을 먼저 비교하며 내용이 다르면 덮어쓰지 않습니다. 기존 유효한 파일의 ID를 재사용하고 예상하지 못한 원격 내용을 덮어쓰지 않습니다. 실패하면 보존한 입력과 실제 원격 결과를 확인한 뒤 같은 대상에 재개합니다.
 
 설정 준비 후 익명 공개 읽기를 확인하고 저장소 변수 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 한 번 설정합니다. 검토한 운영 코드·Pages를 반영한 뒤 워커를 재개합니다. 설정 파일을 만들었다는 사실만으로 활성화 완료를 기록하지 않습니다. 상세 순서는 [배포 안내](deployment.md)에 있습니다.
 
