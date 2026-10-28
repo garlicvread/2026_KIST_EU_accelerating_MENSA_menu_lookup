@@ -2,6 +2,7 @@
 
 from contextlib import redirect_stdout
 from dataclasses import replace
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -48,14 +49,19 @@ file_id="snapshot_1234567890"'''))
             git.assert_not_called()
 
     def test_native_reuse_requires_the_complete_original_preset(self):
-        for changed in ('none', 'resources', 'logs', 'revision', 'checkout'):
+        for changed in ('none', 'symlink-checkout', 'resources', 'logs', 'revision',
+                        'checkout', 'binary', 'models', 'provider', 'mode', 'missing-manifest'):
             with self.subTest(changed=changed), directory_fixture.DirectoryRefreshTests().fixture() as f:
                 base = f.state
                 base.mkdir(mode=0o700)
                 (base/'worker.toml').touch()
+                manifest = base/'models/manifests/registry.ollama.ai/library/gemma4/31b'
+                manifest.parent.mkdir(parents=True)
+                raw = b'{"schemaVersion":2,"config":{},"layers":[]}'
+                manifest.write_bytes(raw)
                 config = replace(f.config,
                     paths=replace(f.config.paths, checkout_dir=(base/'checkout').resolve()),
-                    inference=replace(f.config.inference, model=worker.MODEL, revision='gemma4-31b-local-v1',
+                    inference=replace(f.config.inference, model=worker.MODEL, revision=hashlib.sha256(raw).hexdigest(),
                         binary=(base/'runtime/ollama').resolve(), models_dir=(base/'models').resolve(),
                         log_dir=(base/'logs').resolve()),
                     resources=replace(f.config.resources, platform='macos', min_available_bytes=32*1024**3, max_load_per_cpu=0.6),
@@ -68,6 +74,19 @@ file_id="snapshot_1234567890"'''))
                     config = replace(config, inference=replace(config.inference, revision='new-weights'))
                 elif changed == 'checkout':
                     config = replace(config, paths=replace(config.paths, checkout_dir=f.checkout))
+                elif changed == 'symlink-checkout':
+                    (base/'checkout').symlink_to(f.checkout, target_is_directory=True)
+                    config = replace(config, paths=replace(config.paths, checkout_dir=f.checkout.resolve()))
+                elif changed == 'binary':
+                    config = replace(config, inference=replace(config.inference, binary=base/'other-ollama'))
+                elif changed == 'models':
+                    config = replace(config, inference=replace(config.inference, models_dir=base/'other-models'))
+                elif changed == 'provider':
+                    config = replace(config, inference=replace(config.inference, provider='openai'))
+                elif changed == 'mode':
+                    config = replace(config, inference=replace(config.inference, mode='external'))
+                elif changed == 'missing-manifest':
+                    manifest.unlink()
                 observed = []
                 def run(directory, now, resources, work):
                     observed.append(resources())
@@ -79,9 +98,10 @@ file_id="snapshot_1234567890"'''))
                         patch.object(worker, 'configured_resource_status', return_value=(False, 'configured')), \
                         patch.object(worker, 'process_queue', side_effect=run), redirect_stdout(io.StringIO()):
                     worker.main(['--base', str(base)])
-                if changed == 'none':
+                if changed in ('none', 'symlink-checkout'):
                     self.assertEqual(observed, [(True, 'native')])
                     self.assertIn('translation_builder', drive.call_args.kwargs)
+                    legacy.assert_called_once_with(base, inference=config.inference)
                 else:
                     self.assertEqual(observed, [(False, 'configured')])
                     self.assertNotIn('translation_builder', drive.call_args.kwargs)

@@ -40,7 +40,7 @@ gh workflow run update-and-deploy.yml --ref main --repo garlicvread/2026_KIST_EU
 1. 분리된 개발 체크아웃에서 코드 검사를 완료하고, 현재 큐에 진행 중인 작업이 없는지 기존 워커의 `--status`로 확인합니다. Git 게시 단계나 게시 번호가 남아 있으면 기존 작업을 먼저 확인합니다. 전환 명령은 활성 대기 작업을 버리지 않습니다.
 2. [중지 절차](operations.md#실패-확인과-재시도)로 자동 실행과 수동 작업을 멈춥니다. 같은 `worker.lock`을 확보하여 기존 큐·결과·저널·모델 설정과 메뉴/번역의 일관된 비공개 백업을 만듭니다. 기존 소스의 `site/data` 쌍을 이용한다면 코드 fast-forward 전에 보존합니다. 잠금을 풀고 다른 작성자가 시작되지 않게 유지합니다.
 3. 검증한 새 코드가 있는 폴더에서 아래 전환 명령을 실행합니다. 이 명령은 같은 큐 잠금을 직접 확보하며 검증된 쌍을 로컬 준비 폴더와 Drive에 보존하고 `BASE/worker.toml`을 작성합니다. 외부에서 잠금을 잡은 채 명령을 중첩 실행하지 않습니다.
-4. 반환된 `config_path`, `file_id`, `release_id`, `data_dir`를 기록하고, 익명 다운로드의 HTTP 성공·실제 JSON·CORS와 기존 날짜·가격·번역 보존을 확인합니다. 설정 생성이나 업로드 성공만으로 브라우저의 공개 읽기를 확인했다고 판단하지 않습니다. 코드가 main에 들어가 자동 배포되기 전에 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 한 번 설정합니다.
+4. 반환된 `config_path`, `file_id`, `release_id`, `data_dir`를 기록합니다. 익명 HTTP 성공·실제 JSON·CORS를 확인하고, 지난30일·오늘·원본의 미래 날짜와 필요한 번역만 공개됐는지 검사합니다. 원본 가격·교정 번역과 워커용 재사용 캐시는 보존돼야 합니다. 설정 생성만으로 공개 읽기를 확인했다고 판단하지 않습니다. main 반영 전에 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 설정합니다.
 5. 다시 같은 `worker.lock`을 확보하여 운영 `~/mensa`의 브랜치·origin·기존 변경을 확인하고 검토한 main으로 fast-forward합니다. 다른 변경은 보존하며 reset/clean/force push로 해결하지 않습니다. `BASE/checkout`의 코드 연결과 모델·큐 위치를 유지합니다.
 6. main 코드의 Pages 배포를 완료하고 공개 화면이 Drive를 읽는지 확인한 뒤 기존 LaunchAgent를 재개합니다. LaunchAgent의 `--base` 호출은 그대로이므로 재설치하지 않습니다.
 7. 재개한 워커의 완료 수집 시각과 Drive 릴리스·수집 시각을 대조합니다. 실제 갱신 전후의 Git HEAD와 추적 파일이 바뀌지 않고, 데이터용 커밋·PR·Actions·Pages 배포가 생기지 않았는지 확인한 뒤 전환 완료를 기록합니다.
@@ -56,6 +56,8 @@ python3 -m scripts.configure_drive \
 ```
 
 `FOLDER_ID`는 실제 폴더 ID, `OLD_PAIR_DIR`는 보존한 `menu.json`·`translations.json` 폴더로 바꿉니다. 이미 검증된 Drive 묶음에서 인계받으면 `--source-data`를 생략합니다. 명령은 기존 유효한 원격 파일을 함부로 덮어쓰거나 중복 `current.json`을 선택하지 않습니다. 전환 명령의 상세 조건은 [운영 문서](operations.md#최초-데이터-이관과-설정-준비)를 참고해 주세요.
+
+생성 설정의 `[retention]`과 모델의 실제 digest를 확인합니다. 전환 후 `scripts.retention --config PATH`로 정리 후보·보호 사유를 보고 승인한 보관 정책을 적용합니다. 전환 백업은 기록한 소유권과 검증 완료일에 따라 관리하며, 미완료 전환의 입력을 먼저 삭제하지 않습니다. 공개본과 워커 캐시의 분리는 방문자 기기에 캐시 파일을 만드는 기능이 아닙니다.
 
 ## 평소 실행 코드 반영과 장애 복구
 

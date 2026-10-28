@@ -18,7 +18,9 @@ Python 워커는 원본 HTML에서 메뉴·가격을 읽어 번역과 함께 검
 
 식단 처리 순서를 맡는 [`RefreshService`](../mensa/refresh_service.py)는 새 원본의 구조·가격·현재 날짜 범위를 먼저 검사합니다. `retain_published_days`는 새 원본의 시작보다 앞선 기존 공개 날짜를 보존하고 같은 날짜는 새 값으로 교체합니다. 이어 지난 날짜까지 필요한 번역과 주의 표시를 완성하고 전체 게시 조건을 검사합니다. 구조가 유효한 메뉴 추가·삭제·교체·중복 수 변화와 빈 식단을 이전 항목 개수로 차단하지 않습니다. 날짜 연결·가격 출처·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다.
 
-DriveRefreshJob은 검증된 메뉴·번역을 [`DirectoryPublisher`](../mensa/releases.py)로 로컬 준비 폴더에 먼저 저장합니다. 이 폴더에는 `data/current.json`과 `data/releases/<release_id>/menu.json`, `translations.json`이 있습니다. 이전 게시본은 보존합니다. 비공개 `drive-publication.json`에는 수집 시각·릴리스 ID·이전 공개 릴리스 ID·Drive 목적지를 기록합니다. 재시도 중 다른 유효한 공개 교정이 생겼으면 최신 공개본에서 다시 준비하고, 수집 도중 원격이 다시 바뀌면 덮어쓰지 않습니다.
+DriveRefreshJob은 검증한 날짜에서 지난 30일·오늘·원본의 미래 메뉴를 선택하고 필요한 번역만 공개합니다. [`retention.py`](../mensa/retention.py)는 기간·참조 집합·캐시 한도를 계산하고, [`retention_runtime.py`](../mensa/retention_runtime.py)는 비공개 번역과 사용 기록을 한 파일에 원자적으로 보관합니다. 새 원본에서 실제 사용한 항목만 수명을 갱신합니다. 검증된 공개 쌍은 [`DirectoryPublisher`](../mensa/releases.py)의 `data/releases/<release_id>/`에 준비하고 비공개 `drive-publication.json`에 이전 공개 릴리스·준비 ID·수집 시각·목적지를 기록합니다. 재시도 중 공개 교정이 생기면 최신 공개본에서 다시 준비합니다.
+
+[`maintenance.py`](../mensa/maintenance.py)는 원격 읽기 확인 후 최근 성공본 10개와 현재·재시도 참조를 보호하며 오래된 등록 릴리스를 정리합니다. 성공 여부는 비공개 `retention-releases.json`에 기록하므로 로컬 포인터를 원격 성공으로 오인하지 않습니다. 유휴·실패 상태에도 JobRunner가 같은 잠금 아래 로그 한도와 생성 데이터 용량을 검사합니다. 미등록 자료·모델·소스·인증을 정리하지 않습니다.
 
 [`DrivePublisher`](../mensa/drive_publication.py)는 rclone의 설정된 remote와 폴더 ID로 `current.json` 한 개만 읽고 갱신합니다. 파일 ID와 내용을 검사하고 업로드 후 다시 읽어 확인합니다. 같은 내용이면 업로드를 생략합니다. 이름이 중복되거나 설정과 파일 ID가 다르거나 기존 파일이 유효한 게시 묶음이 아니면 덮어쓰지 않습니다. 다른 파일의 삭제·동기화나 공유 설정 변경은 수행하지 않습니다.
 
@@ -43,7 +45,7 @@ flowchart TD
 
 [`TranslationService`](../mensa/translation_service.py)는 검토 구문·완성된 번역·주의 표시 대응표를 먼저 사용합니다. [`translation_contract.py`](../mensa/translation_contract.py)는 원문 이름과 순서가 있는 구성품으로 번역 key를 만들고 표시값·출처·모델 버전·생성 정책을 검사합니다. 미등록 주의 표시도 캐시에서 찾거나 `kind:notice` 요청으로 번역한 뒤 게시합니다.
 
-설정 기반 번역은 [`resume_configured_translations`](../mensa/translation_runtime.py)와 [`TranslationCheckpointStore`](../mensa/checkpoints.py)를 사용합니다. Drive 경로의 `translation-checkpoint.json`에는 이미 검증한 중간 번역을 저장합니다. 일부 요리가 미완료일 수 있으므로 공개하지 않습니다. Mac `--base`의 Drive 경로도 체크포인트를 보존하고 기존 네이티브 모델·캐시 재사용 정책을 이어갑니다.
+설정 기반 번역은 [`resume_configured_translations`](../mensa/translation_runtime.py)를 사용합니다. Drive는 `RetainedTranslationStore`를 연결하여 운영용 Mac의 `translation-state.json`에 완료한 번역과 사용 기록을 함께 저장합니다. 최초 이관 이후 옛 체크포인트를 다시 읽지 않아 만료 항목의 재유입을 막습니다. 일부 요리가 미완료일 수 있으므로 공개하지 않습니다. Mac 기본 경로는 기존 번역을 재사용하고 빠진 요리·주의 표시만 digest를 확인한 모델에 요청합니다. 이용자 브라우저에는 운영 캐시를 저장하지 않습니다.
 
 새 번역이 필요할 때만 [`model_session`](../mensa/model_runtime.py)이 모델 연결을 준비합니다. `managed`는 설치된 Ollama를 별도 프로세스 그룹으로 시작하고 자신이 시작한 그룹만 종료합니다. `external`은 운영자가 준비한 endpoint를 사용합니다. 프로그램은 모델을 다운로드하지 않습니다. 요청 함수 [`request_translation`](../mensa/generation.py)은 완료 여부·응답 크기·두 언어·구성품 수와 잘못된 바이트 토큰 등을 검사하고 실패를 큐로 전달합니다.
 

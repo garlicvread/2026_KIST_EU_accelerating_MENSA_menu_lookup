@@ -1,6 +1,6 @@
 """설정 로더가 TOML에 명시된 작업자 경로·추론·자원·공개 설정을 읽고 검증하며, 작업자를 준비하거나 시작하지 않습니다."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from itertools import combinations
 import math
 import re
@@ -54,6 +54,22 @@ class PublicationSettings:
 
 
 @dataclass(frozen=True)
+class RetentionSettings:
+    """RetentionSettings는 메뉴·번역·복구본·로그 및 생성 데이터의 유한 보관 한도를 담습니다."""
+
+    history_days: int = 30
+    cache_unused_days: int = 180
+    cache_max_entries: int = 5000
+    cache_max_bytes: int = 16777216
+    keep_releases: int = 10
+    log_days: int = 14
+    log_max_bytes: int = 10485760
+    backup_days: int = 14
+    max_bundle_bytes: int = 8388608
+    max_storage_bytes: int = 268435456
+
+
+@dataclass(frozen=True)
 class WorkerConfig:
     """WorkerConfig는 검증된 경로·추론·자원·공개 설정을 묶으며, 엔드포인트나 모델의 실행 준비 상태를 보장하지 않습니다."""
 
@@ -61,6 +77,7 @@ class WorkerConfig:
     inference: InferenceSettings
     resources: ResourceSettings
     publication: PublicationSettings
+    retention: RetentionSettings = field(default_factory=RetentionSettings)
 
 
 def _read_toml(config_path: Path) -> dict:
@@ -228,6 +245,21 @@ def _parse_resources(value: object, config_path: Path) -> ResourceSettings:
     return ResourceSettings(platform=platform, min_available_bytes=minimum, max_load_per_cpu=load)
 
 
+def _parse_retention(value: object, config_path: Path) -> RetentionSettings:
+    values = _require_table(value, 'retention', config_path)
+    unknown = set(values) - {item.name for item in fields(RetentionSettings)}
+    if unknown:
+        raise ValueError(f"Worker config {config_path}, [retention]: unknown keys/tables: {', '.join(sorted(unknown))}")
+    for name, limit in values.items():
+        if type(limit) is not int or limit <= 0:
+            raise ValueError(f'Worker config {config_path}: retention.{name} must be a positive integer')
+    settings = RetentionSettings(**values)
+    for name in ('cache_max_bytes', 'log_max_bytes', 'max_bundle_bytes'):
+        if getattr(settings, name) > settings.max_storage_bytes:
+            raise ValueError(f'Worker config {config_path}: retention.{name} must not exceed retention.max_storage_bytes')
+    return settings
+
+
 def _publication_remote(remote: str, config_path: Path) -> str:
     try:
         if any(character.isspace() or ord(character) < 32 or ord(character) == 127 for character in remote):
@@ -286,9 +318,11 @@ def load_worker_config(config_path: Path) -> WorkerConfig:
     엔드포인트, 모델 가중치 또는 원격 준비 상태를 확인하거나 작업자를 활성화하지 않습니다.
     """
     config = _read_toml(config_path)
-    _require_keys(config, ("paths", "inference", "resources", "publication"), config_path, "root")
+    _require_keys({key: value for key, value in config.items() if key != 'retention'},
+                  ("paths", "inference", "resources", "publication"), config_path, "root")
     paths = _parse_paths(config["paths"], config_path)
     inference = _parse_inference(config["inference"], paths, config_path)
     resources = _parse_resources(config["resources"], config_path)
     publication = _parse_publication(config["publication"], config_path)
-    return WorkerConfig(paths=paths, inference=inference, resources=resources, publication=publication)
+    retention = _parse_retention(config.get('retention', {}), config_path)
+    return WorkerConfig(paths=paths, inference=inference, resources=resources, publication=publication, retention=retention)

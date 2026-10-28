@@ -88,6 +88,43 @@ class DriveRefreshTests(unittest.TestCase):
             self.assertEqual(f.remote_pair[0]['days'][0]['date'], '2026-09-18')
             self.assertFalse((f.checkout/'site/data').exists())
 
+    def test_old_days_expire_and_unused_translations_stay_private(self):
+        with directory_fixture.DirectoryRefreshTests().fixture() as f:
+            self.setup_drive(f)
+            old = f.menu_for(('Old soup',), day='01.08.2026')
+            f.remote_pair = (old, f.cache(old))
+            old_key = next(iter(f.remote_pair[1]['entries']))
+            self.preserving_remote_builder(f)
+            self.assertEqual(f.run()['status'], 'completed')
+            self.assertEqual([day['date'] for day in f.remote_pair[0]['days']], ['2026-09-21'])
+            required = {m['translation_key'] for d in f.remote_pair[0]['days'] for m in d['meals']}
+            self.assertEqual(set(f.remote_pair[1]['entries']), required)
+            private = json.loads((f.state/'translation-state.json').read_text())
+            self.assertIn(old_key, private['cache']['entries'])
+            self.assertNotIn('usage', f.remote_pair[1])
+
+    def test_expired_private_entry_does_not_return_from_legacy_checkpoint(self):
+        with directory_fixture.DirectoryRefreshTests().fixture() as f:
+            self.setup_drive(f)
+            old = f.menu_for(('Unused model soup',), day='01.08.2026')
+            cache = f.cache(old)
+            key = next(iter(cache['entries']))
+            cache['entries'][key].update(origin='model', model='fixture-model')
+            f.write(f.state/'translation-checkpoint.json', cache)
+            usage = {'schema_version': 1, 'entries': {key: {'last_used': '2025-01-01', 'pinned': False}},
+                     'notices': {label: {'last_used': '2025-01-01', 'pinned': False} for label in cache['notices']}}
+            f.write(f.state/'translation-state.json', {'schema_version': 1, 'cache': cache, 'usage': usage})
+            (f.state/'translation-state.json').chmod(0o600)
+            self.preserving_remote_builder(f)
+            self.assertEqual(f.run()['status'], 'completed')
+            private = json.loads((f.state/'translation-state.json').read_text())
+            self.assertNotIn(key, private['cache']['entries'])
+            f.now += timedelta(days=1)
+            f.menu = f.menu_for(day='22.09.2026')
+            self.assertEqual(f.run()['status'], 'completed')
+            private = json.loads((f.state/'translation-state.json').read_text())
+            self.assertNotIn(key, private['cache']['entries'])
+
     def test_legacy_git_pending_is_preserved_and_refused(self):
         with directory_fixture.DirectoryRefreshTests().fixture() as f:
             self.setup_drive(f)

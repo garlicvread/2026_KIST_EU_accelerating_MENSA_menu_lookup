@@ -27,6 +27,7 @@ from mensa.drive_refresh import DriveRefreshJob
 from mensa.config import load_worker_config
 from mensa.generation import request_translation
 from mensa.model_runtime import model_session
+from mensa.ollama_revision import installed_ollama_revision
 from mensa.resources import resource_status as configured_resource_status
 from mensa.translation_runtime import resume_configured_translations
 from mensa.model_runtime import stop_model
@@ -35,6 +36,7 @@ from mensa.refresh_service import RefreshService
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
 from scripts.notices import load_glossary
 from mensa.notice_contract import source_notices
+from mensa.translation_contract import validate_result, validate_cache
 from scripts.translations import build_translations, reusable_translation
 from scripts.update_menu import read_json, require_current_coverage, write_snapshot, summarize
 from scripts.refresh_queue import load_state, save_state, reconcile, resource_status, BERLIN
@@ -142,10 +144,11 @@ class RefreshJob:
     워크플로 조회·요청을 수행합니다. 호출자는 JobRunner의 큐 잠금을 유지해야 합니다.
     """
 
-    def __init__(self, base):
+    def __init__(self, base, *, inference=None):
         self.base = Path(base)
         self.repo = self.base / 'checkout'
         self.state_path = self.base / 'queue.json'
+        self.inference = inference
 
     @property
     def repository_name(self):
@@ -281,11 +284,31 @@ class RefreshJob:
         반환값은 번역 캐시이며 checkpoint는 새 항목의 캐시 복사본을 받을 수 있습니다.
         이 기본 경로는 비공개 번역 이력 파일을 직접 저장하지 않습니다. local_model의
         컨텍스트가 끝나면 모델 프로세스를 정리한 뒤 캐시를 반환합니다.
+        inference가 지정되면 model_session이 리비전을 확인하고 부족한 항목만 생성합니다.
         """
         candidate = build_translations(menu, cache, phrases, None, checkpoint=checkpoint)
         if translation_needed(menu, candidate):
-            with local_model(self.base) as config:
-                candidate = build_translations(menu, candidate, phrases, config, checkpoint=checkpoint)
+            if self.inference is None:
+                with local_model(self.base) as config:
+                    candidate = build_translations(menu, candidate, phrases, config, checkpoint=checkpoint)
+            else:
+                # Native reuse preserves validated legacy entries without claiming their weights match
+                # the declared revision. Only newly requested translations require the digest-checked runtime.
+                remaining = copy.deepcopy(menu)
+                for day in remaining['days']:
+                    day['meals'] = [meal for meal in day['meals'] if not reusable_translation(
+                        candidate['entries'].get(meal['translation_key']), MODEL)]
+                with model_session(self.inference) as config:
+                    for label in sorted(source_notices(menu) - candidate.get('notices', {}).keys()):
+                        source = {'kind': 'notice', 'name_de': label, 'components': []}
+                        result = request_translation(source, config)
+                        validate_result(result, source)
+                        candidate.setdefault('notices', {})[label] = {
+                            language: result[language]['name'] for language in ('en', 'ko')}
+                        validate_cache(candidate)
+                        if checkpoint is not None:
+                            checkpoint(copy.deepcopy(candidate))
+                    candidate = build_translations(remaining, candidate, phrases, config, checkpoint=checkpoint)
         return candidate
 
     @staticmethod
@@ -582,14 +605,19 @@ def main(argv=None):
                           and config.inference.mode == 'managed'
                           and config.inference.provider == 'ollama'
                           and config.inference.model == MODEL
-                          and config.inference.revision == 'gemma4-31b-local-v1'
                           and config.inference.binary == (base / 'runtime/ollama').resolve()
                           and config.inference.models_dir == (base / 'models').resolve()
                           and config.inference.log_dir == (base / 'logs').resolve())
                 if native:
+                    try:
+                        native = config.inference.revision == installed_ollama_revision(
+                            config.inference.models_dir, config.inference.model)
+                    except ValueError:
+                        native = False
+                if native:
                     # 기존 Mac의 검증된 번역 캐시·모델 실행은 유지하고 Git 게시 메서드는 호출하지 않습니다.
                     resources = resource_status
-                    ports['translation_builder'] = RefreshJob(base).translate
+                    ports['translation_builder'] = RefreshJob(base, inference=config.inference).translate
             work = DriveRefreshJob(config, source=lambda: parse_menu(fetch_html()),
                                    clock=lambda: datetime.now(timezone.utc), **ports)
         else:

@@ -1,15 +1,17 @@
 """Drive 설정 명령이 잠금과 기존 기록을 보존하면서 검증된 공개 데이터로 설정을 준비하는지 검사합니다."""
 
 import copy
+import hashlib
 from datetime import datetime, timezone
 import io
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from mensa.config import load_worker_config
+from mensa.model_runtime import model_session
 from mensa.drive_publication import DrivePublisher
 from mensa.queue import BusyError, exclusive_lock, reconcile, save_state
 from mensa.releases import DirectoryPublisher, _json_bytes, _release_id
@@ -93,7 +95,8 @@ class ConfigureDriveTests(unittest.TestCase):
 
     def configure(self, *, source=True, **overrides):
         module = self.module()
-        options = {'source_data': self.source if source else None, 'publisher': self.publisher}
+        options = {'source_data': self.source if source else None, 'publisher': self.publisher,
+                   'model_revision': 'a' * 64}
         options.update(overrides)
         positional = {name: options.pop(name, value) for name, value in (
             ('base', self.base), ('checkout', self.checkout), ('data_dir', self.staging),
@@ -120,7 +123,7 @@ class ConfigureDriveTests(unittest.TestCase):
                          (self.checkout, self.base, self.staging))
         self.assertEqual((config.inference.mode, config.inference.provider, config.inference.model,
                           config.inference.revision),
-                         ('managed', 'ollama', 'gemma4:31b', 'gemma4-31b-local-v1'))
+                         ('managed', 'ollama', 'gemma4:31b', 'a' * 64))
         self.assertEqual((config.inference.binary, config.inference.models_dir, config.inference.log_dir),
                          (self.base / 'runtime/ollama', self.base / 'models', self.base / 'logs'))
         self.assertEqual((config.resources.platform, config.resources.min_available_bytes,
@@ -131,12 +134,63 @@ class ConfigureDriveTests(unittest.TestCase):
         self.assertEqual((self.base / 'worker.toml').stat().st_mode & 0o777, 0o600)
         after = self.state_files()
         after.pop(Path('worker.toml'))
+        after.pop(Path('translation-state.json'))
+        after.pop(Path('retention-releases.json'))
         self.assertEqual(after, before)
         self.assertEqual((self.base / 'worker.lock').stat().st_ino, lock_inode)
         self.assertEqual({path.name: path.read_bytes() for path in self.source.iterdir()}, source_before)
         self.assertEqual(DirectoryPublisher(self.staging, notice_glossary=self.glossary).load_current(),
                          (self.menu, self.cache))
         self.assertEqual(json.loads(self.command.uploads[0]), envelope(self.menu, self.cache))
+
+    def test_installed_manifest_revision_is_ready_through_the_configured_runtime(self):
+        manifest = self.base / 'models/manifests/registry.ollama.ai/library/gemma4/31b'
+        manifest.parent.mkdir(parents=True)
+        raw = b'{"schemaVersion":2,"config":{},"layers":[]}\n'
+        manifest.write_bytes(raw)
+        self.configure(model_revision=None)
+        config = load_worker_config(self.base / 'worker.toml')
+        digest = hashlib.sha256(raw).hexdigest()
+        (self.base / 'logs').chmod(0o700)
+        process = Mock(pid=123456)
+        process.poll.return_value = None
+        stop = Mock()
+        with model_session(config.inference, launch=Mock(return_value=process),
+                           choose_port=lambda: 43210,
+                           probe=lambda *_: {'models': [{'name': 'gemma4:31b', 'digest': digest}]},
+                           stop=stop) as runtime:
+            self.assertEqual(runtime['backend_revision'], digest)
+        stop.assert_called_once_with(process)
+        self.assertEqual(config.inference.revision, digest)
+
+    def test_explicit_revision_supports_unprovisioned_runtime(self):
+        self.configure(model_revision='a' * 64)
+        config = load_worker_config(self.base / 'worker.toml')
+        self.assertEqual(config.inference.revision, 'a' * 64)
+
+    def test_missing_manifest_requires_explicit_revision_before_remote_writes(self):
+        before = self.state_files()
+        with self.assertRaisesRegex(ValueError, 'model-revision'):
+            self.configure(model_revision=None)
+        self.assertEqual(self.state_files(), before)
+        self.assertEqual(self.command.commands, [])
+
+    def test_invalid_explicit_revision_is_rejected_before_remote_writes(self):
+        for revision in ('', ' ', 'digest with spaces', 'a\ndigest', 'x' * 257, 123):
+            with self.subTest(revision=revision), self.assertRaises(ValueError):
+                self.configure(model_revision=revision)
+        self.assertEqual(self.command.commands, [])
+
+    def test_changed_manifest_during_upload_does_not_install_a_stale_revision(self):
+        manifest = self.base / 'models/manifests/registry.ollama.ai/library/gemma4/31b'
+        manifest.parent.mkdir(parents=True)
+        manifest.write_bytes(b'{"schemaVersion":2,"config":{},"layers":[]}')
+        self.command.on_copy = lambda _: manifest.write_bytes(
+            b'{"schemaVersion":2,"config":{},"layers":[],"changed":true}')
+        with self.assertRaisesRegex(ValueError, 'inference destination changed'):
+            self.configure(model_revision=None)
+        self.assertFalse((self.base / 'worker.toml').exists())
+        self.assertFalse(self.staging.exists())
 
     def test_remote_bootstrap_does_not_read_tracked_source_data(self):
         self.command.add(envelope(self.menu, self.cache))
@@ -148,6 +202,28 @@ class ConfigureDriveTests(unittest.TestCase):
         self.assertEqual(result['file_id'], FILE_ID)
         self.assertEqual(self.command.uploads, [])
         self.assertEqual((tracked / 'menu.json').read_text(), 'invalid tracked data')
+
+    def test_bootstrap_projects_public_data_but_seeds_full_private_reuse(self):
+        from test_menu_source import meal
+        old = parse_menu(page(meal(name='Old unrelated meal', date='01.08.2026'),
+                              date='01.08.2026'), '2026-09-21T10:00:00Z')
+        record = old['days'][0]['meals'][0]
+        old_key = record['translation_key']
+        combined = copy.deepcopy(self.menu)
+        combined['days'] = old['days'] + combined['days']
+        combined['coverage']['start'] = '2026-08-01'
+        cache = copy.deepcopy(self.cache)
+        cache['entries'][old_key] = translation_entry(source_for(record))
+        self.write_source(combined, cache)
+        self.configure()
+        public = json.loads(self.command.uploads[0])
+        self.assertEqual([d['date'] for d in public['menu']['days']], ['2026-09-21'])
+        self.assertNotIn(old_key, public['translations']['entries'])
+        private = json.loads((self.base/'translation-state.json').read_text())
+        self.assertIn(old_key, private['cache']['entries'])
+        self.assertEqual((self.base/'translation-state.json').stat().st_mode & 0o777, 0o600)
+        config = (self.base/'worker.toml').read_text()
+        self.assertIn('[retention]', config)
 
     def test_source_bootstrap_rejects_different_published_data_without_writes(self):
         corrected = copy.deepcopy(self.cache)
@@ -390,7 +466,11 @@ class ConfigureDriveTests(unittest.TestCase):
             self.assertEqual(module.main(argv), 0)
         self.assertEqual(json.loads(output.getvalue()), result)
         configure.assert_called_once_with(self.base, self.checkout, self.staging, REMOTE, FOLDER_ID,
-                                          source_data=self.source)
+                                          source_data=self.source, model_revision=None)
+        with patch.object(module, 'configure', return_value=result) as configure, \
+                patch('sys.stdout', new_callable=io.StringIO):
+            self.assertEqual(module.main([*argv, '--model-revision', 'a' * 64]), 0)
+        self.assertEqual(configure.call_args.kwargs['model_revision'], 'a' * 64)
         with patch('sys.stderr', new_callable=io.StringIO), self.assertRaises(SystemExit) as missing:
             module.main(['--base', str(self.base)])
         self.assertEqual(missing.exception.code, 2)

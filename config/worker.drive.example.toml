@@ -10,9 +10,9 @@ public_dir = "../worker-data"
 [inference]
 mode = "managed"
 provider = "ollama"
-# 준비한 모델과 안정된 버전을 지정합니다. 모델 내용이 바뀌면 revision도 갱신해 주세요.
+# Ollama /api/tags가 보고하는 정확한 digest를 지정합니다. 최초 구성 명령은 설치된 manifest에서 읽습니다.
 model = "gemma4:31b"
-revision = "gemma4-31b-operator-v1"
+revision = "REPLACE_WITH_EXACT_OLLAMA_MODEL_DIGEST"
 binary = "../worker-private/runtime/ollama"
 models_dir = "../worker-private/models"
 log_dir = "../worker-private/logs"
@@ -30,3 +30,17 @@ remote = "gdrive:"
 # 아래 예시 ID는 실제 폴더와 current.json 파일 ID로 바꿔 주세요. 이름이나 URL이 아닙니다.
 folder_id = "REPLACE_WITH_FOLDER_ID_1234567890"
 file_id = "REPLACE_WITH_CURRENT_FILE_ID_1234567890"
+
+[retention]
+# Berlin 날짜 기준 지난 30일과 오늘·원본의 미래 날짜를 공개합니다.
+history_days = 30
+cache_unused_days = 180
+# 식단 번역·안내 문구와 비공개 사용 기록을 함께 제한합니다.
+cache_max_entries = 5000
+cache_max_bytes = 16777216
+keep_releases = 10
+log_days = 14
+log_max_bytes = 10485760
+backup_days = 14
+max_bundle_bytes = 8388608
+max_storage_bytes = 268435456

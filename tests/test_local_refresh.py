@@ -8,6 +8,7 @@ from tempfile import TemporaryDirectory
 from unittest.mock import patch, Mock
 from datetime import datetime, timezone, timedelta
 from contextlib import contextmanager, redirect_stdout
+import copy
 
 from scripts import local_refresh as worker
 from scripts.local_refresh import process_queue, RefreshJob, REMOTE
@@ -18,6 +19,8 @@ from test_publication import translation_entry
 
 from mensa import jobs as jobs
 from mensa.errors import GenerationError
+from mensa.config import InferenceSettings
+from mensa.translation_contract import source_for, source_key
 
 NOW = datetime(2026, 9, 21, 10, tzinfo=timezone.utc)
 SHA = 'a' * 40
@@ -311,6 +314,69 @@ class RefreshCompositionTests(unittest.TestCase):
                   'components': [component['name_de'] for component in record['components']]}
         self.candidate = {'schema_version': 1,
                           'entries': {record['translation_key']: translation_entry(source)}}
+
+    def test_native_digest_runtime_generates_only_missing_meals_and_keeps_legacy_cache(self):
+        record = self.menu['days'][0]['meals'][0]
+        existing = self.candidate['entries'][record['translation_key']]
+        existing.update(origin='model', model=worker.MODEL)
+        before = copy.deepcopy(existing)
+        new = copy.deepcopy(record)
+        new['name_de'] = 'Neues Gericht'
+        new['translation_key'] = source_key(source_for(new))
+        self.menu['days'][0]['meals'].append(new)
+        glossary = {label: {'en': 'Fixture', 'ko': '테스트'} for label in
+                    ['vegan', 'Weizen', 'Sellerie', 'Milch und Laktose']}
+        settings = InferenceSettings('managed', 'ollama', worker.MODEL, 'a' * 64, None,
+                                     Path('/fixture/ollama'), Path('/fixture/models'), Path('/fixture/logs'))
+        @contextmanager
+        def runtime(declared):
+            self.assertEqual(declared, settings)
+            yield {'provider': 'ollama', 'model': worker.MODEL, 'backend_revision': settings.revision,
+                   'url': 'http://fixture.invalid/api/chat', 'key': ''}
+        with TemporaryDirectory() as folder, \
+                patch.object(worker, 'model_session', side_effect=runtime) as start, \
+                patch.object(worker, 'local_model', side_effect=AssertionError('Unverified model')), \
+                patch('scripts.translations.load_glossary', return_value=glossary), \
+                patch('scripts.translations.request_translation', return_value={
+                    lang: before[lang] for lang in ('en', 'ko')}) as generate:
+            job = RefreshJob(folder, inference=settings)
+            result = job.translate(self.menu, self.candidate, {})
+            self.assertEqual(result['entries'][record['translation_key']], before)
+            self.assertEqual(generate.call_count, 1)
+            self.assertEqual(generate.call_args.args[0], source_for(new))
+            start.assert_called_once_with(settings)
+            job.translate(self.menu, result, {})
+            self.assertEqual(start.call_count, 1)
+
+    def test_native_notice_only_generation_keeps_legacy_meals_and_checkpoints(self):
+        record = self.menu['days'][0]['meals'][0]
+        existing = self.candidate['entries'][record['translation_key']]
+        existing.update(origin='model', model=worker.MODEL)
+        before = copy.deepcopy(existing)
+        record['notices'].append('Neuer Hinweis')
+        glossary = {label: {'en': 'Fixture', 'ko': '테스트'} for label in
+                    ['vegan', 'Weizen', 'Sellerie', 'Milch und Laktose']}
+        settings = InferenceSettings('managed', 'ollama', worker.MODEL, 'a' * 64, None,
+                                     Path('/fixture/ollama'), Path('/fixture/models'), Path('/fixture/logs'))
+        @contextmanager
+        def runtime(_):
+            yield {'provider': 'ollama', 'model': worker.MODEL, 'backend_revision': settings.revision,
+                   'url': 'http://fixture.invalid/api/chat', 'key': ''}
+        checkpoints = []
+        with TemporaryDirectory() as folder, \
+                patch.object(worker, 'model_session', side_effect=runtime), \
+                patch('scripts.translations.load_glossary', return_value=glossary), \
+                patch.object(worker, 'request_translation', return_value={
+                    'en': {'name': 'New notice', 'components': []},
+                    'ko': {'name': '새 안내', 'components': []}}) as generate, \
+                patch('scripts.translations.request_translation', side_effect=AssertionError('Cached meal')):
+            result = RefreshJob(folder, inference=settings).translate(
+                self.menu, self.candidate, {}, checkpoint=checkpoints.append)
+        self.assertEqual(result['entries'][record['translation_key']], before)
+        self.assertEqual(result['notices']['Neuer Hinweis'], {'en': 'New notice', 'ko': '새 안내'})
+        self.assertEqual(checkpoints, [result])
+        self.assertEqual(generate.call_args.args[0],
+                         {'kind': 'notice', 'name_de': 'Neuer Hinweis', 'components': []})
 
 
     def test_translate_offline_first_uses_real_builder_and_forwards_checkpoint(self):

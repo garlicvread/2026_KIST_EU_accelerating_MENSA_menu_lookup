@@ -33,7 +33,7 @@ cd "$HOME/mensa"
 
 ## Drive 연결과 후임자 인계
 
-운영 계정에 rclone을 준비하고 `rclone config`로 자신의 Google Drive 연결을 만듭니다. `publication.remote`는 `gdrive:` 같은 rclone remote 이름이며 Git remote나 다운로드 URL이 아닙니다. 후임자는 자신의 계정으로 인증하고 remote·폴더 ID·파일 ID를 설정합니다. 다른 운영자의 OAuth token을 문서나 소스에 복사하지 않습니다.
+운영 계정에 rclone을 준비하고 `rclone config`로 자신의 Google Drive 연결을 만듭니다. 현재 설치의 쓰기 연결 이름은 `mensa-drive:`입니다. `publication.remote`는 rclone remote 이름이며 Git remote나 다운로드 URL이 아닙니다. 읽기 전용 토큰으로는 게시할 수 없습니다. 이 설치는 `drive.readonly,drive.file` 범위로 기존 파일을 읽고 rclone에서 사용하는 파일을 작성하도록 인증했습니다. 후임자는 자신의 계정으로 인증하고 remote·폴더 ID·파일 ID를 설정합니다. 다른 운영자의 OAuth token을 문서나 소스에 복사하지 않습니다.
 
 현재 연결의 rclone 공용 `client_id`에는 2026년 중 사용 종료 공지가 있습니다. 현재 인증 성공이 계속된 사용을 보장하지는 않습니다. 후임자는 [rclone 공식 자체 client ID 안내](https://rclone.org/drive/#making-your-own-client-id)에 따라 Google 프로젝트·Drive API·OAuth 동의·데스크톱 client를 준비하고 rclone의 비공개 설정에 client ID/client secret을 넣어 재인증해 주세요. 이 절차에 결제 활성화나 유료 서비스 추가를 포함하지 않습니다. 인증 값과 token은 rclone 설정에서만 관리하고 워커 TOML·Git·로그·사이트에 넣지 않습니다.
 
@@ -65,13 +65,13 @@ python3 -m scripts.configure_drive \
 
 `FOLDER_ID`는 목적지 폴더 ID로, `OLD_PAIR_DIR`는 `menu.json`·`translations.json`을 보존한 폴더로 바꿉니다. 구버전 체크아웃에 있던 `site/data`를 사용하려면 그 두 파일이 제거되는 코드 반영 전에 별도로 보존합니다. 이미 유효한 Drive `current.json`에서 인계받으면 `--source-data`를 생략합니다. 원격 파일이 없는 신규 목적지에는 명시한 검증 쌍이 필요합니다.
 
-명령은 기존 큐·완료 번역·모델·로그를 비우지 않고 `BASE/worker.toml`을 준비하며 `config_path`, `file_id`, `release_id`, `data_dir`를 반환합니다. 현재 Mac의 기본 모델 경로와 `gemma4:31b`, revision `gemma4-31b-local-v1`, 메모리 32 GiB·부하 계수 0.6 정책을 사용합니다. 명시한 원본 폴더와 준비 폴더는 겹칠 수 없고, 기존 준비 데이터·설정과 충돌하면 교체하지 않고 중단합니다. `--source-data`를 지정해도 기존 Drive 묶음을 먼저 비교하며 내용이 다르면 덮어쓰지 않습니다. 기존 유효한 파일의 ID를 재사용하고 예상하지 못한 원격 내용을 덮어쓰지 않습니다. 실패하면 보존한 입력과 실제 원격 결과를 확인한 뒤 같은 대상에 재개합니다.
+명령은 기존 큐·모델·로그를 비우지 않고 `BASE/worker.toml`을 준비하며 `config_path`, `file_id`, `release_id`, `data_dir`를 반환합니다. 기존 번역을 워커용 재사용 캐시에 이관하고 30일 메뉴·참조 번역만 공개합니다. 기본 모델은 `gemma4:31b`이며 revision은 설치된 Ollama manifest의 SHA256 digest를 읽습니다. 다른 위치의 모델은 `--model-revision`에 `/api/tags`의 정확한 digest를 지정합니다. 모델을 실행하거나 내려받지는 않습니다. managed 실행은 실제 보고된 digest와 설정을 비교합니다. 기존 준비 데이터·설정과 충돌하면 중단합니다. 원격 묶음이 입력 또는 보관 정책 적용 결과와 다르면 덮어쓰지 않습니다. 실패하면 입력과 실제 원격 결과를 보존하여 같은 대상에 재개합니다.
 
 설정 준비 후 익명 공개 읽기를 확인하고 저장소 변수 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 한 번 설정합니다. 검토한 운영 코드·Pages를 반영한 뒤 워커를 재개합니다. 설정 파일을 만들었다는 사실만으로 활성화 완료를 기록하지 않습니다. 상세 순서는 [배포 안내](deployment.md)에 있습니다.
 
 ## 설정 파일의 경로·모델·게시 값
 
-[`config/worker.drive.example.toml`](../config/worker.drive.example.toml)은 상대 경로의 Drive 예제입니다. `load_worker_config`는 정확히 `[paths]`, `[inference]`, `[resources]`, `[publication]`을 요구하고 누락·알 수 없는 키·빈 문자열을 거절합니다. 상대 경로는 TOML 파일이 있는 폴더 기준으로 해석하고 symlink의 실제 경로도 확인합니다. `~`·환경변수는 확장하지 않으므로 TOML에는 절대 경로나 일반 상대 경로를 적어 주세요.
+[`config/worker.drive.example.toml`](../config/worker.drive.example.toml)은 상대 경로의 Drive 예제입니다. `load_worker_config`는 `[paths]`, `[inference]`, `[resources]`, `[publication]`과 선택적인 `[retention]`을 받습니다. 보관 설정 생략 시 아래 기본값을 적용하며 알 수 없는 키·0 이하 한도·잘못된 형식을 거절합니다. 상대 경로는 TOML 위치 기준이며 symlink의 실제 경로도 확인합니다. `~`·환경변수는 확장하지 않습니다.
 
 | 키 | Drive 운영에서의 의미 |
 | --- | --- |
@@ -80,7 +80,7 @@ python3 -m scripts.configure_drive \
 | `paths.public_dir` | 로컬 메뉴·번역 릴리스 준비 폴더입니다. 웹사이트 루트가 아닙니다. |
 | `inference.mode` | `managed`는 준비된 Ollama를 시작/종료하고 `external`은 실행 중인 모델을 사용합니다. |
 | `inference.provider` | managed는 `ollama`, external은 `ollama` 또는 `openai`입니다. |
-| `inference.model`, `revision` | 실제 모델 이름과 운영자가 관리하는 안정된 모델 버전입니다. 모델 내용이 바뀌면 revision도 바꿉니다. |
+| `inference.model`, `revision` | 실제 모델 이름과 버전입니다. managed Ollama는 실제 보고되는 digest와 revision이 일치해야 합니다. |
 | `resources.platform` | 실제 호스트의 `macos` 또는 `linux`입니다. |
 | `resources.min_available_bytes` | 최소 가용 메모리의 양의 정수 바이트입니다. |
 | `resources.max_load_per_cpu` | 가용 CPU 용량에 곱할 양의 유한 부하 계수입니다. |
@@ -101,7 +101,8 @@ external에는 `url`만 추가하고 managed 전용 키를 섞지 않습니다. 
 | 명령 | 주요 옵션과 효과 |
 | --- | --- |
 | `python3 -m scripts.local_refresh` | `--base BASE` 또는 `--config PATH` 중 하나; `--status`는 읽기 전용 조회입니다. |
-| `python3 -m scripts.configure_drive` | `--base`, `--checkout`, `--data-dir`, `--remote`, `--folder-id` 필수; `--source-data` 선택. 검증된 초기 데이터와 설정을 준비합니다. |
+| `python3 -m scripts.configure_drive` | `--base`, `--checkout`, `--data-dir`, `--remote`, `--folder-id` 필수; `--source-data`, `--model-revision` 선택. 초기 데이터와 보관 한도·설정을 준비합니다. |
+| `python3 -m scripts.retention` | `--config PATH`로 정리 후보를 읽기 전용 JSON으로 출력합니다. `--apply`는 같은 큐 잠금에서 현재 원격·준비 참조를 확인하고 적용합니다. |
 | `python3 -m scripts.update_menu` | `--data-dir DIR`로 메뉴/번역 폴더를 선택합니다. `--validate-only`는 저장된 쌍만 검사합니다. 이를 빼면 수집·번역 후 그 로컬 쌍을 갱신하며 Drive 게시를 대신하지 않습니다. |
 | `python3 -m scripts.build_site` | `--drive-file-id ID`는 UI만 출력하고 `--data-dir DIR`는 명시한 로컬 쌍을 포함합니다. 두 옵션은 상호 배타적입니다. |
 | `python3 -m scripts.install_local_worker` | 새 Mac 또는 손상된 자동 실행을 준비할 때만 사용합니다. `--write-only`는 plist를 쓰되 등록·중지는 하지 않습니다. |
@@ -135,7 +136,9 @@ Drive 워커는 소스 체크아웃을 읽기만 합니다. 개발·검사는 �
 | 보존할 대상 | 의미 |
 | --- | --- |
 | `queue.json`, `last-result.json` | 완료/대기 수집 시각·시도·대기·오류와 최근 결과입니다. |
-| `translation-checkpoint.json` | 검증된 중간 번역입니다. 전체 게시본이 아닐 수 있으므로 비공개로 보관합니다. |
+| `translation-state.json` | 검증한 중간/재사용 번역과 마지막 사용일·보호 여부를 함께 저장합니다. 공개 파일이 아닙니다. |
+| `translation-checkpoint.json` | 전환 전 중간 번역입니다. 새 번역 상태가 생기기 전 한 번만 읽고 이후 재병합하지 않습니다. |
+| `retention-releases.json` | 로컬 준비본과 원격 성공본을 구별하는 소유권·성공 기록입니다. |
 | `drive-publication.json` | 준비한 수집 시각·릴리스 ID·목적지와 이전 공개 릴리스 ID입니다. 업로드 결과가 불명확해도 같은 준비본으로 재개하는 입력입니다. |
 | `worker.toml` | 경로·모델/revision·자원·Drive 목적지입니다. OAuth 비밀을 넣지 않습니다. |
 | 로컬 준비 폴더의 `data/current.json`, `data/releases/` | 완성된 로컬 묶음입니다. 현재 포인터가 가리키는 준비본이 원격에서 성공 확인된 게시본과 항상 같지는 않습니다. |
@@ -198,8 +201,34 @@ launchctl kickstart "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
 
 큐는 아직 수집하지 않은 지난 수집 시각만 최신 시각으로 합치고 이미 준비한 게시·서버 요청 대기는 보존합니다. 일반 실패의 대기는 15 → 30 → 60 → 120 → 240 → 360분이며 이후 360분 상한입니다. 모델의 network/timeout/HTTP 408·429·5xx 오류는 재시도하고 유효한 Retry-After와 기존 대기 중 큰 값을 사용합니다. 자동 재시도 불가 모델 실패는 날짜가 바뀌어도 운영자 해제 전까지 유지합니다.
 
-새 원본의 시작보다 앞선 공개 날짜는 보존하고 같은 날짜는 최신 검증 값으로 교체합니다. 정상적인 메뉴 개수·중복 수 변화와 빈 식단은 허용하지만 원문 구조·날짜 연결·가격 출처·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다. 지난 날짜 자동 삭제 기간은 없습니다. Drive 현재 파일과 로컬 보존 릴리스를 구별하고 임의 정리로 과거 식단을 없애지 않습니다.
+새 원본의 날짜는 최신 검증 값으로 교체하고 지난 날짜에는 아래 보관 한도를 적용합니다. 정상적인 메뉴 개수·중복 수 변화와 빈 식단은 허용하지만 원문 구조·날짜 연결·가격 출처·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다. 새 원본 자체를 먼저 검사하므로 보관 기간 적용으로 수집 누락을 숨기지 않습니다.
 
-번역은 같은 원문·구성품 key에서 재사용하거나 교체합니다. 더 이상 참조하지 않는 번역·주의 표시와 로컬 복구용 릴리스도 자동으로 삭제하지 않으므로 데이터 용량은 계속 늘 수 있습니다. Drive 전환은 게시 위치를 분리하는 변경이며 보관 기간·용량 상한을 도입하는 변경은 아닙니다. 정리 정책을 추가할 때는 지난 식단 조회와 번역 재사용·복구에 필요한 자료부터 구별해 보존해 주세요.
+번역은 같은 원문·구성품 key에서 재사용하거나 교체하며 공개용 데이터와 워커용 재사용 캐시의 수명을 분리합니다. 과거 메뉴를 단순 순회·복사한 것만으로 미사용 항목의 마지막 사용일을 갱신하지 않습니다. 현재 메뉴·진행 작업·보호된 교정에 필요한 번역은 임의로 제거하지 않습니다.
 
-모델 로그는 최신 실행으로 덮어쓸 수 있으며 자동 로그 회전·디스크 감시는 별도 운영 사항입니다. 같은 준비 폴더와 Drive 목적지에 한 워커만 연결합니다. 업로드 후 읽기 확인은 동시 원격 작성·전원 손실을 원자적으로 되돌린다는 보장이 아닙니다. 원격 오류가 나면 관찰한 결과와 보존한 준비본을 대조해 해당 단계만 복구해 주세요.
+같은 준비 폴더와 Drive 목적지에 한 워커만 연결합니다. 업로드 후 읽기 확인은 동시 원격 작성·전원 손실을 원자적으로 되돌린다는 보장이 아닙니다. 원격 오류가 나면 관찰한 결과와 보존한 준비본을 대조해 해당 단계만 복구해 주세요.
+
+## 데이터 보관 한도와 정리
+
+| `[retention]` 키 | 기본값·동작 |
+| --- | --- |
+| `history_days` | 30. Berlin 기준 `today - 30 days` 이후의 메뉴와 원본의 미래 날짜를 공개합니다. |
+| `cache_unused_days` | 180. 미사용 비참조 모델 번역·주의 표시를 정리합니다. |
+| `cache_max_entries`, `cache_max_bytes` | 5,000항목·16MiB. 식단/주의 표시와 사용 기록을 함께 제한하고 오래 사용하지 않은 항목부터 정리합니다. |
+| `keep_releases` | 현재본 포함 최근 성공10개. 현재 포인터·원격 현재본·준비 저널의 참조를 추가 보호합니다. |
+| `log_days`, `log_max_bytes` | 14일·총10MiB. 알려진 로그만 처리하며 열린 stdout/stderr 파일의 inode를 유지합니다. |
+| `backup_days` | 전환 검증 후14일. 등록한 전환 백업 중 최근1개를 보호하고 그 외에는 이 기간 뒤 정리합니다. |
+| `max_bundle_bytes` | 공개 envelope 전체8MiB. 필요한 원본·번역을 잘라 크기를 맞추지 않습니다. |
+| `max_storage_bytes` | 생성 자료256MiB. 모델·소스·Git을 제외하고 캐시·릴리스·로그·등록 백업을 포함합니다. |
+
+현재 메뉴·진행 작업에 필요한 항목과 `editorial-draft`·`reviewed-draft`는 캐시 퇴출에서 보호합니다. 명시적인 사용 기록의 `pinned`도 보호하며 model 출처로 남은 수동 교정은 자동 식별하지 못합니다. 보호 항목만으로 한도를 넘으면 삭제 대신 중단합니다. 사용 기록은 `translation-state.json`에서 캐시와 함께 원자적으로 바뀌고 제거한 항목의 기록도 정리합니다.
+
+다음 첫 명령으로 정리 후보와 보호 사유·전후 바이트를 확인한 뒤 두 번째 명령으로 적용합니다. 적용은 idle 큐와 같은 `worker.lock`을 요구하며 실제 원격·로컬 포인터와 준비 저널의 릴리스를 보호합니다.
+
+```sh
+python3 -m scripts.retention --config "$HOME/Library/Application Support/Mensa/worker.toml"
+python3 -m scripts.retention --config "$HOME/Library/Application Support/Mensa/worker.toml" --apply
+```
+
+원격 업로드·읽기 확인 후 성공 기록을 남기고 오래된 등록 릴리스를 정리합니다. 로컬 포인터만으로 성공을 판단하지 않습니다. 로그는 유휴·실패 상태에도 잠금 안에서 한도를 적용합니다. 미등록 파일·알 수 없는 symlink·인증·큐·모델·다른 Drive 파일은 삭제하지 않습니다. 전환 백업은 명시적으로 소유권을 기록하고 검증 완료일을 남긴 경로만 자동 관리합니다.
+
+Drive 내부 이전 버전은 현재 파일 크기와 별개입니다. 영구 고정을 사용하지 않으며 [Google의 blob 버전 정리 정책](https://developers.google.com/workspace/drive/api/guides/manage-revisions)에 맡깁니다. 일반적인30일 보관/100개 버전 기준은 Google의 정책이며 이 프로그램이 보장하는 Drive 전체 바이트 상한은 아닙니다. 폴더 전체 purge/cleanup으로 정리하지 않습니다.

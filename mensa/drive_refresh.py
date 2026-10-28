@@ -1,7 +1,7 @@
 """DriveRefreshJob이 소스 체크아웃을 읽기만 하며 식단을 준비하고 Drive에 게시합니다."""
 
 import copy
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -9,11 +9,14 @@ import re
 import stat
 import tempfile
 
-from mensa.checkpoints import TranslationCheckpointStore
 from mensa.config import WorkerConfig
+from mensa.maintenance import (ensure_capacity, record_prepared_release, record_successful_release,
+                               plan_maintenance, apply_maintenance, maintain_logs)
 from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from mensa.releases import DirectoryPublisher, _json_bytes, _release_id
+from mensa.retention import retain_menu, public_translations, check_bundle_size
+from mensa.retention_runtime import RetainedTranslationStore
 from mensa.schedule import BERLIN, validate_period
 from mensa.translation_runtime import resume_configured_translations
 from scripts.notices import load_glossary
@@ -123,6 +126,8 @@ class DriveRefreshJob:
             pair = staging.load_release(prepared['release_id'])
             # 현재 날짜에 더는 유효하지 않은 준비본은 공개하지 않고 기존 자료를 보존한 채 다시 수집합니다.
             if (pair[0]['coverage']['end'] >= today
+                    and retain_menu(pair[0], today, self._config.retention) == pair[0]
+                    and public_translations(*pair) == pair[1]
                     and current_id in (prepared['previous_release_id'], prepared['release_id'])):
                 return self._publish(pair, prepared['release_id'], glossary, today, prepared['previous_release_id'])
 
@@ -130,41 +135,49 @@ class DriveRefreshJob:
             current = staging.load_current()
         previous, cache = current if current is not None else (None, None)
         phrases = read_json(paths.checkout_dir / 'data/editorial-translations.json')['phrases']
-        private_cache = TranslationCheckpointStore(paths.state_dir)
+        fresh = {}
+
+        def source():
+            menu = self._source()
+            fresh['menu'] = copy.deepcopy(menu)
+            return menu
 
         def translate(menu, published, phrases, *, checkpoint=None):
+            private_cache = RetainedTranslationStore(self._config, menu=menu,
+                observed=fresh['menu'], today=today)
+            history = private_cache.merge(published, published_menu=previous, glossary=glossary)
+            private_cache.save(history)
             if self._translation_builder is not None:
-                history = copy.deepcopy(published or {'schema_version': 1, 'entries': {}})
-                private = private_cache.load()
-                if private is not None:
-                    # 공개된 교정값을 우선하되 중단 전에 완료한 새 원문의 번역은 다시 만들지 않습니다.
-                    for identifier, entry in private['entries'].items():
-                        history['entries'].setdefault(identifier, entry)
-                    history['notices'] = {**private.get('notices', {}), **history.get('notices', {})}
-                return self._translation_builder(menu, history, phrases, checkpoint=checkpoint)
-            ports = {}
-            if self._translate is not None:
-                ports['translate'] = self._translate
-            if self._runtime is not None:
-                ports['runtime'] = self._runtime
-            return resume_configured_translations(
-                menu, published, phrases, self._config.inference, state_dir=paths.state_dir,
-                glossary_provider=lambda: copy.deepcopy(glossary), key=self._key,
-                checkpoint=checkpoint, **ports)
+                candidate = self._translation_builder(menu, history, phrases, checkpoint=private_cache.save)
+            else:
+                ports = {}
+                if self._translate is not None:
+                    ports['translate'] = self._translate
+                if self._runtime is not None:
+                    ports['runtime'] = self._runtime
+                candidate = resume_configured_translations(
+                    menu, history, phrases, self._config.inference, state_dir=paths.state_dir,
+                    glossary_provider=lambda: copy.deepcopy(glossary), key=self._key,
+                    checkpoint_store=private_cache, **ports)
+            bounded = private_cache.save(candidate)
+            return public_translations(menu, bounded)
 
         def prepare(menu, candidate, *, previous):
+            size = check_bundle_size(menu, candidate, self._config.retention)
+            ensure_capacity(self._config, additional_bytes=size + 4096)
             release_id = staging.publish(menu, candidate, previous=previous, today=today)
-            private_cache.save(candidate)
+            record_prepared_release(self._config, release_id, today=date.fromisoformat(today))
             checkpoint.save({'schema_version': 1, 'period': pending['period'],
                              'release_id': release_id, 'previous_release_id': current_id, **destination})
 
         service = RefreshService(
-            source=self._source, coverage_guard=lambda menu: require_current_coverage(menu, today=today),
+            source=source, coverage_guard=lambda menu: require_current_coverage(menu, today=today),
             translate=translate,
             validator=lambda menu, candidate: validate_publication(menu, candidate, notice_glossary=glossary),
             publisher=prepare,
+            menu_transform=lambda menu: retain_menu(menu, today, self._config.retention),
         )
-        pair = service.refresh(previous, cache, phrases, checkpoint=private_cache.save)
+        pair = service.refresh(previous, cache, phrases)
         prepared = checkpoint.load()
         return self._publish(pair, prepared['release_id'], glossary, today, prepared['previous_release_id'])
 
@@ -175,10 +188,20 @@ class DriveRefreshJob:
     def _publish(self, pair, release_id, glossary, today, previous_release_id):
         menu, cache = pair
         validate_publication(menu, cache, notice_glossary=glossary, today=today)
+        check_bundle_size(menu, cache, self._config.retention)
         observed = self._identity(self._publisher.load_current())
         if observed not in (previous_release_id, release_id):
             raise ValueError('Published Drive data changed during collection; reprepare on the next retry')
         result = self._publisher.publish(menu, cache, today=today)
         if result.release_id != release_id or result.file_id != self._config.publication.file_id:
             raise ValueError('Drive upload confirmation differs from prepared data or configured file')
+        record_successful_release(self._config, release_id, today=date.fromisoformat(today))
+        pins = tuple(identifier for identifier in (release_id, previous_release_id) if identifier is not None)
+        apply_maintenance(self._config, plan_maintenance(self._config,
+            today=date.fromisoformat(today), pinned=pins))
         return pair
+
+    def maintain(self, now):
+        """JobRunner가 잠금 안에서 유휴·실패 상태에도 로그 한도를 적용합니다."""
+        maintain_logs(self._config, today=now.astimezone(BERLIN).date())
+        ensure_capacity(self._config)
