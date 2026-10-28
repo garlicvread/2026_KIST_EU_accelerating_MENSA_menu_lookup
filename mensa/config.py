@@ -43,12 +43,14 @@ class ResourceSettings:
 
 @dataclass(frozen=True)
 class PublicationSettings:
-    """PublicationSettings는 디렉터리 또는 GitHub 공개 방식과 해당 설정을 담으며, 명령 전송이나 원격 준비 상태를 확인하지 않습니다."""
+    """PublicationSettings는 디렉터리·Drive 또는 명시적인 이전 GitHub 공개 설정을 담으며, 명령 전송이나 원격 준비 상태를 확인하지 않습니다."""
 
     mode: str
     repository: str | None
     workflow: str | None
     remote: str | None
+    folder_id: str | None = None
+    file_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -247,8 +249,20 @@ def _parse_publication(value: object, config_path: Path) -> PublicationSettings:
     if "mode" not in values:
         raise ValueError(f"Worker config {config_path}, [publication]: missing keys: mode")
     mode = _require_string(values, "mode", config_path, "publication")
+    if mode == 'drive':
+        _require_keys(values, ('mode', 'remote', 'folder_id', 'file_id'), config_path, '[publication]')
+        remote = _require_string(values, 'remote', config_path, 'publication')
+        if re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9 _.\-]*:', remote) is None:
+            raise ValueError(f'Worker config {config_path}: invalid publication.remote; use a configured rclone remote name ending in :')
+        ids = {}
+        for name in ('folder_id', 'file_id'):
+            identifier = _require_string(values, name, config_path, 'publication')
+            if re.fullmatch(r'[A-Za-z0-9_-]{10,200}', identifier) is None:
+                raise ValueError(f'Worker config {config_path}: invalid publication.{name}')
+            ids[name] = identifier
+        return PublicationSettings(mode=mode, repository=None, workflow=None, remote=remote, **ids)
     if mode not in {"directory", "github"}:
-        raise ValueError(f"Worker config {config_path}: publication.mode must be directory or github")
+        raise ValueError(f"Worker config {config_path}: publication.mode must be directory, drive or github")
     names = ("mode",) if mode == "directory" else ("mode", "repository", "workflow", "remote")
     _require_keys(values, names, config_path, "[publication]")
     if mode == "directory":

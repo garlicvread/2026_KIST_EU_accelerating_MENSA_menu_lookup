@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const moduleURL = new URL('../dist/frontend/contracts.js', import.meta.url);
 const contracts = await import(moduleURL.href);
-const fixture = name => JSON.parse(readFileSync(new URL(`../site/data/${name}.json`, import.meta.url), 'utf8'));
+const fixture = name => JSON.parse(readFileSync(new URL(`./fixtures/menu-data/${name}.json`, import.meta.url), 'utf8'));
 const digest = 'a'.repeat(64);
 function menu() {
   return { schema_version: 1,

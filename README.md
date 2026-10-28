@@ -1,90 +1,73 @@
 # Saarbrücken Mensa
 
-이 웹사이트는 Saarbrücken 멘자의 독일어 식단을 한국어·영어·독일어로 보여 줍니다. 이용자는 하루/주간 보기를 선택하고 학생·교직원·방문객 가격, 독일어 원문, 곁들임 음식과 주의 표시를 확인할 수 있습니다.
+Saarbrücken 멘자의 독일어 식단을 한국어·영어·독일어로 보여 드립니다. 하루/주간 보기에서 학생·교직원·방문객 가격, 독일어 원문, 곁들임 음식과 주의 표시를 확인하실 수 있습니다.
 
 [공개 식단](https://garlicvread.github.io/2026_KIST_EU_accelerating_MENSA_menu_lookup/) · [원본 식단](https://www.stw-saarland.de/gastro/mensa-saarbruecken/)
 
-## 프로그램이 식단을 준비하고 보여 주는 방식
+## 식단과 화면을 게시하는 방식
 
-식단을 주기적으로 준비하는 Python 프로그램을 워커라고 부릅니다. 실행 명령은 [`scripts/local_refresh.py`](scripts/local_refresh.py)에 있습니다. 이 프로그램은 원본 웹페이지를 읽고 메뉴·가격을 검사한 뒤 요리 이름과 곁들임 음식을 번역합니다. 검사를 통과한 메뉴와 번역은 JSON 파일로 저장합니다.
+Python 워커가 원본 식단을 수집하고 가격·원문·번역을 검사한 뒤 Google Drive의 `current.json` 한 개를 갱신합니다. 이 파일에는 같은 게시본의 메뉴와 번역이 함께 들어 있습니다. 브라우저는 GitHub Pages의 화면 코드와 Drive의 공개 데이터를 읽습니다. 웹 백엔드나 데이터베이스 엔진은 없습니다.
 
-이용자의 브라우저는 미리 준비한 HTML/CSS/JavaScript와 JSON 파일을 읽습니다. 브라우저 요청에 맞춰 식단을 생성하는 웹 백엔드나 데이터베이스 엔진은 없습니다. Python 프로그램은 수집·게시 진행 상태와 완성된 번역을 JSON 파일로 저장합니다. `--config` 실행은 검사가 끝난 중간 번역도 별도 파일에 저장하지만, Mac 기본 `--base` 실행은 새 번역을 만드는 동안 메모리에서 보관합니다. 운영자는 이 진행 기록을 웹서버에 공개하지 않습니다.
+일상적인 식단 갱신은 Git 커밋·PR·GitHub Actions·Pages 배포를 만들지 않습니다. 화면 코드를 바꿀 때만 Pages를 다시 배포합니다. 운영 JSON은 소스에서 추적하지 않으며, 테스트는 `tests/fixtures/menu-data`의 작고 고정된 예제를 사용합니다. 기존 Git 이력을 다시 쓰지는 않습니다.
 
-처음 프로젝트를 맡은 유지보수자는 [시작 안내](docs/getting-started.md)와 [유지보수 설명서](docs/maintenance.md)를 읽어 주세요. 웹사이트에 변경을 반영하는 운영자는 [사이트 배포 안내](docs/deployment.md)를 확인해 주세요.
+Drive 게시에는 기존 계정의 저장 공간과 다운로드 한도가 적용됩니다. 새 유료 서비스·Cloudflare·결제 설정을 도입하지 않습니다. 저장 공간이나 다운로드 한도 때문에 실패하면 원인을 확인하며, 프로그램이 용량을 구매하지 않습니다.
 
-코드를 수정하는 유지보수자는 [구조 문서](docs/architecture.md)에서 담당 함수와 파일을 먼저 찾고, [데이터 설명](docs/data-contract.md)에서 메뉴·번역 파일의 필드와 검사 규칙을 확인해 주세요. 서버 계정·경로·자동 실행을 준비하는 운영자는 [운영 문서](docs/operations.md)의 설정과 실행 절차를 따라 주세요.
+이 문서는 Drive 방식으로 운영하는 절차를 설명합니다. 코드·설정 준비만으로 실제 전환이 완료되지는 않습니다. 현재 설치의 전환 여부는 [활성화 절차](docs/deployment.md#기존-mac을-drive-방식으로-전환하기)의 Drive 공개 읽기, Pages 배포, 워커 재개 확인으로 판단해 주세요.
 
-## 현재 운영 환경
+## 문서 읽기
 
-현재 Mac에서는 `~/mensa`의 코드를 사용해 식단을 갱신하고 GitHub Pages에 게시합니다. 작업 기록·모델·로그는 `~/Library/Application Support/Mensa`에 있으며, 그 안의 `checkout`은 `~/mensa`를 가리킵니다. Python·Ollama·`gemma4:31b` 모델과 로그인 사용자의 LaunchAgent는 이미 설치되어 있습니다. 이 환경을 이어받는 유지보수자는 기존 설정과 파일을 그대로 사용합니다. 경로와 상태 확인 명령은 [현재 운영 환경](docs/operations.md#현재-운영-환경)에 정리되어 있습니다.
+- 처음 맡으시면 [시작 안내](docs/getting-started.md)와 [유지보수 설명서](docs/maintenance.md)를 읽어 주세요.
+- 설치·실행 계정·Drive 연결·오류 복구·후임자 인계는 [운영 문서](docs/operations.md)에 있습니다.
+- 코드와 실제 설치에 수정본을 반영하는 순서는 [배포 안내](docs/deployment.md)를 사용해 주세요.
+- 함수와 파일 위치는 [구조 문서](docs/architecture.md), JSON 필드·가격·해시 규칙은 [데이터 설명](docs/data-contract.md)에 있습니다.
 
-갱신 날짜는 프로그램이 `Europe/Berlin` 기준으로 계산합니다. 기존 환경에서 시간대 데이터를 별도로 준비하거나 시스템 시간대를 다시 설정할 작업은 없습니다. 새로운 컴퓨터에 설치하거나 게시 방식을 바꿀 때의 작업은 [새 환경 설치](docs/operations.md#새-환경에-설치할-때)를 참고해 주세요.
+## 로컬에서 검사하고 화면 확인하기
 
-## 로컬에서 코드와 화면 확인하기
-
-코드 수정과 검사는 실제 워커 체크아웃과 분리된 개발 체크아웃에서 진행해 주세요. 현재 Mac의 `~/mensa`는 새 워커 프로세스가 직접 읽는 운영 코드 위치입니다. Git이 무시하는 `.tmp/`, `dist/`, `node_modules/` 산출물은 게시 검사에서 보존하며 허용합니다. 구체적인 허용 범위와 충돌 보호는 [운영 문서](docs/operations.md#개발-산출물과-체크아웃-검사)에 설명되어 있습니다.
-
-개발 명령은 Python 3.12 이상과 Node.js를 사용합니다. 현재 Mac의 워커는 `/opt/homebrew/opt/python@3.14/bin/python3.14`, Pages 검사는 Python 3.12와 Node.js 24를 사용합니다. 브라우저용 컴파일러는 [package.json](package.json)과 잠금 파일로 설치합니다. 새 개발 체크아웃이거나 잠금 파일이 바뀐 경우에만 다음 설치 명령을 실행해 주세요. 설치된 개발 환경을 그대로 사용할 때는 아래 검사에서 시작합니다.
+운영 워커의 `~/mensa`와 분리된 개발 체크아웃에서 작업해 주세요. Python 3.12 이상과 Node.js 24를 사용합니다. 새 체크아웃이거나 잠금 파일이 바뀌었을 때 컴파일러를 설치합니다.
 
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
-```
-
-README와 package.json이 있는 프로젝트 최상위 폴더에서 필요한 검사를 실행합니다. `python3`는 위 버전 조건을 충족하는 개발용 Python을 뜻합니다.
-
-```sh
 python3 -m unittest discover -s tests -v
 npm test
-python3 -m scripts.update_menu --validate-only
+python3 -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data
 ```
 
-`npm test`는 TypeScript를 컴파일한 뒤 브라우저 코드의 테스트를 실행합니다. `npm run typecheck`는 파일을 만들지 않고 타입을 검사하며 `npm run compile`은 `dist/frontend/`에 JavaScript를 만듭니다. 마지막 Python 명령은 저장된 `site/data/menu.json`과 `translations.json`의 형식·원문 연결·번역 완전성을 검사합니다. 이 명령은 원본 웹페이지를 가져오지 않으며 식단 날짜가 오늘까지 유효한지는 별도로 검사해야 합니다.
+마지막 명령은 저장된 예제의 형식·가격·번역 연결을 검사합니다. 원본 수집이나 모델 실행을 하지 않으며 오늘 날짜까지의 식단을 보증하지 않습니다. 고정된 과거 테스트 자료에 현재 날짜 검사를 적용하지 않습니다.
 
-웹서버가 제공할 폴더는 사이트 생성 프로그램 [`scripts/build_site.py`](scripts/build_site.py)가 만듭니다. 다음 예제의 `.tmp/build-example`은 아직 없는 폴더 이름을 골라 사용해 주세요. 프로그램은 기존 파일을 보호하기 위해 출력 폴더가 이미 있으면 중단합니다. 기존 폴더를 지우지 말고 `.tmp/build-example-2`처럼 다른 이름을 선택해 주세요.
+아직 없는 출력 폴더를 선택하여 예제로 화면을 만듭니다. 이미 있는 출력 폴더는 빌더가 덮어쓰지 않으므로 다른 이름을 사용해 주세요.
 
 ```sh
-npm run build -- --output .tmp/build-example
+npm run build -- --data-dir tests/fixtures/menu-data --output .tmp/build-example
 python3 -m http.server 8000 --bind 127.0.0.1 --directory .tmp/build-example
 ```
 
-`npm run build`는 컴파일과 사이트 생성을 차례로 실행합니다. 사이트 생성 프로그램은 `site/`의 HTML/CSS/favicon·메뉴/번역과 `dist/frontend/`의 JavaScript를 읽고 `.tmp/build-example/`에 게시용 파일을 만듭니다. 개발용 모델·로그·작업 기록은 이 폴더에 넣지 않습니다. 브라우저로 확인할 때는 `site/` 입력 폴더가 아니라 이 명령이 만든 출력 폴더를 제공해 주세요.
+실제 Drive를 읽는 화면은 공개 `current.json`의 파일 ID를 지정합니다.
 
-사이트 생성 명령의 기본 출력 폴더는 `.tmp/pages`입니다. Python 명령 `python3 -m scripts.build_site`를 직접 사용하면 컴파일은 실행되지 않으므로 먼저 `npm run compile`을 실행해 주세요. 모든 입력/출력 옵션은 [운영 문서](docs/operations.md#명령별-옵션과-기본값)에 설명되어 있습니다.
+```sh
+npm run build -- --drive-file-id FILE_ID --output .tmp/build-drive
+```
 
-## 실제 식단 갱신과 상태 확인하기
+`FILE_ID`를 실제 설치의 값으로 바꿔 주세요. 이 모드는 HTML 메타 정보에 파일 ID를 넣고 HTML/CSS/favicon과 컴파일된 JavaScript만 출력합니다. 로컬 메뉴·번역·용어집 JSON을 읽거나 출력에 포함하지 않습니다. `--drive-file-id`와 `--data-dir`는 함께 사용할 수 없습니다. `site/` 입력 폴더 대신 생성한 출력 폴더를 웹서버에 연결해 주세요. Python 빌더를 직접 실행할 때는 먼저 `npm run compile`을 실행합니다.
 
-현재 Mac의 로그인 사용자는 기존 코드 폴더에서 설치된 워커의 상태를 확인합니다.
+## 워커 실행과 현재 Mac의 경로
+
+현재 Mac의 코드 위치는 `~/mensa`, 비공개 상태·모델·로그 위치는 `~/Library/Application Support/Mensa`입니다. 기존 LaunchAgent는 같은 로그인 사용자로 `scripts.local_refresh --base`를 로그인 시와 900초 간격에 호출합니다. 이 코드는 `BASE/worker.toml`을 읽으며 설정이 없으면 자동 Git 게시로 되돌아가지 않습니다. Drive 전환 때도 기존 모델·큐·로그와 LaunchAgent를 보존합니다.
 
 ```sh
 cd "$HOME/mensa"
 /opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
 ```
 
-`--status`는 큐와 마지막 결과만 읽습니다. 수동으로 대기 작업을 처리할 필요가 있을 때는 같은 명령에서 `--status`를 빼며, 재시도 대기와 자원 조건은 그대로 적용됩니다. 모델·LaunchAgent 재설치는 일상적인 갱신 절차에 포함되지 않습니다.
+`--status`는 큐와 마지막 결과를 읽습니다. 이를 뺀 실행은 기존 일정·재시도 대기·자원 기준에 따라 대기 작업을 처리합니다. 수동 실행도 강제 갱신은 아닙니다. 수집 일정은 `Europe/Berlin` 기준 매일 09:00·10:00·11:00입니다. 화면을 잠가도 로그인과 깨어 있는 상태가 유지되면 실행할 수 있지만 로그아웃·시스템 잠자기 동안에는 실행되지 않습니다.
 
-다른 서버를 새로 구성할 때는 설정 파일 위치(`--config`) 또는 Mac 전용 작업 폴더(`--base`) 중 하나를 지정합니다. 설정 파일은 코드·작업 기록·공개 폴더와 모델·자원·게시 방법을 지정합니다. [상대 경로 예제](config/worker.example.toml)와 [Linux 예제](deploy/worker.example.toml)는 새 환경에 맞춰 작성할 때 사용합니다.
+새 설치와 후임자는 [Drive 설정 예제](config/worker.drive.example.toml)를 자신의 계정·경로·모델·rclone remote·폴더 ID·파일 ID에 맞춥니다. `local_refresh --config /path/to/worker.toml`도 지원합니다. `paths.public_dir`는 코드와 비공개 상태에서 분리한 로컬 준비 폴더이며, Drive 모드에서 정적 웹사이트 루트를 뜻하지 않습니다. 현재 Mac의 예는 `~/Library/Application Support/Mensa Data`입니다.
 
-Linux 자동 실행 예제 [`deploy/mensa-refresh.service`](deploy/mensa-refresh.service)는 프로그램을 OS 계정 `mensa`로 실행하도록 지정합니다. 운영자가 같은 프로그램을 수동으로 실행할 때도 이 계정을 사용해 주세요. 다른 계정으로 작업 기록 파일을 만들면 `mensa`가 다음 자동 실행에서 파일을 읽거나 고치지 못할 수 있습니다. 대상 계정의 프로젝트 폴더에서 사용할 명령은 다음과 같습니다.
+## 데이터와 복구 기록 보존
 
-```sh
-python3 -m scripts.local_refresh --config /etc/mensa/worker.toml --status
-python3 -m scripts.local_refresh --config /etc/mensa/worker.toml
-```
+워커는 새 원본의 날짜를 최신 값으로 교체하고 그보다 앞선 기존 공개 날짜를 보존합니다. 모든 원본 발생·검증한 가격·주의 표시와 번역 연결을 유지합니다. 정상적인 메뉴 추가·삭제·교체·중복 수 변화와 빈 식단을 이전 항목 개수로 차단하지 않습니다. 가격 출처·날짜 연결·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다.
 
-`--status`를 받은 프로그램은 설정의 작업 기록 폴더에서 `queue.json`의 대기 수집 시각 작업과 `last-result.json`의 마지막 실행 결과를 출력합니다. 프로그램은 파일을 수정하지 않고, 첫 실행 전에도 작업 기록 폴더를 만들지 않습니다. `--status` 없이 실행하면 대기 작업을 처리하되 매일 09:00·10:00·11:00 Berlin 시간, 실패 후 대기 시간과 메모리/CPU 기준을 지킵니다. 수동 실행도 강제 갱신은 아닙니다. 원본 페이지가 주중에 추가하는 가격과 구성을 반영하기 위해 프로그램은 하루 세 번 수집하며, 메뉴 이름과 구성품이 같으면 저장된 번역을 재사용합니다. 웹사이트는 새 메뉴·번역으로 최신 식단을 교체하며, 수집할 때마다 같은 메뉴를 추가하지 않습니다. `queue.json`에는 중복 실행을 막기 위한 완료 수집 시각과 대기 작업만 기록합니다.
+새 번역이 필요할 때만 준비된 모델을 사용합니다. 검토된 주의 표시 대응표와 저장된 번역을 우선하고, 미등록 문구도 번역을 완성한 뒤 게시합니다. 실패하면 기존 공개 묶음을 유지하고 큐의 재시도 정책을 사용합니다. `queue.json`, `translation-checkpoint.json`, `drive-publication.json`과 로컬 게시 이력은 복구 입력이므로 삭제하거나 웹에 올리지 마세요.
 
-현재 Mac의 LaunchAgent는 로그인 시와 900초 간격으로 워커를 호출합니다. Mac이 깨어 있고 해당 사용자의 로그인 세션이 유지되어야 실행됩니다. 화면 잠금·로그아웃·시스템 잠자기와 실제 복구 방법은 [Mac 운영 조건](docs/operations.md#mac의-로그인화면-잠금잠자기)을 확인해 주세요. 다른 Mac의 최초 설치나 손상된 설치 복구에만 [`scripts/install_local_worker.py`](scripts/install_local_worker.py)를 사용합니다.
+Drive의 공유 설정은 해당 설치 운영자가 관리합니다. 이번 전환은 사용자가 제공한 폴더의 기존 공유 설정을 그대로 사용합니다. 후임자는 자신의 연결과 공개 읽기 설정을 준비하고 파일 ID를 설정에 넣습니다. OAuth token/client secret은 rclone의 비공개 설정에만 보관하며 소스·워커 TOML·사이트에 넣지 않습니다. rclone 공용 OAuth client의 종료 공지와 자체 client 준비는 [인계 안내](docs/operations.md#drive-연결과-후임자-인계)를 확인해 주세요.
 
-## 원본 데이터와 공개 파일을 다룰 때의 기준
-
-원본 수집 함수는 같은 메뉴가 반복되어도 각 발생에 다른 ID를 붙여 `menu.json`에 모두 남깁니다. 화면의 메뉴 선택 함수는 같은 날짜 안에서 ID 이외의 모든 내용이 같은 항목만 한 번 보여 줍니다. 일간·주간 화면 모두 이 규칙을 사용합니다.
-
-원본이 유효하면 메뉴 추가·삭제·교체, 중복 항목 수 변화와 빈 식단을 정상적으로 갱신합니다. 이전 식단과 메뉴 개수를 비교해 차단하지 않습니다. 계속 존재하는 동일 메뉴의 가격이 모두 사라진 경우와 원문·가격 연결 오류는 계속 검출합니다.
-
-가격 검사 함수는 같은 날짜·분류·독일어 이름의 원본 S/M/G 금액과 학생/교직원/방문객의 정수 센트 가격을 대조합니다. 번역 모델은 가격이나 원문에 없는 알레르기 표시를 만들지 않습니다. 주의 표시는 `data/notice-translations.json`의 번역을 우선 사용하고, 사전에 없는 문구는 모델로 번역해 캐시에 저장합니다. 새 식단은 모든 주의 표시의 번역이 완성된 뒤 게시합니다. 번역한 주의 표시에도 독일어 원문을 함께 표시합니다.
-
-미등록 주의 표시만 새로 생겨도 워커는 번역 모델을 실행합니다. 호출 오류는 갱신 성공으로 처리하지 않고 기존 작업 큐에 전달합니다. 일시적인 통신 오류는 큐의 재시도 정책으로 다시 실행합니다. 이전 코드의 `Unknown notice labels`로 대기 중인 작업은 수정본 반영 후 기존 기록을 보존해 재개합니다. [오류 복구](docs/operations.md#실패-확인과-재시도)를 참고해 주세요.
-
-완성된 웹사이트에는 같은 식단의 `menu.json`과 `translations.json`을 함께 넣습니다. `data/current.json`은 이용자에게 보여 줄 두 파일의 폴더를 지정합니다. 실패 후 이미 완료한 번역이나 GitHub 게시 번호를 잊지 않도록 운영자는 작업 기록을 삭제하지 말고 [복구 절차](docs/operations.md#실패-확인과-재시도)를 따라 주세요.
-
-GitHub의 [`update-and-deploy.yml`](.github/workflows/update-and-deploy.yml)은 운영자가 지정한 main 커밋을 검사하고 사이트를 만들어 Pages에 게시합니다. 이 파일에는 push/주간 자동 실행 일정이 없습니다. Python 프로그램이 하루 세 번의 식단 갱신 작업을 판단하며 Linux timer나 Mac LaunchAgent는 그 프로그램을 실행할 기회만 제공합니다. 저장소 라이선스는 아직 결정되지 않았습니다.
+저장소 라이선스는 아직 결정되지 않았습니다.

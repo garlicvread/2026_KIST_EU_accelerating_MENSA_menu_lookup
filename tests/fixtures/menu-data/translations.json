@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "entries": {
+    "0924eb072408d84edbee0be476c6aaf50d823846bec39c4ddb397b4e9af02bb6": {
+      "source": {
+        "name_de": "Köttbullar",
+        "components": [
+          "Rahmsoße mit Champignons",
+          "Salzkartoffel",
+          "Karottensalat mit Erbsen",
+          "White Donut"
+        ]
+      },
+      "en": {
+        "name": "Swedish meatballs",
+        "components": [
+          "Cream sauce with button mushrooms",
+          "Boiled potato",
+          "Carrot salad with peas",
+          "White donut"
+        ]
+      },
+      "ko": {
+        "name": "스웨덴식 미트볼",
+        "components": [
+          "양송이버섯 크림소스",
+          "삶은 감자",
+          "완두콩을 넣은 당근 샐러드",
+          "화이트 도넛"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "629c69dd69ac3040a6f65e81e43509e26456a28fcc0f9a37801c99090a094b1a": {
+      "source": {
+        "name_de": "KlimaTeller: Tomate-Mozzarella Bratling",
+        "components": [
+          "Scharfer Tomatencreme-Dip",
+          "Pommes Frites",
+          "Bunt gemischter Blattsalat",
+          "Weiße Salatsoße Dressing",
+          "Klare Salatsoße",
+          "Obst"
+        ]
+      },
+      "en": {
+        "name": "Tomato Mozzarella Patty",
+        "components": [
+          "Spicy tomato cream dip",
+          "French fries",
+          "Mixed leaf salad",
+          "White salad dressing",
+          "Clear salad dressing",
+          "Fruit"
+        ]
+      },
+      "ko": {
+        "name": "토마토 모짜렐라 패티",
+        "components": [
+          "매콤한 토마토 크림 딥",
+          "감자튀김",
+          "모둠 잎채소 샐러드",
+          "화이트 샐러드 드레싱",
+          "투명 샐러드 드레싱",
+          "과일"
+        ]
+      },
+      "origin": "model",
+      "model": "gemma4:31b",
+      "prompt_version": "menu-v4",
+      "generation_identity": {
+        "schema_version": 1,
+        "policy": "6887ab7e02f762a1a88afbb0acfb2e3d311e0173c4c0bf676914bcebddbee752",
+        "glossary": "e39597ac67ffd1faecdfdf24591ca096b116891c82764aff0b88eb1f62e4a5fc",
+        "backend": "54a18ea764e1ef728370317f02e254a0efed8469db3ef159bb9d79010246759c"
+      }
+    },
+    "806b4932ccb71415d2045855486d940e88b4248f8f51e1865be57a6879f08263": {
+      "source": {
+        "name_de": "Jägerpfanne",
+        "components": [
+          "Reis",
+          "Vitaminsalat",
+          "Schokoladenpudding"
+        ]
+      },
+      "en": {
+        "name": "Hunter-style skillet dish",
+        "components": [
+          "Rice",
+          "Vitamin salad",
+          "Chocolate pudding"
+        ]
+      },
+      "ko": {
+        "name": "사냥꾼식 팬 요리",
+        "components": [
+          "쌀밥",
+          "비타민 샐러드",
+          "초콜릿 푸딩"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    },
+    "f4846d8dc3e69d826b3fcbda0d84319977b89b7988433d01808971ec15f084b6": {
+      "source": {
+        "name_de": "Hähnchenschnitzel Wiener Art",
+        "components": [
+          "Paprikarahmsoße",
+          "Reis",
+          "Bunt gemischter Blattsalat",
+          "Klare Salatsoße",
+          "Weiße Salatsoße Dressing",
+          "Obst (Äpfel aus biologischem Anbau)"
+        ]
+      },
+      "en": {
+        "name": "Viennese-style chicken schnitzel",
+        "components": [
+          "Bell pepper cream sauce",
+          "Rice",
+          "Mixed leaf salad",
+          "Clear salad dressing",
+          "White salad dressing",
+          "Fruit (organic apples)"
+        ]
+      },
+      "ko": {
+        "name": "빈 스타일 닭고기 슈니첼",
+        "components": [
+          "파프리카 크림소스",
+          "쌀밥",
+          "모둠 잎채소 샐러드",
+          "맑은 샐러드 드레싱",
+          "화이트 샐러드 드레싱",
+          "과일(유기농 사과)"
+        ]
+      },
+      "origin": "editorial-draft",
+      "model": "assistant-draft",
+      "prompt_version": "menu-v4"
+    }
+  },
+  "notices": {
+    "Antioxidationsmittel": {
+      "en": "Antioxidant",
+      "ko": "산화방지제"
+    },
+    "Backtriebmittel": {
+      "en": "Raising agent",
+      "ko": "팽창제"
+    },
+    "Ei": {
+      "en": "Egg",
+      "ko": "달걀"
+    },
+    "Farbstoff": {
+      "en": "Colouring",
+      "ko": "착색료"
+    },
+    "Geflügel": {
+      "en": "Poultry",
+      "ko": "가금류"
+    },
+    "Gerste": {
+      "en": "Barley",
+      "ko": "보리"
+    },
+    "Knoblauch": {
+      "en": "Garlic",
+      "ko": "마늘"
+    },
+    "Milch und Laktose": {
+      "en": "Milk and lactose",
+      "ko": "우유 및 유당"
+    },
+    "Roggen": {
+      "en": "Rye",
+      "ko": "호밀"
+    },
+    "Schweinefleisch": {
+      "en": "Pork",
+      "ko": "돼지고기"
+    },
+    "Senf": {
+      "en": "Mustard",
+      "ko": "겨자"
+    },
+    "Süßungsmittel": {
+      "en": "Sweetener",
+      "ko": "감미료"
+    },
+    "Weizen": {
+      "en": "Wheat",
+      "ko": "밀"
+    },
+    "aus zum Teil fein zerkleinertem Fleisch": {
+      "en": "Partly made from finely minced meat",
+      "ko": "일부는 잘게 다진 고기로 제조됨"
+    }
+  }
+}

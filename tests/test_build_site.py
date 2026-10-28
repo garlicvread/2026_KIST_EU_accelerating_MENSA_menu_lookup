@@ -53,7 +53,7 @@ class BuildSiteTests(unittest.TestCase):
         source, compiled, reviewed = (root / name for name in ('source', 'compiled', 'reviewed'))
         for directory in (source / 'data', compiled / 'nested', reviewed):
             directory.mkdir(parents=True)
-        (source / 'index.html').write_text('<link rel="stylesheet" href="styles.css"><script type="module" src="app.js"></script>', encoding='utf-8')
+        (source / 'index.html').write_text('<meta name="mensa-drive-file-id" content=""><link rel="stylesheet" href="styles.css"><script type="module" src="app.js"></script>', encoding='utf-8')
         (source / 'styles.css').write_bytes(b'body { color: green; }\n')
         (source / 'favicon.svg').write_bytes(b'<svg xmlns="http://www.w3.org/2000/svg"></svg>\n')
         (source / 'data/menu.json').write_text(json.dumps(self.menu, ensure_ascii=False), encoding='utf-8')
@@ -64,14 +64,79 @@ class BuildSiteTests(unittest.TestCase):
         (compiled / 'data.js').write_bytes(b"export const value = 'menu';\n")
         return source, compiled, reviewed / 'notice-translations.json'
 
-    def build(self, output, *, source=None, compiled=None, glossary=None):
+    def build(self, output, *, source=None, compiled=None, glossary=None, extra=()):
         return subprocess.run([sys.executable, '-m', 'scripts.build_site', '--source', str(source or self.source),
                                '--output', str(output), '--compiled', str(compiled or self.compiled),
-                               '--glossary', str(glossary or self.glossary_path)],
+                               '--glossary', str(glossary or self.glossary_path), *extra],
                               capture_output=True, text=True, check=False)
 
     def source_bytes(self):
         return {path.relative_to(self.source): path.read_bytes() for path in self.source.rglob('*') if path.is_file()}
+
+    def test_drive_build_needs_only_ui_assets_and_emits_configured_meta_without_json(self):
+        for path in (self.source / 'data').iterdir():
+            path.unlink()
+        (self.source / 'data').rmdir()
+        self.glossary_path.unlink()
+        output = self.root / 'drive-pages'; before = self.source_bytes()
+        result = self.build(output, extra=['--drive-file-id', 'fixture-public-file-id'])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        html = (output / 'index.html').read_text()
+        self.assertIn('<meta name="mensa-drive-file-id" content="fixture-public-file-id">', html)
+        self.assertFalse((output / 'data').exists())
+        self.assertEqual(list(output.rglob('*.json')), [])
+        urls = AssetReferences(html).urls
+        self.assertEqual({path.relative_to(output).as_posix() for path in output.rglob('*') if path.is_file()},
+                         {'index.html', 'app.js', 'styles.css', 'favicon.svg', urls['styles.css']} |
+                         {(Path(urls['app.js']).parent / name).as_posix() for name in ['main.js', 'nested/view.js', 'data.js']})
+        self.assertEqual(before, self.source_bytes())
+
+    def test_explicit_fixture_directory_is_used_without_source_runtime_data(self):
+        for path in (self.source / 'data').iterdir():
+            path.unlink()
+        fixture = builder.ROOT / 'tests/fixtures/menu-data'
+        output = self.root / 'fixture-pages'
+        result = self.build(output, glossary=builder.ROOT / 'data/notice-translations.json', extra=['--data-dir', str(fixture)])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        expected = tuple(json.loads((fixture / name).read_text()) for name in ['menu.json', 'translations.json'])
+        self.assertEqual(DirectoryPublisher(output, notice_glossary={}).load_current(), expected)
+        self.assertIn('<meta name="mensa-drive-file-id" content="">', (output / 'index.html').read_text())
+
+    def test_invalid_or_ambiguous_drive_configuration_stops_before_output_creation(self):
+        for index, file_id in enumerate(['', 'short', '../file', 'file?download=1', 'a' * 201]):
+            output = self.root / f'invalid-drive-{index}'
+            result = self.build(output, extra=['--drive-file-id', file_id])
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('file ID', result.stderr)
+            self.assertFalse(output.exists())
+        output = self.root / 'ambiguous-drive'
+        result = self.build(output, extra=['--drive-file-id', 'fixture-public-file-id', '--data-dir', str(self.source / 'data')])
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(output.exists())
+
+    def test_output_cannot_overlap_explicit_data_tree(self):
+        fixture = self.root / 'fixtures'; fixture.mkdir()
+        for name in ['menu.json', 'translations.json']:
+            (fixture / name).write_bytes((self.source / 'data' / name).read_bytes())
+        result = self.build(fixture / 'pages', extra=['--data-dir', str(fixture)])
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('overlap', result.stderr)
+        self.assertFalse((fixture / 'pages').exists())
+
+    def test_drive_requires_one_meta_setting_and_python_modes_are_unambiguous(self):
+        original = (self.source / 'index.html').read_text()
+        meta = '<meta name="mensa-drive-file-id" content="">'
+        for index, replacement in enumerate(['', meta + meta]):
+            (self.source / 'index.html').write_text(original.replace(meta, replacement))
+            output = self.root / f'missing-or-duplicate-meta-{index}'
+            result = self.build(output, extra=['--drive-file-id', 'fixture-public-file-id'])
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('meta tag', result.stderr)
+            self.assertFalse(output.exists())
+        with self.assertRaisesRegex(ValueError, 'not both'):
+            builder.build_site(self.source, self.root / 'ambiguous-api', compiled=self.compiled,
+                               glossary=self.glossary_path, data_dir=self.source / 'data',
+                               drive_file_id='fixture-public-file-id')
 
     def test_generated_references_version_exact_copied_bytes_without_changing_source(self):
         before = self.source_bytes()

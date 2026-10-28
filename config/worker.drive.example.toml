@@ -1,0 +1,32 @@
+# Drive 게시 예제입니다. 이 파일을 읽는 것만으로 인증·모델·워커가 준비되지는 않습니다.
+# 상대 경로는 이 TOML 파일의 폴더를 기준으로 해석합니다. 세 트리는 겹치지 않아야 합니다.
+# 최초 데이터와 안정된 파일 ID는 scripts.configure_drive로 준비하거나 기존 설치에서 인계받습니다.
+[paths]
+checkout_dir = "../worker-checkout"
+state_dir = "../worker-private"
+# Drive 모드에서는 웹사이트 루트가 아니라 로컬 릴리스 준비 폴더입니다.
+public_dir = "../worker-data"
+
+[inference]
+mode = "managed"
+provider = "ollama"
+# 준비한 모델과 안정된 버전을 지정합니다. 모델 내용이 바뀌면 revision도 갱신해 주세요.
+model = "gemma4:31b"
+revision = "gemma4-31b-operator-v1"
+binary = "../worker-private/runtime/ollama"
+models_dir = "../worker-private/models"
+log_dir = "../worker-private/logs"
+
+[resources]
+# Mac 정책 예제입니다. Linux 설치는 플랫폼과 실제 자원 기준을 조정해 주세요.
+platform = "macos"
+min_available_bytes = 34359738368
+max_load_per_cpu = 0.6
+
+[publication]
+mode = "drive"
+# rclone에서 실행 사용자 계정으로 인증한 연결 이름입니다. OAuth 비밀은 rclone 설정에만 둡니다.
+remote = "gdrive:"
+# 아래 예시 ID는 실제 폴더와 current.json 파일 ID로 바꿔 주세요. 이름이나 URL이 아닙니다.
+folder_id = "REPLACE_WITH_FOLDER_ID_1234567890"
+file_id = "REPLACE_WITH_CURRENT_FILE_ID_1234567890"

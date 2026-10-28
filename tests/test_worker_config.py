@@ -91,6 +91,30 @@ class WorkerConfigTests(unittest.TestCase):
                 for name in ('binary', 'models_dir', 'log_dir'):
                     self.assertIsNone(getattr(result.inference, name))
 
+    def test_drive_publication_is_explicit_and_has_no_git_destination(self):
+        self.publication = {'mode': 'drive', 'remote': 'my-drive:',
+                            'folder_id': 'folder_1234567890', 'file_id': 'snapshot_1234567890'}
+        self.write_config()
+        before = set(self.root.rglob('*'))
+        result = self.load()
+        self.assertEqual(result.publication.mode, 'drive')
+        self.assertEqual(result.publication.remote, 'my-drive:')
+        self.assertEqual(result.publication.folder_id, 'folder_1234567890')
+        self.assertEqual(result.publication.file_id, 'snapshot_1234567890')
+        self.assertIsNone(result.publication.repository)
+        self.assertIsNone(result.publication.workflow)
+        self.assertEqual(set(self.root.rglob('*')), before)
+
+    def test_drive_publication_rejects_paths_options_and_missing_ids(self):
+        valid = {'mode': 'drive', 'remote': 'gdrive:',
+                 'folder_id': 'folder_1234567890', 'file_id': 'snapshot_1234567890'}
+        for field, value in (('remote', 'gdrive:another-folder'), ('remote', 'gdrive,token=secret:'),
+                             ('folder_id', '../folder'), ('file_id', ''), ('file_id', 'id?key=secret')):
+            with self.subTest(field=field, value=value):
+                self.publication = {**valid, field: value}
+                self.write_config()
+                self.assert_invalid('publication.' + field)
+
 
     def test_managed_inference_rejects_unsupported_mode_and_provider(self):
         for key, value in (('mode', 'automatic'), ('provider', 'openai')):

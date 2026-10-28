@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "source": {
+    "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
+    "fetched_at": "2026-10-28T10:11:03Z",
+    "sha256": "f0decbebeebc76813a170f7a46318a02150632075f0f434b686a668fd58907d8"
+  },
+  "coverage": {
+    "start": "2026-09-30",
+    "end": "2026-10-06"
+  },
+  "days": [
+    {
+      "date": "2026-09-30",
+      "meals": [
+        {
+          "id": "2026-09-30-dda296752ac6ebc2ac6ac004f7dbaa8d58887243d4e0ae773803b25574324d6c",
+          "translation_key": "0924eb072408d84edbee0be476c6aaf50d823846bec39c4ddb397b4e9af02bb6",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Köttbullar",
+          "components": [
+            {
+              "name_de": "Rahmsoße mit Champignons",
+              "notices": [
+                "Antioxidationsmittel",
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Salzkartoffel",
+              "notices": []
+            },
+            {
+              "name_de": "Karottensalat mit Erbsen",
+              "notices": [
+                "Farbstoff",
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "White Donut",
+              "notices": [
+                "Backtriebmittel",
+                "Milch und Laktose",
+                "Weizen",
+                "Roggen"
+              ]
+            }
+          ],
+          "notices": [
+            "Schweinefleisch",
+            "aus zum Teil fein zerkleinertem Fleisch",
+            "Ei",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-09-30",
+            "category": "Menü 1",
+            "name": "Köttbullar",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-01",
+      "meals": [
+        {
+          "id": "2026-10-01-53645a43c39e3c920a1221c735d469c7a490171dc54f939233ebf3d6d8ba721b",
+          "translation_key": "f4846d8dc3e69d826b3fcbda0d84319977b89b7988433d01808971ec15f084b6",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Hähnchenschnitzel Wiener Art",
+          "components": [
+            {
+              "name_de": "Paprikarahmsoße",
+              "notices": [
+                "Milch und Laktose",
+                "Weizen",
+                "Gerste"
+              ]
+            },
+            {
+              "name_de": "Reis",
+              "notices": []
+            },
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Obst (Äpfel aus biologischem Anbau)",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Geflügel",
+            "Ei",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-01",
+            "category": "Menü 1",
+            "name": "Hähnchenschnitzel Wiener Art",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-05",
+      "meals": [
+        {
+          "id": "2026-10-05-2b132d92ea2d3054196212301fd4e714f658a89d8d7c8f867f0cf28349c56b91",
+          "translation_key": "806b4932ccb71415d2045855486d940e88b4248f8f51e1865be57a6879f08263",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "Jägerpfanne",
+          "components": [
+            {
+              "name_de": "Reis",
+              "notices": []
+            },
+            {
+              "name_de": "Vitaminsalat",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Schokoladenpudding",
+              "notices": [
+                "Milch und Laktose",
+                "Weizen"
+              ]
+            }
+          ],
+          "notices": [
+            "Antioxidationsmittel",
+            "Schweinefleisch",
+            "Knoblauch",
+            "Milch und Laktose"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-05",
+            "category": "Menü 1",
+            "name": "Jägerpfanne",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        }
+      ]
+    },
+    {
+      "date": "2026-10-06",
+      "meals": [
+        {
+          "id": "2026-10-06-f9f7b74ec4938623b29ec385532d7e2864c25e508a4a1f3dd0d140be7b09cc5c",
+          "translation_key": "629c69dd69ac3040a6f65e81e43509e26456a28fcc0f9a37801c99090a094b1a",
+          "category": "Menü 1",
+          "location": "Aufgang A",
+          "name_de": "KlimaTeller: Tomate-Mozzarella Bratling",
+          "components": [
+            {
+              "name_de": "Scharfer Tomatencreme-Dip",
+              "notices": [
+                "Milch und Laktose"
+              ]
+            },
+            {
+              "name_de": "Pommes Frites",
+              "notices": [
+                "Backtriebmittel"
+              ]
+            },
+            {
+              "name_de": "Bunt gemischter Blattsalat",
+              "notices": []
+            },
+            {
+              "name_de": "Weiße Salatsoße Dressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Klare Salatsoße",
+              "notices": [
+                "Senf"
+              ]
+            },
+            {
+              "name_de": "Obst",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Knoblauch",
+            "Ei",
+            "Milch und Laktose",
+            "Weizen"
+          ],
+          "prices": {
+            "student": 365,
+            "staff": 670,
+            "guest": 935
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-06",
+            "category": "Menü 1",
+            "name": "KlimaTeller: Tomate-Mozzarella Bratling",
+            "raw": "S: 3,65 | M: 6,70 | G: 9,35"
+          }
+        }
+      ]
+    }
+  ]
+}

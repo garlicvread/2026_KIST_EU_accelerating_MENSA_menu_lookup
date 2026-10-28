@@ -1,7 +1,7 @@
 """큐에 저장된 식단 갱신 작업 하나를 수집·번역·공개하는 명령 진입점입니다.
 
---base 경로는 macOS 자원 조건과 전용 GitHub 체크아웃을 사용하고, --config 경로는
-TOML의 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 디렉터리 준비, 큐 잠금,
+--base 경로는 worker.toml의 Drive 설정과 기존 macOS 모델을 사용하고, --config 경로는
+명시한 TOML의 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 디렉터리 준비, 큐 잠금,
 완료·실패·재시도 기록과 last-result.json 저장을 담당합니다. 이 모듈의 작업 객체는
 수집과 공개 진행을 수행하며, 재개에 필요한 큐 체크포인트를 잠금 안에서 저장합니다.
 """
@@ -23,6 +23,7 @@ from mensa.jobs import JobRunner, record_result
 from mensa.git_repository import SnapshotRepository
 from mensa.github_publication import GitHubPublication
 from mensa.directory_refresh import DirectoryRefreshJob
+from mensa.drive_refresh import DriveRefreshJob
 from mensa.config import load_worker_config
 from mensa.generation import request_translation
 from mensa.model_runtime import model_session
@@ -132,7 +133,7 @@ def local_model(base):
 
 
 class RefreshJob:
-    """기본 --base 실행의 전용 체크아웃에서 메뉴 JSON을 만들고 GitHub 공개를 재개합니다.
+    """이전 GitHub 게시를 복구하는 작업 객체이며 현재 --base는 이 객체의 번역 메서드만 재사용합니다.
 
     base/checkout에서 Git을 실행하고 base/queue.json에 공개 단계·커밋 SHA·실행 ID를
     저장합니다. git·gh·watch_run은 이 체크아웃과 지정된 저장소에 명령을 묶어 제공합니다.
@@ -537,7 +538,15 @@ def main(argv=None):
     location.add_argument('--config', type=Path)
     parser.add_argument('--status', action='store_true')
     args = parser.parse_args(argv)
-    config = load_worker_config(args.config) if args.config is not None else None
+    config_path = args.config if args.config is not None else args.base / 'worker.toml'
+    # --status는 최초 설정 전에도 큐를 읽을 수 있습니다. 실행은 설정이 없을 때
+    # 과거 Git 게시기로 되돌아가지 않고 명시적인 Drive 구성을 요구합니다.
+    if args.base is not None and args.status and not config_path.exists():
+        config = None
+    else:
+        if args.base is not None and not config_path.is_file():
+            raise ValueError(f'Missing {config_path}; configure Drive publication before running the worker')
+        config = load_worker_config(config_path)
     directory = config.paths.state_dir if config is not None else args.base
     if args.status:
         try:
@@ -547,23 +556,44 @@ def main(argv=None):
         print(json.dumps({'queue': load_state(directory / 'queue.json'), 'last_result': last_result},
                          ensure_ascii=False, indent=2))
         return
+    if args.base is not None and config.publication.mode == 'github':
+        raise ValueError('--base requires Drive or directory publication; use an explicit --config only for legacy Git recovery')
     def terminate(signum, frame):
         # SIGTERM을 종료 예외로 바꾸어 모델 컨텍스트와 큐 잠금의 정리 절차가 실행되게 합니다.
         raise SystemExit(128 + signum)
     previous = signal.signal(signal.SIGTERM, terminate)
     try:
-        if config is None:
-            resources, work = resource_status, RefreshJob(args.base)
+        resources = lambda: configured_resource_status(config.resources)
+        if config.publication.mode == 'directory':
+            work = DirectoryRefreshJob(
+                config, source=lambda: parse_menu(fetch_html()), clock=lambda: datetime.now(timezone.utc),
+                translate=lambda source, settings: request_translation(source, settings),
+                runtime=lambda settings, *, key: model_session(settings, key=key),
+            )
+        elif config.publication.mode == 'drive':
+            ports = {}
+            if args.base is not None:
+                base = args.base.expanduser().resolve()
+                native = (config.resources.platform == 'macos'
+                          and config.resources.min_available_bytes == 32 * 1024 ** 3
+                          and config.resources.max_load_per_cpu == 0.6
+                          and config.paths.state_dir == base
+                          and config.paths.checkout_dir == (base / 'checkout').resolve()
+                          and config.inference.mode == 'managed'
+                          and config.inference.provider == 'ollama'
+                          and config.inference.model == MODEL
+                          and config.inference.revision == 'gemma4-31b-local-v1'
+                          and config.inference.binary == (base / 'runtime/ollama').resolve()
+                          and config.inference.models_dir == (base / 'models').resolve()
+                          and config.inference.log_dir == (base / 'logs').resolve())
+                if native:
+                    # 기존 Mac의 검증된 번역 캐시·모델 실행은 유지하고 Git 게시 메서드는 호출하지 않습니다.
+                    resources = resource_status
+                    ports['translation_builder'] = RefreshJob(base).translate
+            work = DriveRefreshJob(config, source=lambda: parse_menu(fetch_html()),
+                                   clock=lambda: datetime.now(timezone.utc), **ports)
         else:
-            resources = lambda: configured_resource_status(config.resources)
-            if config.publication.mode == 'directory':
-                work = DirectoryRefreshJob(
-                    config, source=lambda: parse_menu(fetch_html()), clock=lambda: datetime.now(timezone.utc),
-                    translate=lambda source, settings: request_translation(source, settings),
-                    runtime=lambda settings, *, key: model_session(settings, key=key),
-                )
-            else:
-                work = ConfiguredRefreshJob(config)
+            work = ConfiguredRefreshJob(config)
         result = process_queue(directory, datetime.now(timezone.utc), resources, work)
     finally:
         signal.signal(signal.SIGTERM, previous)

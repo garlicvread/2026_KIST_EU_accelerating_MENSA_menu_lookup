@@ -209,7 +209,14 @@ class LocalRefreshTests(unittest.TestCase):
             self.assertTrue(callable(handler), 'Worker must install an unwinding SIGTERM handler')
             handler(signal.SIGTERM, None)
         with TemporaryDirectory() as folder:
-            with patch('sys.argv', ['local_refresh', '--base', folder]), patch.object(worker, 'process_queue', side_effect=stop):
+            from types import SimpleNamespace
+            (Path(folder) / 'worker.toml').touch()
+            config = SimpleNamespace(paths=SimpleNamespace(state_dir=Path(folder)),
+                                     publication=SimpleNamespace(mode='directory'))
+            with patch('sys.argv', ['local_refresh', '--base', folder]), \
+                    patch.object(worker, 'load_worker_config', return_value=config), \
+                    patch.object(worker, 'DirectoryRefreshJob'), \
+                    patch.object(worker, 'process_queue', side_effect=stop):
                 with self.assertRaises(SystemExit) as raised:
                     worker.main()
             self.assertEqual(raised.exception.code, 128 + signal.SIGTERM)
@@ -490,8 +497,14 @@ class GenerationWorkerTests(unittest.TestCase):
 
 
     def test_cli_reports_failure_exit_for_blocked_and_failed_results(self):
+        from types import SimpleNamespace
+        (self.base / 'worker.toml').touch()
+        config = SimpleNamespace(paths=SimpleNamespace(state_dir=self.base),
+                                 publication=SimpleNamespace(mode='directory'))
         for status in ('blocked', 'failed'):
             with self.subTest(status=status), patch('sys.argv', ['local_refresh', '--base', str(self.base)]), \
+                 patch.object(worker, 'load_worker_config', return_value=config), \
+                 patch.object(worker, 'DirectoryRefreshJob'), \
                  patch.object(worker, 'process_queue', return_value={'status': status}), redirect_stdout(io.StringIO()):
                 with self.assertRaises(SystemExit) as raised:
                     worker.main()

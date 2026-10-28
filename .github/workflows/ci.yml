@@ -1,0 +1,34 @@
+name: Code checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked frontend compiler
+        run: npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+      - name: Regression tests
+        run: |
+          python -m unittest discover -s tests -v
+          npm test
+      - name: Validate deterministic menu fixtures
+        run: python -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data
+      - name: Build frontend without runtime data
+        run: python -m scripts.build_site --drive-file-id fixture-public-file-id

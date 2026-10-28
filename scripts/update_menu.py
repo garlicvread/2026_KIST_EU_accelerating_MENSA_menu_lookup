@@ -94,7 +94,7 @@ def write_snapshot(directory, menu, translations, previous=None):
             pending.unlink(missing_ok=True)
 
 
-def update(root=ROOT, html=None):
+def update(root=ROOT, html=None, *, data_dir=None):
     """root의 기존 메뉴·캐시·편집 문구를 읽어 갱신하고 저장된 메뉴의 집계 사전을 반환합니다.
 
     html을 주면 그 문자열을 해석하고 생략하면 원본 URL을 요청합니다. 메뉴 구조·이전
@@ -103,7 +103,7 @@ def update(root=ROOT, html=None):
     입력 검사나 번역 구성에 실패하면 공개 파일 교체 단계로 진행하지 않습니다.
     """
     root = Path(root)
-    directory = root / "site" / "data"
+    directory = Path(data_dir) if data_dir is not None else root / "site" / "data"
     previous = read_json(directory / "menu.json")
     cache = read_json(directory / "translations.json", {"schema_version": 1, "entries": {}})
     editorial = read_json(root / "data" / "editorial-translations.json", {"phrases": {}})
@@ -131,7 +131,7 @@ def summarize(menu, translations):
             "coverage": menu["coverage"], "fetched_at": menu["source"]["fetched_at"]}
 
 
-def main():
+def main(argv=None):
     """갱신 또는 --validate-only 검사를 실행하고 집계 결과를 JSON으로 출력합니다.
 
     --validate-only는 기존 메뉴·캐시·용어집만 검사하며 원본 요청·모델 호출·스냅샷 교체를
@@ -140,15 +140,17 @@ def main():
     """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--validate-only", action="store_true")
-    args = parser.parse_args()
+    parser.add_argument('--data-dir', type=Path, help='Explicit menu.json/translations.json directory outside source control')
+    args = parser.parse_args(argv)
+    directory = args.data_dir if args.data_dir is not None else ROOT / 'site/data'
     try:
         if args.validate_only:
-            menu = read_json(ROOT / "site/data/menu.json")
-            cache = read_json(ROOT / "site/data/translations.json")
+            menu = read_json(directory / "menu.json")
+            cache = read_json(directory / "translations.json")
             validate_publication(menu, cache, notice_glossary=load_glossary())
             report = summarize(menu, cache)
         else:
-            report = update()
+            report = update(data_dir=directory)
     except (ValueError, OSError, TypeError, KeyError) as exc:
         # main은 갱신 오류를 실패 종료 상태로 알립니다. CI는 실패 시 중단되어 현재 공개된 Pages를 유지합니다.
         raise SystemExit(f"Menu update rejected: {exc}") from None

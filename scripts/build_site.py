@@ -1,8 +1,9 @@
-"""build_site가 검증된 메뉴·번역과 컴파일된 프런트엔드를 새 정적 사이트 디렉터리에 구성합니다.
+"""build_site가 컴파일된 프런트엔드와 선택한 데이터 설정으로 새 정적 사이트 디렉터리를 구성합니다.
 
 TypeScript 컴파일은 호출자가 먼저 수행해야 하며, 이 빌더는 이미 생성된 JavaScript를
 읽습니다. main.js에서 정적 상대 경로로 도달하는 모듈만 묶어 내용별 경로에 저장하고,
-DirectoryPublisher가 메뉴·번역 쌍과 current.json을 설치합니다. 호출자는 입력과
+Drive 모드에서는 HTML에 공개 파일 ID만 넣으며, 로컬 모드에서는 DirectoryPublisher가
+검증된 메뉴·번역 쌍과 current.json을 설치합니다. 호출자는 입력과
 겹치지 않는 새 출력 경로를 선택해야 합니다. 실패 시 이 호출이 생성한 출력 디렉터리를
 정리하지만, 출력 준비 중 생성한 상위 디렉터리는 남을 수 있습니다.
 """
@@ -136,6 +137,21 @@ def _replace_reference(html, name, replacement):
     return html
 
 
+def _configure_drive(html, file_id):
+    """HTML의 Drive 설정 메타 태그 하나를 선택한 파일 ID 또는 빈 로컬 설정으로 바꿉니다.
+
+    로컬 모드에서는 기존 메타 태그가 없는 템플릿도 허용합니다. Drive 모드에서는
+    태그가 필요하며, 여러 태그는 어느 모드에서나 거부합니다. file_id는 호출자가
+    영문자·숫자·밑줄·하이픈만 허용한 값이므로 HTML 속성을 벗어나지 않습니다.
+    """
+    pattern = r'''<meta\b(?=[^>]*\bname\s*=\s*(["'])mensa-drive-file-id\1)[^>]*>'''
+    replacement = f'<meta name="mensa-drive-file-id" content="{file_id or ""}">'
+    html, count = re.subn(pattern, lambda _: replacement, html, flags=re.I)
+    if count > 1 or (file_id is not None and count != 1):
+        raise ValueError('Expected one mensa-drive-file-id meta tag in index.html')
+    return html
+
+
 def _mkdir_public(path):
     """필요한 상위 디렉터리를 만들고 이번 호출이 새로 만든 디렉터리에만 0755 권한을 설정합니다.
 
@@ -165,34 +181,50 @@ def _write_public(path, payload):
 
 
 def build_site(source: Path, output: Path, *, compiled=ROOT / 'dist/frontend',
-               glossary=ROOT / 'data/notice-translations.json') -> None:
+               glossary=ROOT / 'data/notice-translations.json', data_dir=None,
+               drive_file_id=None) -> None:
     """입력 사이트·컴파일 결과·용어집에서 새 output 디렉터리를 만들며 반환값은 없습니다.
 
-    메뉴·캐시·안내 번역의 공개 조건과 모듈 그래프를 출력 생성 전에 검사합니다.
-    today=None으로 검사하므로 빌드가 메뉴 날짜의 최신성을 보증하지는 않습니다.
+    drive_file_id를 지정하면 로컬 메뉴·캐시·용어집을 읽지 않습니다. 로컬 모드에서는
+    data_dir 또는 기존 source/data에서 메뉴·캐시를 읽고 공개 조건을 검사합니다.
+    두 모드 모두 모듈 그래프를 출력 생성 전에 검사합니다. 로컬 검사는 today=None을
+    사용하므로 빌드가 메뉴 날짜의 최신성을 보증하지는 않습니다.
     HTML에는 내용별 모듈·CSS 주소를 넣고, app.js에는 해당 main.js를 가져오는 짧은
     진입 코드를 생성합니다. favicon은 원본 바이트를 복사하며 TypeScript를 컴파일하지
     않습니다. 기존 출력의 덮어쓰기를 거부하고, 실패 시 자신이 만든 output만 삭제합니다.
     """
-    source, compiled, glossary, output = (Path(path).absolute() for path in (source, compiled, glossary, output))
+    if drive_file_id is not None:
+        if not isinstance(drive_file_id, str) or not re.fullmatch(r'[A-Za-z0-9_-]{10,200}', drive_file_id):
+            raise ValueError('Invalid Drive file ID')
+        if data_dir is not None:
+            raise ValueError('Choose Drive file ID or local data directory, not both')
+    source, compiled, output = (Path(path).absolute() for path in (source, compiled, output))
     # build_site는 경로 해석 전에 존재 여부를 검사하여 대상이 없는 출력 심볼릭 링크도 기존 출력으로 거부합니다.
     if os.path.lexists(output):
         raise ValueError(f'Build output already exists: {output}; choose a fresh directory')
-    for directory in (source, compiled, glossary.parent):
+    inputs = [source, compiled]
+    if drive_file_id is None:
+        glossary = Path(glossary).absolute()
+        data_dir = Path(data_dir).absolute() if data_dir is not None else source / 'data'
+        inputs.extend((glossary.parent, data_dir))
+    for directory in inputs:
         _require_kind(directory, stat.S_ISDIR)
-    _require_kind(glossary, stat.S_ISREG)
-    source, compiled, glossary, output = (path.resolve() for path in (source, compiled, glossary, output))
-    for tree in (source, compiled, glossary.parent):
-        if tree == output or tree in output.parents or output in tree.parents:
+    if drive_file_id is None:
+        _require_kind(glossary, stat.S_ISREG)
+    for tree in (path.resolve() for path in inputs):
+        output_resolved = output.resolve()
+        if tree == output_resolved or tree in output_resolved.parents or output_resolved in tree.parents:
             raise ValueError('Build output cannot overlap an input tree (inside or outside)')
+    source, compiled, output = (path.resolve() for path in (source, compiled, output))
 
-    html = _public_input(source, Path('index.html')).decode('utf-8')
+    html = _configure_drive(_public_input(source, Path('index.html')).decode('utf-8'), drive_file_id)
     styles = _public_input(source, Path('styles.css'))
     favicon = _public_input(source, Path('favicon.svg'))
-    menu = json.loads(_public_input(source, Path('data/menu.json')), parse_constant=lambda value: _invalid_constant(value))
-    cache = json.loads(_public_input(source, Path('data/translations.json')), parse_constant=lambda value: _invalid_constant(value))
-    notices = load_glossary(glossary)
-    validate_publication(menu, cache, notice_glossary=notices, today=None)
+    if drive_file_id is None:
+        menu = json.loads(_public_input(data_dir, Path('menu.json')), parse_constant=_invalid_constant)
+        cache = json.loads(_public_input(data_dir, Path('translations.json')), parse_constant=_invalid_constant)
+        notices = load_glossary(glossary)
+        validate_publication(menu, cache, notice_glossary=notices, today=None)
     # 그래프 전체의 내용이 주소에 포함되므로 하위 모듈이 바뀌어도 이전 파일을 캐시에서
     # 섞어 읽지 않게 합니다. CSS는 자신의 바이트만으로 별도의 주소를 계산합니다.
     graph_id, graph = _compiled_graph(compiled)
@@ -200,7 +232,6 @@ def build_site(source: Path, output: Path, *, compiled=ROOT / 'dist/frontend',
     styles_url = f'assets/styles-{hashlib.sha256(styles).hexdigest()}.css'
     html = _replace_reference(html, 'app.js', main_url)
     html = _replace_reference(html, 'styles.css', styles_url)
-    publisher = DirectoryPublisher(output, notice_glossary=notices)
 
     _mkdir_public(output.parent)
     # build_site는 mkdir에 성공해야 출력 디렉터리의 정리 책임을 얻습니다. 다른 실행이 만든
@@ -214,7 +245,8 @@ def build_site(source: Path, output: Path, *, compiled=ROOT / 'dist/frontend',
         _write_public(output / 'styles.css', styles)
         _write_public(output / 'app.js', f"import './{main_url}';\n".encode('utf-8'))
         _write_public(output / 'favicon.svg', favicon)
-        publisher.publish(menu, cache, today=None)
+        if drive_file_id is None:
+            DirectoryPublisher(output, notice_glossary=notices).publish(menu, cache, today=None)
         _write_public(output / 'index.html', html.encode('utf-8'))
     except BaseException:
         shutil.rmtree(output)
@@ -236,9 +268,13 @@ def main() -> None:
     parser.add_argument('--output', type=Path, default=ROOT / '.tmp/pages')
     parser.add_argument('--compiled', type=Path, default=ROOT / 'dist/frontend')
     parser.add_argument('--glossary', type=Path, default=ROOT / 'data/notice-translations.json')
+    data_source = parser.add_mutually_exclusive_group()
+    data_source.add_argument('--drive-file-id', help='Public Drive current.json file ID; build UI assets only')
+    data_source.add_argument('--data-dir', type=Path, help='Explicit local menu.json and translations.json directory')
     args = parser.parse_args()
     try:
-        build_site(args.source, args.output, compiled=args.compiled, glossary=args.glossary)
+        build_site(args.source, args.output, compiled=args.compiled, glossary=args.glossary,
+                   data_dir=args.data_dir, drive_file_id=args.drive_file_id)
     except (OSError, ValueError) as error:
         parser.exit(1, f'Site build failed: {error}\n')
     print(f'Built Pages at {args.output}')

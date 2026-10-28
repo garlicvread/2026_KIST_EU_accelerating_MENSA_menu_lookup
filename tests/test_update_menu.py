@@ -22,6 +22,19 @@ def complete_cache(menu):
 
 class SnapshotTests(unittest.TestCase):
 
+    def test_validate_only_reads_explicit_data_directory_without_source_writes(self):
+        menu = parse_menu(page())
+        cache = complete_cache(menu)
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            write_snapshot(directory, menu, cache)
+            before = {p.name: p.read_bytes() for p in directory.iterdir()}
+            output = io.StringIO()
+            with patch('sys.argv', ['update_menu', '--validate-only', '--data-dir', str(directory)]), redirect_stdout(output):
+                main()
+            self.assertGreater(json.loads(output.getvalue())['meals'], 0)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
+
     def test_update_publishes_changed_duplicate_counts_and_empty_days(self):
         for count in (3, 6, 0):
             with self.subTest(count=count), tempfile.TemporaryDirectory() as folder:
