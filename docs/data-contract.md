@@ -116,6 +116,8 @@ Python에서 기존 묶음을 읽는 `DirectoryPublisher.load_current()`는 선�
 
 번역 검사 함수는 en/ko에 각각 name/components만 있고 구성품 개수가 원문과 같은지 검사합니다. source와 key도 맞아야 합니다. origin은 사람이 작성한 editorial-draft, 검토한 reviewed-draft 또는 model입니다. model과 prompt_version은 어떤 모델/번역 요청 규칙으로 만들었는지 기록합니다. 표현을 정리해도 코드는 원래 작성/생성 출처를 보존하며 사람의 초안을 모델 생성으로 바꾸지 않습니다.
 
+번역 요청 함수는 모델 응답에 `<0xEB><0xA0><0x9D>`처럼 연속된 바이트 토큰이 있으면 UTF-8로 엄격하게 해독해 실제 문자(`렝`)로 복원합니다. 복원할 수 없는 바이트열이나 복원 후에도 잘못된 표시값은 번역 실패로 처리합니다. 캐시·게시 검사는 이름과 구성품에 해독되지 않은 바이트 토큰이 남은 번역을 거부하므로, 이미 저장된 오류를 고칠 때도 실제 문자로 교정해 주세요.
+
 번역 생성 조건을 기록하는 generation_identity 함수와 재사용을 판단하는 reusable_translation 함수는 `mensa/translation_contract.py`에 있습니다. generation_identity는 모델 종류(provider), 이름(model), 운영자가 선언한 버전(revision)과 번역 규칙·주의 표시 표의 SHA256 지문을 만듭니다. 번역 항목의 같은 이름인 generation_identity 필드에 이 결과가 저장됩니다. reusable_translation은 모델이 만든 항목의 요청 규칙 버전·모델 이름·저장된 생성 조건을 확인해 다시 사용할 수 있는지 판단합니다. TOML 경로에서는 임시 URL/포트/API key가 바뀌어도 같은 모델 버전이면 재사용 판단을 유지할 수 있습니다. 운영자가 모델 내용을 바꾸면 revision도 관리해야 합니다. 환경변수로 실행하는 별도 수동 번역 경로에는 revision 선언이 없으므로 URL이 이 비교 기록에 들어갑니다.
 
 새 모델 번역의 요청 규칙 버전은 menu-v4이고 재사용 검사에서 지원하는 버전은 menu-v3/menu-v4입니다. `--config`로 실행하는 설정 기반 번역 경로는 웹에 공개하지 않는 translation-checkpoint.json에도 검사를 통과한 항목을 저장합니다. 이 파일을 관리하는 `TranslationCheckpointStore`([`mensa/checkpoints.py`](../mensa/checkpoints.py))는 작업을 다시 시작할 때 완료 번역을 읽습니다. Mac 기본 `--base` 실행은 이 중간 저장 파일을 만들거나 읽지 않습니다. 이 경로는 기존 `site/data/translations.json`의 완료 번역을 재사용하고, 새 번역은 전체 식단 검사가 끝난 뒤 저장합니다. 따라서 운영자는 중간 저장 파일이 없다는 이유만으로 Mac 수집 실패라고 판단하지 마세요. 일부 메뉴가 아직 없을 수 있으므로 운영자는 설정 기반 경로의 중간 저장 파일을 공개하지 마세요. 전체 식단의 두 언어·구성품·원문 연결·주의 표시 검사를 통과한 translations.json만 게시합니다.

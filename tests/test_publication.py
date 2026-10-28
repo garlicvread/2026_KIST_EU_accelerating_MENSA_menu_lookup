@@ -73,6 +73,19 @@ class PublicationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_publication(self.menu, cache, notice_glossary=self.glossary)
 
+    def test_rejects_byte_tokens_in_translated_names_and_components(self):
+        for language in ("en", "ko"):
+            for field in ("name", "components"):
+                with self.subTest(language=language, field=field):
+                    cache = copy.deepcopy(self.cache)
+                    part = cache["entries"][self.key][language]
+                    if field == "name":
+                        part["name"] = "바미 고<0xEB><0xA0><0x9D> 국수"
+                    else:
+                        part["components"][0] = "<0xEC><0xB1><0x84>소"
+                    with self.assertRaises(ValueError):
+                        validate_publication(self.menu, cache, notice_glossary=self.glossary)
+
 
     def test_rejects_malformed_cache(self):
         with self.assertRaises(ValueError):

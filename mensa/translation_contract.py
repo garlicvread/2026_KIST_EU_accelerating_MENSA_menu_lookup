@@ -31,6 +31,7 @@ REVIEWED_DISH_NAMES = {
 REVIEWED_COMPONENT_NAMES = {"Peperoni": {"en": "Chili peppers", "ko": "고추"}}
 _CAMPAIGN_PREFIX = re.compile(r"^(?:(?:mensaVital|KlimaTeller)\s*:\s*)+", re.IGNORECASE)
 _OPAQUE_TITLE_LABEL = re.compile(r"mensaVital|KlimaTeller|Wikingertopf|Köttbullar", re.IGNORECASE)
+_BYTE_FALLBACK = re.compile(r"(?:<0x[0-9a-f]{2}>)+", re.IGNORECASE)
 
 
 def source_for(meal):
@@ -56,6 +57,8 @@ def validate_result(result, source):
             raise ValueError("Translation name/components are invalid")
         if len(part["components"]) != len(source["components"]) or not all(_text(s) for s in part["components"]):
             raise ValueError("Translation lost or added components")
+        if any(_BYTE_FALLBACK.search(text) for text in (part["name"], *part["components"])):
+            raise ValueError("Translation text contains undecoded byte tokens")
 
 
 def _semantic_name(name, source, lang):

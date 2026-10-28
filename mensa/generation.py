@@ -9,7 +9,7 @@ import urllib.parse
 import urllib.request
 
 from mensa.errors import GenerationError, parse_retry_after
-from mensa.translation_contract import validate_result
+from mensa.translation_contract import _BYTE_FALLBACK, validate_result
 
 MAX_RESPONSE_BYTES = 100_000
 
@@ -166,10 +166,26 @@ def request_translation(source, config):
     content = _response_content(outer, provider)
     result = _parse_json(content)
     try:
+        result = _decode_byte_fallback(result)
         validate_result(result, source)
-    except ValueError:
+    except (ValueError, RecursionError):
         raise GenerationError("invalid_result") from None
     return result
+
+
+def _decode_byte_fallback(value):
+    """_decode_byte_fallback가 모델 응답의 바이트 토큰을 엄격한 UTF-8로 복원하며, 잘못된 바이트열은 거부합니다."""
+    if isinstance(value, str):
+        def decode(match):
+            run = match.group()
+            return bytes(int(run[index + 3:index + 5], 16)
+                         for index in range(0, len(run), 6)).decode("utf-8")
+        return _BYTE_FALLBACK.sub(decode, value)
+    if isinstance(value, list):
+        return [_decode_byte_fallback(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _decode_byte_fallback(item) for key, item in value.items()}
+    return value
 
 
 def _parse_json(content):

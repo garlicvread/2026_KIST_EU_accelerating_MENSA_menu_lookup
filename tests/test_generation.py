@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from email.message import Message
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import copy
 import io
 import json
 from threading import Thread
@@ -151,6 +152,40 @@ class GenerationFailureTests(unittest.TestCase):
         result = {**RESULT, "ko": {"name": "요리", "components": []}}
         with fixture(envelope(content=json.dumps(result))) as (config, _):
             self.failure(config, "invalid_result", False)
+
+    def test_provider_byte_tokens_decode_to_unicode(self):
+        result = {
+            "en": {"name": "caf<0xC3><0xA9>", "components": ["Vegetables & rice"]},
+            "ko": {"name": "바미 고<0xEB><0xA0><0x9D> 국수",
+                   "components": ["<0xec><0xb1><0x84>소"]},
+        }
+        expected = {
+            "en": {"name": "café", "components": ["Vegetables & rice"]},
+            "ko": {"name": "바미 고렝 국수", "components": ["채소"]},
+        }
+        for provider in ("openai", "ollama"):
+            with self.subTest(provider=provider):
+                with fixture(envelope(provider, json.dumps(result)), provider=provider) as (config, calls):
+                    self.assertEqual(generation.request_translation(SOURCE, config), expected)
+                self.assertEqual(len(calls), 1)
+
+    def test_invalid_byte_tokens_are_rejected(self):
+        for provider in ("openai", "ollama"):
+            for text in ("바미 고<0xEB>", "<0xFF>", "<0xC0><0xAF>", "<0x00>", "<0x20>"):
+                with self.subTest(provider=provider, text=text):
+                    result = copy.deepcopy(RESULT)
+                    result["ko"]["name"] = text
+                    with fixture(envelope(provider, json.dumps(result)), provider=provider) as (config, calls):
+                        self.failure(config, "invalid_result", False)
+                    self.assertEqual(len(calls), 1)
+
+    def test_ordinary_unicode_and_angle_brackets_are_preserved(self):
+        result = {"en": {"name": "Potatoes <seasonal>", "components": ["Rice & vegetables"]},
+                  "ko": {"name": "감자 🍽️ · 채소", "components": ["소금물에 삶은 감자"]}}
+        for provider in ("openai", "ollama"):
+            with self.subTest(provider=provider):
+                with fixture(envelope(provider, json.dumps(result)), provider=provider) as (config, _):
+                    self.assertEqual(generation.request_translation(SOURCE, config), result)
 
 
     def test_native_endpoint_refuses_nonlocal_address_with_safe_message(self):
