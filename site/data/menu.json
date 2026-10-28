@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-27T10:02:17Z",
-    "sha256": "881e18aa6270136b78cf3624bddeb72dbde0a5932d2dd20763f16725196284f1"
+    "fetched_at": "2026-10-28T08:04:16Z",
+    "sha256": "2192e6ad354c657a3f071271f1ce56e2677742e91570de7519c5003f4bd97da9"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -6354,7 +6354,7 @@
       "meals": [
         {
           "id": "2026-10-27-c08c4c16e159172c450f7911fd977647eb982b5c46be2143a834a84c7cf50469",
-          "translation_key": "889c351ab54e0e2f9ec1d41d0f5c762d8145469d398af8b39d8d21dccb02227b",
+          "translation_key": "78982d8da7186f885e0fb78e3f64d82e5b8d11b0d69b920ff1bd41d7e4f627cf",
           "category": "Menü 1",
           "location": "Aufgang A",
           "name_de": "Fischfilet im Backteig",
@@ -6378,17 +6378,7 @@
               "notices": []
             },
             {
-              "name_de": "Bunt gemischter Blattsalat",
-              "notices": []
-            },
-            {
-              "name_de": "Klare Salatsoße",
-              "notices": [
-                "Senf"
-              ]
-            },
-            {
-              "name_de": "Weiße Salatsoße Dressing",
+              "name_de": "Rote Beete Salat",
               "notices": [
                 "Farbstoff",
                 "Süßungsmittel",
@@ -6745,11 +6735,11 @@
           }
         },
         {
-          "id": "2026-10-28-23c425aa6707ecb1814b57027827ee53c7ee8925e9d1210d987efd87ceb6d08b",
-          "translation_key": "a2c406068eb14258857845c8f313e48997799f945b5420f17b95c242a3641acb",
+          "id": "2026-10-28-4191a77e3ea1fcc08dd7aebc88a72d338736ffa6b35e38b85de50efc9d741198",
+          "translation_key": "35a3eb523cf216a6528472410072ad3556f4ee3791f7a38a20b76161ff1c6e5d",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "Vegetarischer Schales",
+          "name_de": "KlimaTeller: Vegetarischer Schales",
           "components": [
             {
               "name_de": "Apfelmus",
@@ -6766,7 +6756,7 @@
               ]
             },
             {
-              "name_de": "Weiße Salatsoße Dressing",
+              "name_de": "Weiße Salatsoße",
               "notices": [
                 "Farbstoff",
                 "Süßungsmittel",
@@ -6796,7 +6786,7 @@
           "price_source": {
             "date": "2026-10-28",
             "category": "Menü 2",
-            "name": "Vegetarischer Schales",
+            "name": "KlimaTeller: Vegetarischer Schales",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
@@ -6817,25 +6807,24 @@
             "Gerste"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 570,
+            "staff": 685,
+            "guest": 755
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-28",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "Iskender Kebap",
+            "raw": "S: 5,70 | M: 6,85 | G: 7,55"
           }
         },
         {
-          "id": "2026-10-28-7efe3eb331ea61f56684e11d7acb641b3c0d8895c4f0ae57dc1039f8d17c4418",
-          "translation_key": "da577d54453db9555995cf5ecc70e1dd405fe734c5b247ff200b8e9c415cb5be",
+          "id": "2026-10-28-85690e90a983d9fb1bccb3601a47a8852453f9f00225bcd18c7d0b16744a5eb6",
+          "translation_key": "dacb2075c64f62618c5c886dd76db3a6c91f2c0827ef4b241d07f5eae4d83576",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "Vegane Hackrolle mit Tomaten-Füllung",
+          "name_de": "KlimaTeller: Vegane Hackrolle mit Tomaten-Füllung",
           "components": [
             {
               "name_de": "Vegan: Rahmsoße",
@@ -6854,17 +6843,16 @@
             "Hafer"
           ],
           "prices": {
-            "student": 370,
-            "staff": 490,
-            "guest": 570
+            "student": 515,
+            "staff": 630,
+            "guest": 700
           },
           "price_status": "verified",
           "price_source": {
             "date": "2026-10-28",
             "category": "Wahlessen",
-            "name": "Salatbuffet",
-            "raw": "S: 3,70 | M: 4,90 | G: 5,70",
-            "scope": "counter"
+            "name": "KlimaTeller: Vegane Hackrolle mit Tomaten-Füllung",
+            "raw": "S: 5,15 | M: 6,30 | G: 7,00"
           }
         },
         {
@@ -6940,11 +6928,11 @@
           }
         },
         {
-          "id": "2026-10-28-883f251e727be92f933910da1759a898f002eb7a02387ee0b9c93058e15ac4c9",
-          "translation_key": "9bc8956c7824635fd69d9db640be982915bd442d394ef98e36b21758bfc6220d",
+          "id": "2026-10-28-8a959f875dbb3fe8b2cf8890ef6c13bc14d920c5f163d43db5f1465c49beb344",
+          "translation_key": "90b8c672b99acc8ce331a41cdf03ac6b11dd39944a0c8fa679405d6b3c1eb1e3",
           "category": "Mensacafé",
           "location": "Erdgeschoss",
-          "name_de": "Vegan: Kichererbsencurry",
+          "name_de": "KlimaTeller: Vegan: Kichererbsencurry",
           "components": [
             {
               "name_de": "Jasmin Reis",
@@ -6952,16 +6940,19 @@
             }
           ],
           "notices": [
-            "vegan",
             "Weizen"
           ],
-          "prices": null,
-          "price_status": "source_pending",
+          "prices": {
+            "student": 315,
+            "staff": 430,
+            "guest": 500
+          },
+          "price_status": "verified",
           "price_source": {
             "date": "2026-10-28",
             "category": "Mensacafé",
-            "name": "Vegan: Kichererbsencurry",
-            "raw": null
+            "name": "KlimaTeller: Vegan: Kichererbsencurry",
+            "raw": "S: 3,15 | M: 4,30 | G: 5,00"
           }
         }
       ]
