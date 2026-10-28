@@ -1,6 +1,6 @@
 # 식단 갱신 프로그램의 설정과 운영
 
-워커는 원본 식단을 수집·번역·검사하고 Drive `current.json`을 갱신합니다. 실행 진입점은 [`scripts/local_refresh.py`](../scripts/local_refresh.py)입니다. 웹 백엔드나 데이터베이스 엔진은 없으며 큐·완료 번역·준비한 게시본·마지막 결과를 파일로 보관합니다. 화면 HTML/CSS/JavaScript는 별도의 Pages 코드 배포가 담당합니다.
+운영용 컴퓨터의 워커는 원본 식단을 수집·번역·검사하고 Drive `current.json`을 갱신합니다. 실행 진입점은 [`scripts/local_refresh.py`](../scripts/local_refresh.py)입니다. GitHub Actions 실행기는 이 공개 JSON을 내려받아 검증한 뒤 화면 코드와 함께 Pages에 배포합니다. 웹브라우저는 Pages의 JSON을 읽으며 Drive 인증이나 API 키를 사용하지 않습니다. 큐·중간 번역·복구 자료는 운영용 컴퓨터에 보관합니다.
 
 ## 현재 운영 환경
 
@@ -43,7 +43,9 @@ cd "$HOME/mensa"
 https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuser=0&confirm=t
 ```
 
-`FILE_ID`는 `current.json`의 파일 ID이며 폴더 ID와 다릅니다. 브라우저 Network 또는 익명 HTTP 요청에서 성공 상태·실제 JSON 본문·`Access-Control-Allow-Origin: *`를 확인합니다. Drive 로그인 화면이나 HTML 다운로드 확인 페이지는 성공한 데이터 응답이 아닙니다. 일반 보기 링크나 API key가 필요한 Drive API 주소를 앱 설정으로 사용하지 않습니다.
+`FILE_ID`는 `current.json`의 파일 ID이며 폴더 ID와 다릅니다. 익명 HTTP 요청과 실제 Actions 실행에서 성공 상태·JSON 본문을 확인합니다. 서버 측 다운로드이므로 Drive 응답의 브라우저 CORS 허용은 필요하지 않습니다. Drive 로그인 화면이나 HTML 다운로드 확인 페이지는 성공한 데이터 응답이 아닙니다. 파일 ID는 Actions 변수에만 설정하며 브라우저용 API 키를 발급하지 않습니다.
+
+Actions의 `Deploy Pages and menu data`는 30분 간격으로 확인하고 Drive 게시본 ID가 현재 Pages와 다르면 배포합니다. 같은 ID이면 예약 배포를 생략합니다. main push·수동 요청은 코드와 데이터를 함께 배포합니다. 예약 실행은 지연될 수 있으며 비활성화되면 Actions에서 다시 활성화해 주세요. 즉시 반영이 필요하면 [수동 실행 명령](deployment.md#github-pages에-화면-코드-게시하기)을 사용합니다. 다운로드·검증·빌드가 실패하면 기존 Pages 배포를 유지합니다. Drive 게시 완료와 Pages 반영 완료는 서로 다른 단계이므로 두 릴리스 ID를 대조합니다.
 
 폴더 안의 예약 이름은 `current.json` 한 개입니다. 워커는 기존 파일의 ID와 내용을 확인하고 같은 파일을 갱신합니다. 이름이 중복되거나 ID가 달라지거나 기존 파일이 유효한 공개 묶음이 아니면 중단하므로 임의의 파일을 같은 이름으로 바꾸지 않습니다. 폴더의 다른 파일을 삭제·동기화하지 않습니다. 인계 기록에는 코드 버전, BASE·로컬 준비 경로, remote 이름, 폴더/파일 ID, 모델/revision, 마지막 검증·완료 시각을 남기며 인증 비밀은 제외합니다.
 
@@ -133,7 +135,7 @@ Drive 워커는 소스 체크아웃을 읽기만 합니다. 개발·검사는 �
 
 ## 실패 확인과 재시도
 
-먼저 `--status`에서 `pending.period`, `phase`, `attempts`, `next_attempt_at`, `last_error`와 마지막 결과를 읽습니다. `completed_period`, 공개 `menu.source.fetched_at`, Drive의 릴리스 ID를 대조하여 실제 완료를 판단합니다. 웹사이트의 오래된 자료 안내는 워커·인증·잠자기 원인을 판별하는 감시 장치는 아닙니다.
+먼저 `--status`에서 `pending.period`, `phase`, `attempts`, `next_attempt_at`, `last_error`와 마지막 결과를 읽습니다. `completed_period`, 공개 `menu.source.fetched_at`, Drive의 릴리스 ID를 대조하여 워커 완료를 판단합니다. 웹사이트 반영 여부는 Pages의 `data/current.json` ID와 Drive ID 및 Actions 실행 결과로 별도 확인합니다. 웹사이트의 오래된 자료 안내는 워커·인증·잠자기 원인을 판별하는 감시 장치는 아닙니다.
 
 | 보존할 대상 | 의미 |
 | --- | --- |

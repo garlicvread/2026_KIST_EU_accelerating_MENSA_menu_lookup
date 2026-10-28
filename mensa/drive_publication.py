@@ -78,6 +78,20 @@ def _checked_pair(menu, cache, *, previous=None, today=None):
     return _json_bytes(menu), _json_bytes(cache)
 
 
+def read_publication(payload):
+    """Drive 묶음의 필드·메뉴·번역·내용 ID를 검사하고 같은 게시본의 두 분기를 반환합니다."""
+    value = _read_json(payload)
+    if (not isinstance(value, dict) or
+            set(value) != {'schema_version', 'release_id', 'menu', 'translations'} or
+            type(value['schema_version']) is not int or value['schema_version'] != 1 or
+            not isinstance(value['release_id'], str) or _RELEASE_ID.fullmatch(value['release_id']) is None):
+        raise ValueError('Unrecognized Drive current.json publication envelope')
+    menu, cache = value['menu'], value['translations']
+    if _release_id(*_checked_pair(menu, cache)) != value['release_id']:
+        raise ValueError('Drive publication pair differs from its release identity')
+    return menu, cache
+
+
 class DrivePublisher:
     def __init__(self, remote: str, folder_id: str, *, file_id: str | None = None,
                  command=None):
@@ -142,17 +156,9 @@ class DrivePublisher:
         raw = payload.encode('utf-8')
         if len(raw) != size or hashlib.md5(raw).hexdigest() != md5:
             raise ValueError('Drive current.json differs from its listed content hash')
-        value = _read_json(payload)
-        if (not isinstance(value, dict) or
-                set(value) != {'schema_version', 'release_id', 'menu', 'translations'} or
-                type(value['schema_version']) is not int or value['schema_version'] != 1 or
-                not isinstance(value['release_id'], str) or _RELEASE_ID.fullmatch(value['release_id']) is None):
-            raise ValueError('Unrecognized Drive current.json publication envelope')
-        menu, cache = value['menu'], value['translations']
-        payloads = _checked_pair(menu, cache)
-        if _release_id(*payloads) != value['release_id']:
-            raise ValueError('Drive publication pair differs from its release identity')
-        return DrivePublication(value['release_id'], file_id), (menu, cache)
+        menu, cache = read_publication(payload)
+        release_id = _release_id(_json_bytes(menu), _json_bytes(cache))
+        return DrivePublication(release_id, file_id), (menu, cache)
 
     def load_current(self) -> tuple[dict, dict] | None:
         """DrivePublisher가 폴더나 파일을 생성하지 않고 검증된 공개 메뉴·번역 쌍을 읽습니다."""

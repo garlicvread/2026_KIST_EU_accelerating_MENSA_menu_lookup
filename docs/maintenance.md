@@ -10,10 +10,10 @@
 | 테스트 예제 | `tests/fixtures/menu-data`에 작고 고정된 메뉴·번역 쌍을 둡니다. |
 | 비공개 상태 | `state_dir`의 큐·결과·번역 체크포인트·Drive 준비 저널·설정과 모델·로그입니다. 웹에 공개하지 않습니다. |
 | 로컬 데이터 준비 | `public_dir/data/releases/<release_id>/`의 검증된 메뉴·번역과 로컬 `current.json`입니다. Drive 모드에서는 정적 웹사이트 루트가 아닙니다. |
-| 공개 데이터 | Drive의 안정된 파일 ID를 갖는 `current.json` 한 개입니다. |
-| 공개 화면 | Pages의 HTML/CSS/favicon·내용별 해시 경로의 JavaScript입니다. Drive 빌드에는 JSON이 없습니다. |
+| 데이터 원본 | Drive의 안정된 파일 ID를 갖는 `current.json` 한 개입니다. |
+| 공개 배포물 | Pages의 HTML/CSS/favicon·내용별 해시 경로의 JavaScript와 같은 게시본 ID의 메뉴·번역 JSON입니다. |
 
-일상 식단 갱신은 코드 체크아웃을 읽기만 하며 Git 커밋·PR·Actions·Pages 배포를 만들지 않습니다. 운영 JSON을 `site/data`에 다시 추적하지 않습니다. 기존 Git 이력·지난 공개 날짜·가격·번역·큐·모델을 전환 때문에 삭제하지 않습니다.
+일상 식단 갱신에서 워커는 코드 체크아웃을 읽기만 하며 데이터 커밋·PR을 만들지 않습니다. Actions는 30분 간격으로 Drive 게시본을 확인해 Pages에 반영하고 같은 ID이면 예약 배포를 생략합니다. 운영 JSON은 배포물에만 넣고 `site/data`에 다시 추적하지 않습니다. 기존 Git 이력·보관 기간 안의 메뉴·가격·번역·큐·모델을 전환 때문에 삭제하지 않습니다.
 
 ## 수정 대상을 찾는 지도
 
@@ -30,7 +30,7 @@
 | 로컬 릴리스·해시 | [`mensa/releases.py`](../mensa/releases.py) |
 | 설정·큐·자원 | [`mensa/config.py`](../mensa/config.py), [`jobs.py`](../mensa/jobs.py), [`queue.py`](../mensa/queue.py), [`resources.py`](../mensa/resources.py) |
 | 최초 이관·실행 | [`scripts/configure_drive.py`](../scripts/configure_drive.py), [`local_refresh.py`](../scripts/local_refresh.py) |
-| Drive 읽기·표시 계약 | [`frontend/data_client.ts`](../frontend/data_client.ts), [`contracts.ts`](../frontend/contracts.ts), [`display.ts`](../frontend/display.ts) |
+| Pages JSON 읽기·표시 계약 | [`frontend/data_client.ts`](../frontend/data_client.ts), [`contracts.ts`](../frontend/contracts.ts), [`display.ts`](../frontend/display.ts) |
 | 화면 상태·선택·초점 | [`frontend/controller.ts`](../frontend/controller.ts), [`state.ts`](../frontend/state.ts), [`selectors.ts`](../frontend/selectors.ts), [`app.ts`](../frontend/app.ts) |
 | 정적 화면 빌드·배포 | [`scripts/build_site.py`](../scripts/build_site.py), [`update-and-deploy.yml`](../.github/workflows/update-and-deploy.yml) |
 
@@ -46,7 +46,7 @@
 
 원문 이름과 구성품 순서는 번역 key를 결정합니다. 모델 번역의 재사용은 provider/model/revision과 번역 정책·주의 표시 사전의 지문을 확인합니다. 임시 포트·URL·인증 값은 설정 기반 생성 정체성에 넣지 않습니다. 모델 내용을 바꾸면 운영자가 안정된 revision도 바꿉니다. 이름·구성품 표현을 정리해도 원래 사람/모델 출처를 바꾸지 않으며 해독되지 않은 바이트 토큰은 게시하지 않습니다.
 
-Drive의 `current.json`은 정확히 `schema_version`, `release_id`, `menu`, `translations`를 담습니다. 릴리스 ID는 기존 canonical 메뉴/번역 바이트의 길이와 내용을 묶은 SHA256입니다. 파일 ID는 설치의 안정된 식별자이며 릴리스 ID와 다릅니다. 브라우저는 한 묶음을 한 번 읽어 ID별로 고정하고 두 분기를 독립적으로 검사합니다. 번역 오류나 원문 불일치는 독일어 표시로 처리하고 오래된 응답으로 새 상태를 덮어쓰지 않습니다.
+Drive의 `current.json`은 정확히 `schema_version`, `release_id`, `menu`, `translations`를 담습니다. 릴리스 ID는 기존 canonical 메뉴/번역 바이트의 길이와 내용을 묶은 SHA256입니다. 파일 ID는 설치의 안정된 식별자이며 릴리스 ID와 다릅니다. Actions 빌더는 이 묶음을 검증해 같은 ID의 두 JSON과 포인터를 Pages에 설치합니다. 브라우저는 포인터의 ID로 메뉴·번역을 독립적으로 읽습니다. 번역 오류나 원문 불일치는 독일어 표시로 처리하고 오래된 응답으로 새 상태를 덮어쓰지 않습니다.
 
 ## 설정과 모델을 바꿀 때
 
@@ -62,7 +62,7 @@ JobRunner의 같은 `worker.lock` 아래에서 큐와 작업을 처리합니다.
 
 DrivePublisher는 목적지 폴더·안정된 파일 ID·기존 내용·중복 예약 이름을 확인하고 전체 공개 조건을 검사한 뒤 쓰며 업로드 후 읽어 확인합니다. 같은 내용의 업로드를 생략하고 알 수 없는 원격 내용을 덮어쓰지 않습니다. 같은 준비 폴더와 Drive 목적지에 여러 작성자를 연결하지 않습니다. 공유 변경·다른 파일 삭제·sync/purge·Git/gh 호출을 일상 경로에 추가하지 않습니다.
 
-운영자는 `--status`의 완료/대기 수집 시각과 공개 수집 시각·릴리스 ID를 대조합니다. 설정·모델·인증·원문 문제를 먼저 고치고 큐·체크포인트·준비 저널·로컬 릴리스를 보존합니다. 백업·상태 수정·코드 fast-forward는 자동/수동 작업 중지 후 같은 잠금 안에서 수행합니다. 자동 재시도 중지 해제는 [운영 문서의 request_retry 예제](operations.md#실패-확인과-재시도)를 사용합니다. 복구를 위해 데이터 커밋·Pages 배포나 이력 재작성을 새로 만들지 않습니다.
+운영자는 `--status`의 완료/대기 수집 시각과 공개 수집 시각·릴리스 ID를 대조합니다. 설정·모델·인증·원문 문제를 먼저 고치고 큐·체크포인트·준비 저널·로컬 릴리스를 보존합니다. 백업·상태 수정·코드 fast-forward는 자동/수동 작업 중지 후 같은 잠금 안에서 수행합니다. 자동 재시도 중지 해제는 [운영 문서의 request_retry 예제](operations.md#실패-확인과-재시도)를 사용합니다. Drive에는 최신 데이터가 있는데 Pages만 이전 상태라면 Actions 다운로드·검증·배포를 확인하고 재실행합니다. 데이터 커밋이나 이력 재작성은 필요하지 않습니다.
 
 기존 `directory`·명시적 `github` 설정과 `SnapshotRepository` 코드는 기존 설치 호환용입니다. 이전 Git 게시 번호·snapshot 저널·복구 참조는 전환 전에 확인하고 보존합니다. Drive의 평소 운영 절차와 구분해 주세요.
 

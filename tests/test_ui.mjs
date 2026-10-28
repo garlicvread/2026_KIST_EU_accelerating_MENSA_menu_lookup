@@ -40,7 +40,7 @@ function pricedSnapshot() {
 
 
 // browserHarness는 실제로 컴파일한 화면 구성·메뉴 로딩 조정·JSON 요청 코드를 DOM 테스트 대체물과 함께 실행합니다. 요소 재사용과 입력 초점 유지 동작을 확인하도록 대체물이 요소의 동일성과 초점을 보존합니다.
-async function browserHarness({ snapshot, cache, language = 'ko', storage, translationPromise, driveBundle, clock = () => new Date('2026-09-21T10:00:00Z') } = {}) {
+async function browserHarness({ snapshot, cache, language = 'ko', storage, translationPromise, clock = () => new Date('2026-09-21T10:00:00Z') } = {}) {
   const html = await readFile(new URL('../site/index.html', import.meta.url), 'utf8');
   const menu = snapshot ?? JSON.parse(await readFile(new URL('./fixtures/menu-data/menu.json', import.meta.url), 'utf8'));
   const translations = cache ?? JSON.parse(await readFile(new URL('./fixtures/menu-data/translations.json', import.meta.url), 'utf8'));
@@ -101,8 +101,8 @@ async function browserHarness({ snapshot, cache, language = 'ko', storage, trans
   const requests = [];
   const client = createDataClient(async path => {
     requests.push(path);
-    return { ok: true, json: async () => driveBundle ?? (path === 'data/current.json' ? { schema_version: 1, release_id: 'a'.repeat(64) } : path.endsWith('/translations.json') ? translationPromise ?? translations : menu) };
-  }, driveBundle === undefined ? {} : { driveFileId: 'fixture-public-file-id' });
+    return { ok: true, json: async () => path === 'data/current.json' ? { schema_version: 1, release_id: 'a'.repeat(64) } : path.endsWith('/translations.json') ? translationPromise ?? translations : menu };
+  });
   const options = { document, client, clock, browserLanguages: [language] };
   if (storage) options.storage = storage;
   const app = apps.createApp(options);
@@ -118,16 +118,13 @@ function withClass(node, className) {
   return descendants(node).filter(item => item.className?.split(' ').includes(className));
 }
 
-test('the browser entrypoint selects the HTML Drive file ID and preserves an empty legacy configuration', async () => {
-  for (const fileId of ['fixture-public-file-id', '', '../invalid-file']) {
+test('the browser entrypoint loads Pages JSON without Drive settings or an API key', async () => {
     const fixture = ingredientSnapshot(); const browser = await browserHarness(fixture); const paths = [];
-    browser.document.querySelector = selector => selector === 'meta[name="mensa-drive-file-id"]' ? { content: fileId } : null;
     const globals = {
       document: browser.document, navigator: { languages: ['en'] }, localStorage: { getItem: () => null },
       fetch: async path => {
         paths.push(path);
-        const value = fileId ? { schema_version: 1, release_id: 'a'.repeat(64), menu: fixture.snapshot, translations: fixture.cache }
-          : path === 'data/current.json' ? { schema_version: 1, release_id: 'a'.repeat(64) }
+        const value = path === 'data/current.json' ? { schema_version: 1, release_id: 'a'.repeat(64) }
           : path.endsWith('/translations.json') ? fixture.cache : fixture.snapshot;
         return { ok: true, json: async () => value };
       },
@@ -135,37 +132,29 @@ test('the browser entrypoint selects the HTML Drive file ID and preserves an emp
     const originals = Object.fromEntries(Object.keys(globals).map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]));
     try {
       for (const [key, value] of Object.entries(globals)) Object.defineProperty(globalThis, key, { value, configurable: true, writable: true });
-      await import(new URL(`../dist/frontend/main.js?drive-test=${encodeURIComponent(fileId)}`, import.meta.url));
+      await import(new URL('../dist/frontend/main.js?pages-data-test', import.meta.url));
       const content = browser.nodes.get('menu-content');
-      if (fileId.startsWith('..')) {
-        assert.match(content.textContent, /Menu unavailable/); assert.deepEqual(paths, []);
-      } else {
         await until(() => withClass(content, 'meal-title')[0]?.textContent === 'Soup');
-        assert.deepEqual(paths, fileId
-          ? [`https://drive.usercontent.google.com/download?id=${fileId}&export=download&authuser=0&confirm=t`]
-          : ['data/current.json', `data/releases/${'a'.repeat(64)}/menu.json`, `data/releases/${'a'.repeat(64)}/translations.json`]);
-      }
+        assert.deepEqual(paths, ['data/current.json', `data/releases/${'a'.repeat(64)}/menu.json`, `data/releases/${'a'.repeat(64)}/translations.json`]);
     } finally {
       for (const [key, descriptor] of Object.entries(originals)) {
         if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key];
       }
     }
-  }
 });
 
-test('Drive translation failures and mismatched sources retain the German meal in the usable app', async () => {
+test('Pages translation failures and mismatched sources retain the German meal in the usable app', async () => {
   for (const failure of ['malformed', 'source-mismatch']) {
     const fixture = ingredientSnapshot();
     if (failure === 'source-mismatch') fixture.cache.entries['b'.repeat(64)].source.name_de = 'Ein anderes Gericht';
-    const driveBundle = { schema_version: 1, release_id: 'a'.repeat(64), menu: fixture.snapshot,
-      translations: failure === 'malformed' ? null : fixture.cache };
-    const browser = await browserHarness({ ...fixture, driveBundle, language: 'en' }); await browser.start();
+    const translationPromise = Promise.resolve(failure === 'malformed' ? null : fixture.cache);
+    const browser = await browserHarness({ ...fixture, translationPromise, language: 'en' }); await browser.start();
     assert.equal(browser.app.getState().menu.status, 'ready');
     assert.equal(browser.app.getState().translations.status, failure === 'malformed' ? 'failed' : 'ready');
     assert.equal(browser.nodes.get('menu-content').attributes['aria-busy'], 'false');
     assert.equal(withClass(browser.nodes.get('menu-content'), 'meal-title')[0].textContent, 'Suppe');
     assert.equal(browser.nodes.get('navigation').hidden, false);
-    assert.deepEqual(browser.requests, ['https://drive.usercontent.google.com/download?id=fixture-public-file-id&export=download&authuser=0&confirm=t']);
+    assert.deepEqual(browser.requests, ['data/current.json', `data/releases/${'a'.repeat(64)}/menu.json`, `data/releases/${'a'.repeat(64)}/translations.json`]);
   }
 });
 

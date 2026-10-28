@@ -1,4 +1,5 @@
 import copy
+from io import BytesIO
 from html.parser import HTMLParser
 import json
 import os
@@ -11,6 +12,7 @@ import unittest
 from unittest.mock import patch
 
 from mensa.releases import DirectoryPublisher
+from mensa.releases import _json_bytes, _release_id
 from mensa.translation_contract import source_for
 from scripts import build_site as builder
 from scripts.menu_source import parse_menu
@@ -53,7 +55,7 @@ class BuildSiteTests(unittest.TestCase):
         source, compiled, reviewed = (root / name for name in ('source', 'compiled', 'reviewed'))
         for directory in (source / 'data', compiled / 'nested', reviewed):
             directory.mkdir(parents=True)
-        (source / 'index.html').write_text('<meta name="mensa-drive-file-id" content=""><link rel="stylesheet" href="styles.css"><script type="module" src="app.js"></script>', encoding='utf-8')
+        (source / 'index.html').write_text('<link rel="stylesheet" href="styles.css"><script type="module" src="app.js"></script>', encoding='utf-8')
         (source / 'styles.css').write_bytes(b'body { color: green; }\n')
         (source / 'favicon.svg').write_bytes(b'<svg xmlns="http://www.w3.org/2000/svg"></svg>\n')
         (source / 'data/menu.json').write_text(json.dumps(self.menu, ensure_ascii=False), encoding='utf-8')
@@ -73,23 +75,32 @@ class BuildSiteTests(unittest.TestCase):
     def source_bytes(self):
         return {path.relative_to(self.source): path.read_bytes() for path in self.source.rglob('*') if path.is_file()}
 
-    def test_drive_build_needs_only_ui_assets_and_emits_configured_meta_without_json(self):
+    def test_drive_download_becomes_same_origin_data_without_a_browser_api_key(self):
+        envelope = {'schema_version': 1, 'release_id': _release_id(_json_bytes(self.menu), _json_bytes(self.cache)),
+                    'menu': self.menu, 'translations': self.cache}
         for path in (self.source / 'data').iterdir():
             path.unlink()
-        (self.source / 'data').rmdir()
-        self.glossary_path.unlink()
-        output = self.root / 'drive-pages'; before = self.source_bytes()
-        result = self.build(output, extra=['--drive-file-id', 'fixture-public-file-id'])
-        self.assertEqual(result.returncode, 0, result.stderr)
-        html = (output / 'index.html').read_text()
-        self.assertIn('<meta name="mensa-drive-file-id" content="fixture-public-file-id">', html)
-        self.assertFalse((output / 'data').exists())
-        self.assertEqual(list(output.rglob('*.json')), [])
-        urls = AssetReferences(html).urls
-        self.assertEqual({path.relative_to(output).as_posix() for path in output.rglob('*') if path.is_file()},
-                         {'index.html', 'app.js', 'styles.css', 'favicon.svg', urls['styles.css']} |
-                         {(Path(urls['app.js']).parent / name).as_posix() for name in ['main.js', 'nested/view.js', 'data.js']})
+        output = self.root / 'download-pages'
+        before = self.source_bytes()
+        with patch('urllib.request.urlopen', return_value=BytesIO(_json_bytes(envelope))):
+            builder.build_site(self.source, output, compiled=self.compiled, glossary=self.glossary_path,
+                               drive_file_id='fixture-public-file-id')
+        self.assertEqual(DirectoryPublisher(output, notice_glossary={}).load_current(), (self.menu, self.cache))
+        self.assertNotIn('mensa-drive', (output / 'index.html').read_text())
         self.assertEqual(before, self.source_bytes())
+
+    def test_invalid_drive_response_preserves_previous_deployment(self):
+        valid = {'schema_version': 1, 'release_id': _release_id(_json_bytes(self.menu), _json_bytes(self.cache)),
+                 'menu': self.menu, 'translations': self.cache}
+        for index, payload in enumerate([b'<html>Sign in</html>', _json_bytes({**valid, 'release_id': 'a' * 64}),
+                                         _json_bytes({**valid, 'translations': {}}),
+                                         _json_bytes({**valid, 'private_state': {}}), b'x' * (16 * 1024 * 1024 + 1)]):
+            output = self.root / f'bad-download-{index}'
+            with patch('urllib.request.urlopen', return_value=BytesIO(payload)):
+                with self.assertRaises(ValueError):
+                    builder.build_site(self.source, output, compiled=self.compiled, glossary=self.glossary_path,
+                                       drive_file_id='fixture-public-file-id')
+            self.assertFalse(output.exists())
 
     def test_explicit_fixture_directory_is_used_without_source_runtime_data(self):
         for path in (self.source / 'data').iterdir():
@@ -100,7 +111,7 @@ class BuildSiteTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         expected = tuple(json.loads((fixture / name).read_text()) for name in ['menu.json', 'translations.json'])
         self.assertEqual(DirectoryPublisher(output, notice_glossary={}).load_current(), expected)
-        self.assertIn('<meta name="mensa-drive-file-id" content="">', (output / 'index.html').read_text())
+        self.assertNotIn('mensa-drive', (output / 'index.html').read_text())
 
     def test_invalid_or_ambiguous_drive_configuration_stops_before_output_creation(self):
         for index, file_id in enumerate(['', 'short', '../file', 'file?download=1', 'a' * 201]):
@@ -123,16 +134,7 @@ class BuildSiteTests(unittest.TestCase):
         self.assertIn('overlap', result.stderr)
         self.assertFalse((fixture / 'pages').exists())
 
-    def test_drive_requires_one_meta_setting_and_python_modes_are_unambiguous(self):
-        original = (self.source / 'index.html').read_text()
-        meta = '<meta name="mensa-drive-file-id" content="">'
-        for index, replacement in enumerate(['', meta + meta]):
-            (self.source / 'index.html').write_text(original.replace(meta, replacement))
-            output = self.root / f'missing-or-duplicate-meta-{index}'
-            result = self.build(output, extra=['--drive-file-id', 'fixture-public-file-id'])
-            self.assertNotEqual(result.returncode, 0)
-            self.assertIn('meta tag', result.stderr)
-            self.assertFalse(output.exists())
+    def test_python_data_sources_are_unambiguous(self):
         with self.assertRaisesRegex(ValueError, 'not both'):
             builder.build_site(self.source, self.root / 'ambiguous-api', compiled=self.compiled,
                                glossary=self.glossary_path, data_dir=self.source / 'data',

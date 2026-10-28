@@ -1,5 +1,6 @@
 import type { Language, MenuSnapshot, PriceGroup, TranslationCache } from './contracts.js';
 import type { DataClient } from './data_client.js';
+import { ReleaseNotFoundError } from './data_client.js';
 import { berlinToday } from './selectors.js';
 import { createInitialState, transition } from './state.js';
 import type { AppEvent, AppState } from './state.js';
@@ -23,24 +24,26 @@ export function createMenuController(options: {
     if (next !== state) { state = next; options.onChange(state); }
   }
   function emit(current: number, event: AppEvent): void { if (current === sequence) dispatch(event); }
-  async function menuBranch(current: number, id: string): Promise<void> {
+  async function menuBranch(current: number, id: string): Promise<boolean> {
     let menu: MenuSnapshot;
     let today: string;
     try {
       menu = await options.client.loadMenu(id);
-      if (current !== sequence) return;
+      if (current !== sequence) return false;
       today = berlinToday(options.clock());
     } catch (error) {
       emit(current, { type: 'menu-failed', error: errorText(error) });
-      return;
+      return error instanceof ReleaseNotFoundError;
     }
     emit(current, { type: 'menu-ready', menu, today });
+    return false;
   }
-  async function translationBranch(current: number, id: string): Promise<void> {
+  async function translationBranch(current: number, id: string): Promise<boolean> {
     let cache: TranslationCache;
     try { cache = await options.client.loadTranslations(id); }
-    catch (error) { emit(current, { type: 'translations-failed', error: errorText(error) }); return; }
+    catch (error) { emit(current, { type: 'translations-failed', error: errorText(error) }); return error instanceof ReleaseNotFoundError; }
     emit(current, { type: 'translations-ready', cache });
+    return false;
   }
   async function load(): Promise<void> {
     const current = ++sequence;
@@ -54,7 +57,16 @@ export function createMenuController(options: {
       return;
     }
     if (current !== sequence) return;
-    await Promise.all([menuBranch(current, id), translationBranch(current, id)]);
+    const missing = await Promise.all([menuBranch(current, id), translationBranch(current, id)]);
+    if (current !== sequence || !missing.some(Boolean)) return;
+    // Pages가 교체되어 이전 파일이 사라졌을 때만 포인터를 한 번 새로 읽습니다.
+    let replacement: string;
+    try { replacement = (await options.client.loadManifest()).release_id; }
+    catch { return; }
+    if (current !== sequence || replacement === id) return;
+    emit(current, { type: 'load-start' });
+    if (current !== sequence) return;
+    await Promise.all([menuBranch(current, replacement), translationBranch(current, replacement)]);
   }
   return { getState: () => state, dispatch, load };
 }

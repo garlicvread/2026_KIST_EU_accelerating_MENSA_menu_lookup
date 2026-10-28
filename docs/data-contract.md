@@ -22,11 +22,11 @@ Drive 식단 갱신 프로그램은 새 원본에 나온 날짜의 메뉴와 가
 
 예제의 빈 객체는 구조 설명용입니다. 실제 게시물에는 아래 계약을 모두 통과한 메뉴와 번역이 들어 있어야 합니다. `schema_version`은 1이고 `release_id`는 소문자 SHA256 64자리입니다. Drive 파일 ID·폴더 ID와 릴리스 ID는 서로 다른 값입니다. 파일 ID는 설치에서 계속 유지하며 릴리스 ID는 내용이 달라지면 바뀝니다.
 
-익명 다운로드 주소는 `https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuser=0&confirm=t`입니다. `FILE_ID`는 HTML의 `mensa-drive-file-id` 메타 정보에서 읽습니다. 일반 Drive 보기 링크나 API key가 필요한 Drive API 주소를 데이터 URL로 사용하지 않습니다. 브라우저에서 읽을 때 JSON 응답과 CORS 허용이 필요하며 설치 확인 절차는 [운영 문서](operations.md#drive-연결과-후임자-인계)에 있습니다.
+익명 다운로드 주소는 `https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuser=0&confirm=t`입니다. 빌드 실행기가 Actions 변수 `MENSA_DRIVE_FILE_ID`로 이 주소를 구성하고 공개 JSON을 내려받습니다. API 키와 브라우저 CORS 허용은 필요하지 않습니다. `read_publication`은 envelope·중복 필드·메뉴·번역·해시를 검사하고 빌더는 현재 검토 사전으로 한 번 더 검증합니다. 실패한 묶음을 배포하지 않습니다.
 
-[`createDataClient`](../frontend/data_client.ts)의 `loadManifest`는 로드마다 공개 묶음을 한 번 요청하고 envelope와 릴리스 ID를 검사하여 ID별로 고정합니다. `loadMenu`와 `loadTranslations`는 선택한 같은 객체의 분기를 각각 검사합니다. 파일이 갱신되는 동안에도 한 로드에서 서로 다른 묶음의 메뉴·번역을 섞지 않습니다. 번역 분기 오류는 유효한 독일어 메뉴를 숨기지 않으며, 오래된 응답은 새 화면 상태를 덮어쓰지 못합니다.
+검증한 묶음은 Pages 배포물의 `data/releases/<ID>/menu.json`·`translations.json`과 `data/current.json` 포인터로 설치합니다. [`createDataClient`](../frontend/data_client.ts)의 `loadManifest`는 같은 사이트의 포인터를 읽습니다. `loadMenu`와 `loadTranslations`는 그 ID의 두 파일을 각각 요청·검사합니다. 한 로드에서 서로 다른 ID의 메뉴·번역을 섞지 않습니다. 번역 분기 오류는 유효한 독일어 메뉴를 숨기지 않으며, 오래된 응답은 새 화면 상태를 덮어쓰지 못합니다.
 
-브라우저는 메뉴·번역의 해시를 다시 계산하지 않습니다. Python 게시기와 reader가 두 분기의 전체 계약·연결·릴리스 해시를 검사합니다. 브라우저는 envelope·표시 스키마·ID 형식을 검사하고, 번역을 표시할 때 정확한 독일어 이름과 구성품 순서가 맞는지 확인합니다. 불일치는 독일어 표시로 처리합니다.
+브라우저는 메뉴·번역의 해시를 다시 계산하지 않습니다. Python 게시기와 빌더가 두 분기의 전체 계약·연결·릴리스 해시를 검사합니다. 브라우저는 포인터·표시 스키마·ID 형식을 검사하고, 번역을 표시할 때 정확한 독일어 이름과 구성품 순서가 맞는지 확인합니다. 불일치는 독일어 표시로 처리합니다.
 
 ## 릴리스 해시와 로컬 보존
 
@@ -45,7 +45,7 @@ data/
 
 로컬 포인터는 정확히 `{"schema_version":1,"release_id":"<64 lowercase hex>"}`이며 Drive의 네 필드 envelope와 다릅니다. 게시기는 완성된 두 파일을 저장한 뒤 포인터를 교체하고 이전 릴리스를 남깁니다. 같은 ID에 다른 내용을 덮어쓰지 않습니다. `load_current()`와 `load_release(id)`는 두 파일의 해시와 표시 가능 여부를 검사합니다. 과거 묶음은 그때 저장한 주의 표시 대응으로 읽고, 새 게시에는 현재 검토 대응표를 적용합니다.
 
-이 로컬 구조는 Drive 재시도의 입력이며 정적 웹서버에 연결하지 않습니다. `--data-dir`로 명시한 로컬 예제를 포함하는 화면 빌드와 기존 상대 경로 DataClient도 같은 구조를 사용합니다. Drive 화면 빌드에는 이 JSON을 포함하지 않습니다.
+운영용 컴퓨터의 로컬 준비 폴더는 Drive 재시도의 입력이며 웹서버에 연결하지 않습니다. 별도로 Pages 빌더는 같은 공개 데이터 구조를 배포물에 설치합니다. `--drive-file-id`는 공개 Drive 묶음을, `--data-dir`는 로컬 예제를 입력으로 사용합니다. 비공개 상태·캐시는 배포물에 포함하지 않습니다.
 
 ## menu.json의 필드
 

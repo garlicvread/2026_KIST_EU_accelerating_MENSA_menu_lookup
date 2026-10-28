@@ -1,6 +1,6 @@
 # 코드가 담당하는 일과 파일 위치
 
-Python 워커는 원본 HTML에서 메뉴·가격을 읽어 번역과 함께 검사하고 Drive에 게시합니다. 브라우저는 GitHub Pages의 화면 코드와 Drive의 공개 JSON 한 개를 읽습니다. 웹 요청을 처리하는 Python 백엔드나 데이터베이스 엔진은 없습니다. 화면 배포와 식단 갱신은 별도의 작업입니다.
+운영용 컴퓨터의 Python 워커는 원본 HTML에서 메뉴·가격을 읽어 번역과 함께 검사하고 Drive에 게시합니다. GitHub Actions 실행기는 Drive 공개 묶음을 내려받아 검증하고 화면과 JSON을 Pages에 배포합니다. 웹브라우저는 같은 Pages 사이트에서 화면과 데이터를 읽습니다. 웹 요청을 처리하는 Python 백엔드나 데이터베이스 엔진은 없습니다.
 
 ## 실행 위치와 설정
 
@@ -37,8 +37,9 @@ flowchart TD
   Validate --> Local[로컬 release·준비 저널 저장]
   Local --> Drive[Drive current.json 갱신·읽기 확인]
   Drive --> Complete[큐 완료 기록]
-  Pages[Pages HTML·CSS·JavaScript] --> Browser[이용자 브라우저]
-  Drive --> Browser
+  Drive --> Actions[GitHub Actions: 다운로드·검증·변경 확인]
+  Actions --> Pages[Pages HTML·CSS·JavaScript·JSON]
+  Pages --> Browser[웹브라우저]
 ```
 
 ## 번역과 모델
@@ -51,21 +52,23 @@ flowchart TD
 
 ## 브라우저의 읽기와 화면 상태
 
-[`main.ts`](../frontend/main.ts)는 HTML의 `mensa-drive-file-id` 메타 정보를 읽어 [`createDataClient(fetchPort, {driveFileId})`](../frontend/data_client.ts)에 전달합니다. Drive 모드의 `loadManifest`는 공개 다운로드 URL에서 묶음을 한 번 읽고 envelope와 64자리 릴리스 ID를 검사하여 ID별로 고정합니다. `loadMenu`와 `loadTranslations`는 그 묶음의 각 분기를 독립적으로 검사하며 추가 요청을 하지 않습니다.
+[`main.ts`](../frontend/main.ts)는 [`createDataClient(fetchPort)`](../frontend/data_client.ts)를 사용합니다. `loadManifest`는 같은 사이트의 `data/current.json`을 읽고 64자리 릴리스 ID를 검사합니다. `loadMenu`와 `loadTranslations`는 `data/releases/<ID>/`의 두 JSON을 독립적으로 읽고 검사합니다. 한 로드는 같은 ID를 사용합니다. 브라우저에 Drive 파일 ID·API 키를 전달하지 않습니다.
 
 브라우저는 메뉴·번역의 SHA256을 다시 계산하지 않습니다. [`contracts.ts`](../frontend/contracts.ts)는 표시 스키마를 검사하고 [`display.ts`](../frontend/display.ts)는 번역과 독일어 원문 이름·구성품 순서가 맞는지 확인합니다. 번역이 실패하거나 원문이 다르면 유효한 독일어 메뉴를 유지합니다. 파일 요청과 JSON 읽기 제한은 15초입니다.
 
 [`controller.ts`](../frontend/controller.ts)는 오래된 로드 결과가 새 메뉴나 번역 상태를 덮어쓰지 못하게 합니다. [`state.ts`](../frontend/state.ts)는 날짜·언어·가격 그룹과 독립된 메뉴/번역 요청 상태를 보관합니다. [`selectors.ts`](../frontend/selectors.ts)의 `visibleMeals`는 같은 날짜에서 ID 이외의 모든 내용이 같은 항목만 한 번 표시하며 원본 발생을 삭제하지 않습니다. 다른 날짜·위치·구성·주의 표시·가격의 메뉴는 유지합니다.
 
+Pages 교체 직후 이전 릴리스 파일이 404를 반환하면 controller가 포인터를 한 번 다시 읽습니다. 게시본 ID가 바뀌었을 때만 두 요청 상태를 함께 초기화하고 새 ID의 메뉴·번역을 다시 읽습니다. 재시도는 한 번으로 제한하며 같은 ID·일반 통신 오류·번역 형식 오류는 반복 요청하지 않습니다. 이 재시도도 새 로드가 시작되면 화면 상태를 바꾸지 못합니다.
+
 [`render.ts`](../frontend/render.ts), [`cards.ts`](../frontend/cards.ts), [`app.ts`](../frontend/app.ts)는 일간/주간·열린 상세·초점·보조기기 안내를 관리합니다. 언어·가격·번역 변경은 선택 날짜와 열린 상세를 유지합니다. 날짜·주·보기 변경은 화면에 남은 입력의 초점을 유지하며, 사라지는 주간 하루 보기 버튼의 초점만 날짜 선택창으로 옮깁니다. 별도 스크롤 이동은 하지 않습니다. 날짜와 최신성 판단은 Berlin 기준입니다.
 
 ## 화면 빌드와 호환 경로
 
-[`build_site.py`](../scripts/build_site.py)는 이미 컴파일된 `main.js`에서 도달하는 정적 모듈만 내용별 해시 경로로 복사합니다. CSS도 내용별 경로를 사용합니다. `--drive-file-id`는 HTML 메타 설정과 UI 자산만 출력하며 운영 JSON을 읽거나 포함하지 않습니다. `--data-dir`는 명시한 로컬 메뉴·번역을 검증하고 DirectoryPublisher 형식으로 출력합니다. 테스트 예제는 `tests/fixtures/menu-data`에 있습니다.
+[`build_site.py`](../scripts/build_site.py)는 이미 컴파일된 `main.js`에서 도달하는 정적 모듈만 내용별 해시 경로로 복사합니다. CSS도 내용별 경로를 사용합니다. `--drive-file-id`는 빌드 실행기가 API 키 없이 공개 JSON을 최대 16MiB·요청 60초로 내려받고 게시 계약·릴리스 해시·검토 사전을 검사합니다. `--data-dir`는 로컬 메뉴·번역을 읽습니다. 두 모드 모두 DirectoryPublisher 형식의 JSON과 화면을 새 출력 폴더에 만듭니다. 테스트 예제는 `tests/fixtures/menu-data`에 있습니다.
 
-[`ci.yml`](../.github/workflows/ci.yml)은 코드 PR을 검사합니다. [`update-and-deploy.yml`](../.github/workflows/update-and-deploy.yml)은 main push 또는 수동 요청으로 화면 코드만 Pages에 배포하며 저장소 변수 `MENSA_DRIVE_FILE_ID`를 사용합니다. 일상 Drive 갱신은 이 작업을 요청하지 않습니다.
+[`ci.yml`](../.github/workflows/ci.yml)은 코드 PR을 검사합니다. [`update-and-deploy.yml`](../.github/workflows/update-and-deploy.yml)은 main push·수동 요청·30분 간격 예약 실행으로 저장소 변수 `MENSA_DRIVE_FILE_ID`를 읽고 화면과 데이터를 Pages에 배포합니다. 예약 실행은 현재 Pages의 게시본 ID가 같으면 배포를 생략합니다. 워커가 Git·gh를 호출하거나 데이터 커밋·PR을 만들지는 않습니다. 실패한 다운로드·검증·빌드는 기존 Pages 배포를 교체하지 않습니다. 배포용 Actions 첨부파일의 보관 기간은 1일입니다.
 
-Drive 설정이 없는 DataClient는 기존 상대 `data/current.json`과 `data/releases/<ID>/` 읽기를 지원합니다. 명시적인 `directory`·`github` WorkerConfig와 관련 코드는 기존 설치 호환용으로 남아 있습니다. 기존 Git 게시 큐·`snapshot-journal.json`·복구 참조는 전환 전에 정리 여부를 검토하고 보존합니다. 이 호환 경로는 Drive 설치의 일상 게시나 복구 절차가 아닙니다.
+DataClient는 배포물 안의 상대 JSON 경로만 사용합니다. 명시적인 `directory`·`github` WorkerConfig와 관련 코드는 기존 설치 호환용으로 남아 있습니다. 기존 Git 게시 큐·`snapshot-journal.json`·복구 참조는 전환 전에 정리 여부를 검토하고 보존합니다. 이 호환 경로는 Drive 설치의 일상 게시나 복구 절차가 아닙니다.
 
 ## 수정할 파일 찾기
 

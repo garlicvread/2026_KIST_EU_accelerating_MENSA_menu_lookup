@@ -7,7 +7,7 @@ const fetchPort: FetchPort = async path => {
   const controller = new AbortController(); const timeout = setTimeout(() => controller.abort(), 15_000);
   try {
     const response = await fetch(path, { signal: controller.signal, cache: 'no-cache' });
-    if (!response.ok) { clearTimeout(timeout); return { ok: false, json: async () => { throw new Error('HTTP request failed'); } }; }
+    if (!response.ok) { clearTimeout(timeout); return { ok: false, status: response.status, json: async () => { throw new Error('HTTP request failed'); } }; }
     return { ok: true, json: async () => { try { return await response.json(); } finally { clearTimeout(timeout); } } };
   } catch (error) { clearTimeout(timeout); throw error; }
 };
@@ -21,8 +21,7 @@ if (typeof document !== 'undefined') {
   try {
     let storage: Storage | undefined; try { storage = localStorage; } catch { /* 브라우저의 비공개 모드에서는 localStorage 접근이 차단될 수 있으므로 앱 시작 코드가 저장소 없이 화면을 구성합니다. */ }
     const languages = typeof navigator !== 'undefined' ? navigator.languages : [];
-    const driveFileId = document.querySelector<HTMLMetaElement>('meta[name="mensa-drive-file-id"]')?.content;
-    const client = createDataClient(fetchPort, driveFileId ? { driveFileId } : {});
+    const client = createDataClient(fetchPort);
     const app = createApp({ document, client, clock: () => new Date(), browserLanguages: languages, ...(storage === undefined ? {} : { storage }) });
     void app.load().catch(() => fallback(document));
   } catch { fallback(document); }

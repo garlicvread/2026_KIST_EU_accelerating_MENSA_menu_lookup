@@ -30,5 +30,5 @@ jobs:
           npm test
       - name: Validate deterministic menu fixtures
         run: python -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data
-      - name: Build frontend without runtime data
-        run: python -m scripts.build_site --drive-file-id fixture-public-file-id
+      - name: Build frontend with deterministic fixtures
+        run: python -m scripts.build_site --data-dir tests/fixtures/menu-data
