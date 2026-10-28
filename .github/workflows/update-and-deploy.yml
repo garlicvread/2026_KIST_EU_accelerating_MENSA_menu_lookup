@@ -1,9 +1,11 @@
-name: Deploy Pages code
+name: Deploy Pages and menu data
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17,47 * * * *'
 
 permissions:
   contents: read
@@ -36,23 +38,58 @@ jobs:
       - name: Install locked frontend compiler
         run: npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
       - name: Regression tests
+        if: github.event_name != 'schedule'
         run: |
           python -m unittest discover -s tests -v
           npm test
+      - name: Compile scheduled build
+        if: github.event_name == 'schedule'
+        run: npm run compile
       - name: Validate deterministic menu fixtures
         run: python -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data
-      - name: Build versioned Pages UI assets
+      - name: Download validated Drive data and build Pages
         env:
           MENSA_DRIVE_FILE_ID: ${{ vars.MENSA_DRIVE_FILE_ID }}
         run: python -m scripts.build_site --drive-file-id "$MENSA_DRIVE_FILE_ID"
       - uses: actions/configure-pages@v5
+        id: pages
+      - name: Skip unchanged scheduled publication
+        id: publication
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
+        run: |
+          python - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          import urllib.error
+          import urllib.request
+
+          changed = True
+          if os.environ['EVENT_NAME'] == 'schedule':
+              current = json.loads(Path('.tmp/pages/data/current.json').read_text())
+              request = urllib.request.Request(os.environ['PAGES_BASE_URL'].rstrip('/') + '/data/current.json',
+                                               headers={'Cache-Control': 'no-cache'})
+              try:
+                  with urllib.request.urlopen(request, timeout=15) as response:
+                      previous = json.loads(response.read(4096))
+                  changed = previous != current
+              except (OSError, ValueError):
+                  pass
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'changed={str(changed).lower()}\n')
+          PYTHON
       - uses: actions/upload-pages-artifact@v4
+        if: steps.publication.outputs.changed == 'true'
         with:
           path: .tmp/pages
+          retention-days: 1
       - name: Publish
         id: deployment
+        if: steps.publication.outputs.changed == 'true'
         uses: actions/deploy-pages@v4
       - name: Explain rejected deployment
         if: failure()
         run: |
-          echo 'Code deployment failed. Check the tests and MENSA_DRIVE_FILE_ID repository variable, then retry this workflow. Runtime menu updates are published directly to Drive.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Deployment failed. Check the tests, MENSA_DRIVE_FILE_ID and anonymous Drive JSON download, then retry. The previous Pages deployment stays active; no data commit is required.' >> "$GITHUB_STEP_SUMMARY"

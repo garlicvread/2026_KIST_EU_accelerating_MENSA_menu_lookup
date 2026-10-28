@@ -6,9 +6,9 @@ Saarbrücken 멘자의 독일어 식단을 한국어·영어·독일어로 보�
 
 ## 식단과 화면을 게시하는 방식
 
-Python 워커가 원본 식단을 수집하고 가격·원문·번역을 검사한 뒤 Google Drive의 `current.json` 한 개를 갱신합니다. 이 파일에는 같은 게시본의 메뉴와 번역이 함께 들어 있습니다. 브라우저는 GitHub Pages의 화면 코드와 Drive의 공개 데이터를 읽습니다. 웹 백엔드나 데이터베이스 엔진은 없습니다.
+운영용 Mac의 Python 워커가 원본 식단을 수집하고 가격·원문·번역을 검사한 뒤 Google Drive의 `current.json` 한 개를 갱신합니다. GitHub Actions 실행기가 이 묶음을 내려받아 검증하고 메뉴·번역 JSON을 화면 코드와 함께 GitHub Pages에 배포합니다. 웹브라우저는 같은 Pages 주소의 화면과 JSON을 읽습니다. 웹 백엔드나 데이터베이스 엔진은 없습니다.
 
-일상적인 식단 갱신은 Git 커밋·PR·GitHub Actions·Pages 배포를 만들지 않습니다. 화면 코드를 바꿀 때만 Pages를 다시 배포합니다. 운영 JSON은 소스에서 추적하지 않으며, 테스트는 `tests/fixtures/menu-data`의 작고 고정된 예제를 사용합니다. 기존 Git 이력을 다시 쓰지는 않습니다.
+일상적인 식단 갱신은 데이터 커밋·PR을 만들지 않습니다. Actions는 30분 간격으로 Drive 데이터를 확인하고 공개 Pages의 게시본 ID가 달라졌을 때 배포합니다. main 코드 변경이나 수동 요청도 배포를 실행합니다. 예약 작업은 지연되거나 비활성화될 수 있어 정확한 반영 시각을 보장하지 않습니다. 운영 JSON은 Git 추적 대상이 아니라 배포물에만 포함하며, 테스트에는 `tests/fixtures/menu-data`의 고정 예제를 사용합니다.
 
 Drive 게시에는 기존 계정의 저장 공간과 다운로드 한도가 적용됩니다. 새 유료 서비스·Cloudflare·결제 설정을 도입하지 않습니다. 저장 공간이나 다운로드 한도 때문에 실패하면 원인을 확인하며, 프로그램이 용량을 구매하지 않습니다.
 
@@ -47,7 +47,7 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory .tmp/build-example
 npm run build -- --drive-file-id FILE_ID --output .tmp/build-drive
 ```
 
-`FILE_ID`를 실제 설치의 값으로 바꿔 주세요. 이 모드는 HTML 메타 정보에 파일 ID를 넣고 HTML/CSS/favicon과 컴파일된 JavaScript만 출력합니다. 로컬 메뉴·번역·용어집 JSON을 읽거나 출력에 포함하지 않습니다. `--drive-file-id`와 `--data-dir`는 함께 사용할 수 없습니다. `site/` 입력 폴더 대신 생성한 출력 폴더를 웹서버에 연결해 주세요. Python 빌더를 직접 실행할 때는 먼저 `npm run compile`을 실행합니다.
+`FILE_ID`를 실제 설치의 값으로 바꿔 주세요. 이 모드는 빌드를 실행하는 컴퓨터가 공개 Drive JSON을 내려받아 게시 계약·해시·검토 사전을 검사하고 메뉴·번역을 결과물에 포함합니다. 브라우저용 API 키나 Drive 인증 설정은 필요하지 않습니다. `--drive-file-id`와 `--data-dir`는 함께 사용할 수 없습니다. `site/` 입력 폴더 대신 생성한 출력 폴더를 웹서버에 연결해 주세요. Python 빌더를 직접 실행할 때는 먼저 `npm run compile`을 실행합니다.
 
 ## 워커 실행과 현재 Mac의 경로
 

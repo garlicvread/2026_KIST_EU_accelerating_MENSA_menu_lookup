@@ -20,72 +20,6 @@ function deferred() {
   return { promise, resolve, reject };
 }
 const clock = () => new Date('2026-09-28T12:00:00Z');
-const driveFileId = 'fixture-public-file-id';
-const driveURL = `https://drive.usercontent.google.com/download?id=${driveFileId}&export=download&authuser=0&confirm=t`;
-const bundle = (id = A) => ({ schema_version: 1, release_id: id, menu: menu(id), translations: cache(`Translated ${id === A ? 'A' : 'B'}`) });
-
-test('Drive discovery fetches one public bundle and pins both branches to the selected release', async () => {
-  const paths = []; let current = bundle();
-  const client = clients.createDataClient(async path => { paths.push(path); return response(current); }, { driveFileId });
-  const first = await client.loadManifest();
-  assert.deepEqual(first, { schema_version: 1, release_id: A });
-  current = bundle(B); await client.loadManifest();
-  const [oldMenu, oldCache] = await Promise.all([client.loadMenu(first.release_id), client.loadTranslations(first.release_id)]);
-  assert.equal(oldMenu.source.sha256, A); assert.equal(Object.values(oldCache.entries)[0].en.name, 'Translated A');
-  assert.equal((await client.loadMenu(B)).source.sha256, B);
-  assert.equal(Object.values((await client.loadTranslations(B)).entries)[0].en.name, 'Translated B');
-  oldMenu.days[0].meals[0].name_de = 'Changed display copy'; oldCache.entries[Object.keys(oldCache.entries)[0]].en.name = 'Changed display copy';
-  assert.notEqual((await client.loadMenu(A)).days[0].meals[0].name_de, 'Changed display copy');
-  assert.equal(Object.values((await client.loadTranslations(A)).entries)[0].en.name, 'Translated A');
-  await assert.rejects(client.loadMenu('c'.repeat(64)), /release/i);
-  await assert.rejects(client.loadTranslations('../bad'), /release/i);
-  assert.deepEqual(paths, [driveURL, driveURL], 'Branches must not fetch a second source');
-});
-
-test('Drive envelope rejects invalid IDs and malformed discovery before loading branches', async () => {
-  for (const id of ['', 'short', '../other-file', 'id?authuser=1', ' public-file-id ', 'a'.repeat(201)]) {
-    let requests = 0;
-    assert.throws(() => clients.createDataClient(async () => { requests++; return response(bundle()); }, { driveFileId: id }), /file ID/i);
-    assert.equal(requests, 0);
-  }
-  const malformed = [null, [], {}, { ...bundle(), schema_version: 2 }, { ...bundle(), release_id: '../bad' },
-    { ...bundle(), release_id: 'A'.repeat(64) }, { ...bundle(), extra: true }];
-  const missing = bundle(); delete missing.translations; malformed.push(missing);
-  for (const value of malformed) {
-    const paths = [];
-    const client = clients.createDataClient(async path => { paths.push(path); return response(value); }, { driveFileId });
-    await assert.rejects(client.loadManifest(), Error);
-    assert.deepEqual(paths, [driveURL]);
-    await assert.rejects(client.loadMenu(A), Error);
-  }
-});
-
-test('Drive branches validate independently and unusable translations leave German menu ready', async () => {
-  for (const badBranch of ['menu', 'translations']) {
-    const value = bundle(); value[badBranch] = null; const paths = [];
-    const controller = controllers.createMenuController({ clock, onChange: () => {}, client: clients.createDataClient(async path => {
-      paths.push(path); return response(value);
-    }, { driveFileId }) });
-    await controller.load(); const state = controller.getState();
-    assert.equal(state.menu.status, badBranch === 'menu' ? 'failed' : 'ready');
-    assert.equal(state.translations.status, badBranch === 'translations' ? 'failed' : 'ready');
-    if (badBranch === 'translations') assert.equal(state.menu.value.days[0].meals[0].name_de, menu().days[0].meals[0].name_de);
-    assert.deepEqual(paths, [driveURL]);
-  }
-});
-
-test('a stale Drive bundle response or failure cannot replace the latest menu and translations', async () => {
-  for (const oldFails of [false, true]) {
-    const old = deferred(); let count = 0;
-    const client = clients.createDataClient(async () => ++count === 1 ? { ok: true, json: () => old.promise } : response(bundle(B)), { driveFileId });
-    const controller = controllers.createMenuController({ client, clock, onChange: () => {} });
-    const first = controller.load(); await Promise.resolve(); await controller.load(); const current = controller.getState();
-    assert.equal(current.menu.value.source.sha256, B); assert.equal(translatedName(current), 'Translated B');
-    if (oldFails) old.reject(new Error('obsolete Drive response')); else old.resolve(bundle());
-    await first; assert.equal(controller.getState(), current);
-  }
-});
-
 
 test('one manifest pins the concurrent pair and menu becomes ready before translations', async () => {
   const translation = deferred(), menuReady = deferred(); let pointer = A;
@@ -149,4 +83,47 @@ test('older load finishing last cannot replace either current branch or report a
     else { oldMenu.resolve(menu(A)); oldCache.resolve(cache('Translated A')); }
     await first; assert.equal(controller.getState(), current);
   }
+});
+
+test('a Pages replacement refreshes a vanished release once and keeps the new pair together', async () => {
+  for (const missing of ['both', 'menu', 'translations']) {
+    let pointers = 0; const paths = [], states = [];
+    const client = clients.createDataClient(async path => {
+      paths.push(path);
+      if (path === 'data/current.json') return response({ schema_version: 1, release_id: ++pointers === 1 ? A : B });
+      const isMenu = path.endsWith('/menu.json');
+      if (path.includes(A) && (missing === 'both' || (isMenu ? missing === 'menu' : missing === 'translations'))) return { ok: false, status: 404 };
+      return response(isMenu ? menu(path.includes(A) ? A : B) : cache(path.includes(A) ? 'Translated A' : 'Translated B'));
+    });
+    const controller = controllers.createMenuController({ client, clock, onChange: state => states.push(state) });
+    await controller.load(); const state = controller.getState();
+    assert.equal(state.menu.status, 'ready'); assert.equal(state.menu.value.source.sha256, B);
+    assert.equal(translatedName(state), 'Translated B'); assert.equal(pointers, 2);
+    assert.equal(paths.length, 6);
+    for (const item of states.filter(item => item.menu.status === 'ready' && item.translations.status === 'ready')) {
+      assert.equal(item.menu.value.source.sha256 === A ? 'Translated A' : 'Translated B', translatedName(item));
+    }
+  }
+});
+
+test('release recovery is bounded and cannot replace a newer user load', async () => {
+  let pointers = 0;
+  const client = clients.createDataClient(async path => path === 'data/current.json'
+    ? response({ schema_version: 1, release_id: ++pointers === 1 ? A : B }) : { ok: false, status: 404 });
+  const controller = controllers.createMenuController({ client, clock, onChange: () => {} });
+  await controller.load(); assert.equal(pointers, 2); assert.equal(controller.getState().menu.status, 'failed');
+  const stale = deferred(), retryStarted = deferred(); let count = 0;
+  const racing = clients.createDataClient(async path => {
+    if (path === 'data/current.json') {
+      count++;
+      if (count === 2) { retryStarted.resolve(); return { ok: true, json: () => stale.promise }; }
+      return response({ schema_version: 1, release_id: count === 1 ? A : B });
+    }
+    if (path.includes(A)) return { ok: false, status: 404 };
+    return response(path.endsWith('/menu.json') ? menu(B) : cache('Translated B'));
+  });
+  const raced = controllers.createMenuController({ client: racing, clock, onChange: () => {} });
+  const first = raced.load(); await retryStarted.promise; await raced.load(); const latest = raced.getState();
+  stale.resolve({ schema_version: 1, release_id: A }); await first;
+  assert.equal(raced.getState(), latest); assert.equal(translatedName(latest), 'Translated B');
 });
