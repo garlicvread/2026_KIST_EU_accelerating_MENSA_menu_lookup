@@ -5,13 +5,14 @@ import hashlib
 from datetime import datetime, timezone
 import io
 import json
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 from unittest.mock import Mock, patch
 
 from mensa.config import load_worker_config
-from mensa.model_runtime import model_session
+from mensa.model_runtime import model_session, _validate_paths
 from mensa.drive_publication import DrivePublisher
 from mensa.queue import BusyError, exclusive_lock, reconcile, save_state
 from mensa.releases import DirectoryPublisher, _json_bytes, _release_id
@@ -151,7 +152,6 @@ class ConfigureDriveTests(unittest.TestCase):
         self.configure(model_revision=None)
         config = load_worker_config(self.base / 'worker.toml')
         digest = hashlib.sha256(raw).hexdigest()
-        (self.base / 'logs').chmod(0o700)
         process = Mock(pid=123456)
         process.poll.return_value = None
         stop = Mock()
@@ -167,6 +167,114 @@ class ConfigureDriveTests(unittest.TestCase):
         self.configure(model_revision='a' * 64)
         config = load_worker_config(self.base / 'worker.toml')
         self.assertEqual(config.inference.revision, 'a' * 64)
+
+    def test_bootstrap_prepares_owned_legacy_logs_without_replacing_or_truncating(self):
+        logs = self.base / 'logs'
+        model_log = logs / 'model.log'
+        model_log.write_bytes(b'previous model output\n')
+        logs.chmod(0o755)
+        model_log.chmod(0o644)
+        before = {path: (path.stat().st_ino, path.read_bytes())
+                  for path in (model_log, logs / 'worker.log', self.queue,
+                               self.base / 'snapshot-journal.json')}
+        log_inode = logs.stat().st_ino
+        self.configure()
+        config = load_worker_config(self.base / 'worker.toml')
+        _validate_paths(config.inference)
+        self.assertEqual(logs.stat().st_mode & 0o777, 0o700)
+        self.assertEqual(model_log.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(logs.stat().st_ino, log_inode)
+        self.assertEqual({path: (path.stat().st_ino, path.read_bytes()) for path in before}, before)
+        self.assertEqual((logs / 'worker.log').stat().st_mode & 0o777, 0o644)
+
+    def test_repeat_bootstrap_repairs_owned_logs_with_existing_config(self):
+        first = self.configure()
+        config_path = self.base / 'worker.toml'
+        identity = (config_path.stat().st_ino, config_path.read_bytes())
+        model_log = self.base / 'logs/model.log'
+        model_log.write_bytes(b'preserve on repeat')
+        model_log.chmod(0o644)
+        model_log.parent.chmod(0o755)
+        self.assertEqual(self.configure(source=False), first)
+        _validate_paths(load_worker_config(config_path).inference)
+        self.assertEqual((config_path.stat().st_ino, config_path.read_bytes()), identity)
+        self.assertEqual(model_log.read_bytes(), b'preserve on repeat')
+        self.assertEqual(len(self.command.uploads), 1)
+
+    def test_unsafe_model_log_is_refused_before_remote_access(self):
+        logs = self.base / 'logs'
+        target = logs / 'model.log'
+        outside = self.root / 'operator-file'
+        outside.write_bytes(b'do not touch')
+        original_mode = outside.stat().st_mode
+        for kind in ('symlink', 'fifo', 'hardlink'):
+            with self.subTest(kind=kind):
+                if kind == 'symlink':
+                    target.symlink_to(outside)
+                elif kind == 'fifo':
+                    os.mkfifo(target)
+                else:
+                    os.link(outside, target)
+                try:
+                    with self.assertRaises(ValueError):
+                        self.configure()
+                    self.assertEqual(self.command.commands, [])
+                    self.assertEqual(logs.stat().st_mode & 0o777, 0o755)
+                    self.assertEqual(outside.stat().st_mode, original_mode)
+                finally:
+                    target.unlink()
+        with patch.object(self.module().os, 'geteuid', return_value=os.geteuid() + 1):
+            with self.assertRaises(ValueError):
+                self.configure()
+        self.assertEqual(self.command.commands, [])
+
+    def test_replaced_log_directory_during_upload_is_never_chmodded(self):
+        logs = self.base / 'logs'
+        original = self.root / 'original-logs'
+        operator_log = logs / 'model.log'
+        def replace_logs(_):
+            logs.rename(original)
+            logs.mkdir(mode=0o755)
+            operator_log.write_bytes(b'operator-owned replacement')
+            operator_log.chmod(0o644)
+        self.command.on_copy = replace_logs
+        with self.assertRaisesRegex(ValueError, 'log directory changed'):
+            self.configure()
+        self.assertEqual(logs.stat().st_mode & 0o777, 0o755)
+        self.assertEqual(original.stat().st_mode & 0o777, 0o755)
+        self.assertEqual(operator_log.stat().st_mode & 0o777, 0o644)
+        self.assertEqual(operator_log.read_bytes(), b'operator-owned replacement')
+        self.assertFalse((self.base / 'worker.toml').exists())
+        self.assertFalse(self.staging.exists())
+
+    def test_symlinked_log_directory_is_refused_before_remote_access(self):
+        logs = self.base / 'logs'
+        actual = self.root / 'operator-logs'
+        logs.rename(actual)
+        logs.symlink_to(actual, target_is_directory=True)
+        before = actual.stat().st_mode
+        with self.assertRaises(ValueError):
+            self.configure()
+        self.assertEqual(self.command.commands, [])
+        self.assertEqual(actual.stat().st_mode, before)
+
+    def test_log_permissions_wait_for_successful_configuration_install(self):
+        logs = self.base / 'logs'
+        target = logs / 'model.log'
+        target.write_bytes(b'previous model output')
+        target.chmod(0o644)
+        before = (logs.stat().st_mode, target.stat().st_mode, target.stat().st_ino, target.read_bytes())
+        self.command.fail_operation = 'copyto'
+        with self.assertRaises(RuntimeError):
+            self.configure()
+        self.assertEqual((logs.stat().st_mode, target.stat().st_mode, target.stat().st_ino,
+                          target.read_bytes()), before)
+        self.command.fail_operation = None
+        with patch.object(self.module().os, 'link', side_effect=OSError('disk failure')):
+            with self.assertRaises(OSError):
+                self.configure()
+        self.assertEqual((logs.stat().st_mode, target.stat().st_mode, target.stat().st_ino,
+                          target.read_bytes()), before)
 
     def test_missing_manifest_requires_explicit_revision_before_remote_writes(self):
         before = self.state_files()

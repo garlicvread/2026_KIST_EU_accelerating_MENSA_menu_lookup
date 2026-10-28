@@ -69,6 +69,8 @@ python3 -m scripts.configure_drive \
 
 설정 준비 후 익명 공개 읽기를 확인하고 저장소 변수 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 한 번 설정합니다. 검토한 운영 코드·Pages를 반영한 뒤 워커를 재개합니다. 설정 파일을 만들었다는 사실만으로 활성화 완료를 기록하지 않습니다. 상세 순서는 [배포 안내](deployment.md)에 있습니다.
 
+전환 명령은 운영용 Mac의 소유한 `logs` 폴더를0700, 기존 `model.log`를0600으로 맞춰 모델 실행 검사를 준비합니다. 로그 내용과 inode·다른 파일은 보존하고 symlink·FIFO·hardlink·다른 소유자의 경로는 원격 작업 전에 거절합니다. 기존 설정에 같은 명령을 재실행해도 이 권한 준비를 수행합니다. Google Drive 폴더의 공유 권한을 바꾸는 작업이 아닙니다.
+
 ## 설정 파일의 경로·모델·게시 값
 
 [`config/worker.drive.example.toml`](../config/worker.drive.example.toml)은 상대 경로의 Drive 예제입니다. `load_worker_config`는 `[paths]`, `[inference]`, `[resources]`, `[publication]`과 선택적인 `[retention]`을 받습니다. 보관 설정 생략 시 아래 기본값을 적용하며 알 수 없는 키·0 이하 한도·잘못된 형식을 거절합니다. 상대 경로는 TOML 위치 기준이며 symlink의 실제 경로도 확인합니다. `~`·환경변수는 확장하지 않습니다.

@@ -8,6 +8,7 @@
 
 import argparse
 import copy
+from contextlib import contextmanager
 from dataclasses import asdict
 from datetime import datetime
 import json
@@ -68,6 +69,70 @@ def _record(path, *, private=False):
     if private and stat.S_IMODE(info.st_mode) & 0o077:
         raise ValueError(f'Existing state file must have private permissions: {path}')
     return info.st_dev, info.st_ino, info.st_mode, path.read_bytes()
+
+
+def _log_identity(path, *, directory=False, dir_fd=None):
+    try:
+        info = os.stat(path, dir_fd=dir_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        raise ValueError('Cannot inspect owned runtime log path') from None
+    kind = stat.S_ISDIR if directory else stat.S_ISREG
+    if (not kind(info.st_mode) or info.st_uid != os.geteuid()
+            or (not directory and info.st_nlink != 1)):
+        raise ValueError('Runtime logs must be owned directories or single-link regular files without symlinks')
+    return info.st_dev, info.st_ino
+
+
+@contextmanager
+def _runtime_log_permissions(path):
+    """Validate exact owned log targets before I/O; tighten held objects only after installation."""
+    directory = model = None
+    try:
+        original = _log_identity(path, directory=True)
+        model_identity = None
+        if original is not None:
+            try:
+                directory = os.open(path, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                model_identity = _log_identity('model.log', dir_fd=directory)
+                if model_identity is not None:
+                    model = os.open('model.log', os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                                    dir_fd=directory)
+            except OSError:
+                raise ValueError('Cannot open owned runtime log paths without following links') from None
+
+        def check():
+            if _log_identity(path, directory=True) != original:
+                raise ValueError('Runtime log directory changed during Drive configuration')
+            if directory is not None:
+                info = os.fstat(directory)
+                if (info.st_dev, info.st_ino) != original or info.st_uid != os.geteuid():
+                    raise ValueError('Runtime log directory changed during Drive configuration')
+                if _log_identity('model.log', dir_fd=directory) != model_identity:
+                    raise ValueError('Runtime model log changed during Drive configuration')
+                if model is not None:
+                    info = os.fstat(model)
+                    if ((info.st_dev, info.st_ino) != model_identity or not stat.S_ISREG(info.st_mode)
+                            or info.st_uid != os.geteuid() or info.st_nlink != 1):
+                        raise ValueError('Runtime model log changed during Drive configuration')
+
+        def prepare():
+            check()
+            if directory is None:
+                path.mkdir(mode=0o700)
+            else:
+                os.fchmod(directory, 0o700)
+                if model is not None:
+                    os.fchmod(model, 0o600)
+
+        check()
+        yield check, prepare
+    finally:
+        if model is not None:
+            os.close(model)
+        if directory is not None:
+            os.close(directory)
 
 
 def _unique_object(pairs):
@@ -291,7 +356,7 @@ def configure(base, checkout, data_dir, remote, folder_id, *, source_data=None,
                                           template.inference.revision)
     if not base.exists():
         base.mkdir(mode=0o700, parents=True)
-    with exclusive_lock(base / 'worker.lock'):
+    with exclusive_lock(base / 'worker.lock'), _runtime_log_permissions(base / 'logs') as (check_logs, prepare_logs):
         records, expected_id, prepared = _inspect_state(base, checkout, data_dir, remote, folder_id,
                                                        template.inference.revision)
         # 잠금을 처음 만드는 경우에만 새 빈 worker.lock을 허용하며 기존 기록은 모두 비교합니다.
@@ -333,6 +398,7 @@ def configure(base, checkout, data_dir, remote, folder_id, *, source_data=None,
         for path, identity in destinations.items():
             if path.resolve() != path or _directory(path, missing=True, private=path == base) != identity:
                 raise ValueError('A configured destination changed during Drive configuration')
+        check_logs()
         expected = _expected_config(base, checkout, data_dir, remote, folder_id, result.file_id, revision())
         if expected.inference != template.inference:
             raise ValueError('An inference destination changed during Drive configuration')
@@ -344,6 +410,7 @@ def configure(base, checkout, data_dir, remote, folder_id, *, source_data=None,
         _install_config(base, expected, records)
         private_store.save(reuse)
         record_successful_release(expected, release_id, today=datetime.now(BERLIN).date())
+        prepare_logs()
         return {'config_path': str(base / 'worker.toml'), 'file_id': result.file_id,
                 'release_id': release_id, 'data_dir': str(data_dir)}
 
