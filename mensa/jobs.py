@@ -85,6 +85,12 @@ class JobRunner:
                 started = clock()
                 def finish(result):
                     return record_result(directory, result, now + timedelta(seconds=clock() - started))
+                maintain = getattr(self._work, 'maintain', None)
+                if callable(maintain):
+                    try:
+                        maintain(now)
+                    except Exception as exc:
+                        return finish({'status': 'failed', 'reason': str(exc)[:500]})
                 state = reconcile(load_state(path), now)
                 save_state(path, state)
                 pending = state['pending']

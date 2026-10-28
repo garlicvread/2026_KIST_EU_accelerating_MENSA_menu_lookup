@@ -119,6 +119,14 @@ class DirectoryPublisher:
         selected = self._selection()
         return None if selected is None else self._pair(selected)
 
+    def load_release(self, release_id):
+        """DirectoryPublisher가 공개 선택을 바꾸지 않고 재시도 기록이 가리키는 완성된 묶음을 검증하여 읽습니다."""
+        if not isinstance(release_id, str) or re.fullmatch(r'[0-9a-f]{64}', release_id) is None:
+            raise ValueError('Invalid release identity')
+        for directory in (self._root, self._data, self._releases):
+            _kind(directory, stat.S_ISDIR)
+        return self._pair(release_id)
+
     def _install_pair(self, release_id, payloads):
         target = self._releases / release_id
         if _kind(target, stat.S_ISDIR, missing=True):

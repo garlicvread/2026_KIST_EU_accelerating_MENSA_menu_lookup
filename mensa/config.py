@@ -1,6 +1,6 @@
 """설정 로더가 TOML에 명시된 작업자 경로·추론·자원·공개 설정을 읽고 검증하며, 작업자를 준비하거나 시작하지 않습니다."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, fields
 from itertools import combinations
 import math
 import re
@@ -43,12 +43,30 @@ class ResourceSettings:
 
 @dataclass(frozen=True)
 class PublicationSettings:
-    """PublicationSettings는 디렉터리 또는 GitHub 공개 방식과 해당 설정을 담으며, 명령 전송이나 원격 준비 상태를 확인하지 않습니다."""
+    """PublicationSettings는 디렉터리·Drive 또는 명시적인 이전 GitHub 공개 설정을 담으며, 명령 전송이나 원격 준비 상태를 확인하지 않습니다."""
 
     mode: str
     repository: str | None
     workflow: str | None
     remote: str | None
+    folder_id: str | None = None
+    file_id: str | None = None
+
+
+@dataclass(frozen=True)
+class RetentionSettings:
+    """RetentionSettings는 메뉴·번역·복구본·로그 및 생성 데이터의 유한 보관 한도를 담습니다."""
+
+    history_days: int = 30
+    cache_unused_days: int = 180
+    cache_max_entries: int = 5000
+    cache_max_bytes: int = 16777216
+    keep_releases: int = 10
+    log_days: int = 14
+    log_max_bytes: int = 10485760
+    backup_days: int = 14
+    max_bundle_bytes: int = 8388608
+    max_storage_bytes: int = 268435456
 
 
 @dataclass(frozen=True)
@@ -59,6 +77,7 @@ class WorkerConfig:
     inference: InferenceSettings
     resources: ResourceSettings
     publication: PublicationSettings
+    retention: RetentionSettings = field(default_factory=RetentionSettings)
 
 
 def _read_toml(config_path: Path) -> dict:
@@ -226,6 +245,21 @@ def _parse_resources(value: object, config_path: Path) -> ResourceSettings:
     return ResourceSettings(platform=platform, min_available_bytes=minimum, max_load_per_cpu=load)
 
 
+def _parse_retention(value: object, config_path: Path) -> RetentionSettings:
+    values = _require_table(value, 'retention', config_path)
+    unknown = set(values) - {item.name for item in fields(RetentionSettings)}
+    if unknown:
+        raise ValueError(f"Worker config {config_path}, [retention]: unknown keys/tables: {', '.join(sorted(unknown))}")
+    for name, limit in values.items():
+        if type(limit) is not int or limit <= 0:
+            raise ValueError(f'Worker config {config_path}: retention.{name} must be a positive integer')
+    settings = RetentionSettings(**values)
+    for name in ('cache_max_bytes', 'log_max_bytes', 'max_bundle_bytes'):
+        if getattr(settings, name) > settings.max_storage_bytes:
+            raise ValueError(f'Worker config {config_path}: retention.{name} must not exceed retention.max_storage_bytes')
+    return settings
+
+
 def _publication_remote(remote: str, config_path: Path) -> str:
     try:
         if any(character.isspace() or ord(character) < 32 or ord(character) == 127 for character in remote):
@@ -247,8 +281,20 @@ def _parse_publication(value: object, config_path: Path) -> PublicationSettings:
     if "mode" not in values:
         raise ValueError(f"Worker config {config_path}, [publication]: missing keys: mode")
     mode = _require_string(values, "mode", config_path, "publication")
+    if mode == 'drive':
+        _require_keys(values, ('mode', 'remote', 'folder_id', 'file_id'), config_path, '[publication]')
+        remote = _require_string(values, 'remote', config_path, 'publication')
+        if re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9 _.\-]*:', remote) is None:
+            raise ValueError(f'Worker config {config_path}: invalid publication.remote; use a configured rclone remote name ending in :')
+        ids = {}
+        for name in ('folder_id', 'file_id'):
+            identifier = _require_string(values, name, config_path, 'publication')
+            if re.fullmatch(r'[A-Za-z0-9_-]{10,200}', identifier) is None:
+                raise ValueError(f'Worker config {config_path}: invalid publication.{name}')
+            ids[name] = identifier
+        return PublicationSettings(mode=mode, repository=None, workflow=None, remote=remote, **ids)
     if mode not in {"directory", "github"}:
-        raise ValueError(f"Worker config {config_path}: publication.mode must be directory or github")
+        raise ValueError(f"Worker config {config_path}: publication.mode must be directory, drive or github")
     names = ("mode",) if mode == "directory" else ("mode", "repository", "workflow", "remote")
     _require_keys(values, names, config_path, "[publication]")
     if mode == "directory":
@@ -272,9 +318,11 @@ def load_worker_config(config_path: Path) -> WorkerConfig:
     엔드포인트, 모델 가중치 또는 원격 준비 상태를 확인하거나 작업자를 활성화하지 않습니다.
     """
     config = _read_toml(config_path)
-    _require_keys(config, ("paths", "inference", "resources", "publication"), config_path, "root")
+    _require_keys({key: value for key, value in config.items() if key != 'retention'},
+                  ("paths", "inference", "resources", "publication"), config_path, "root")
     paths = _parse_paths(config["paths"], config_path)
     inference = _parse_inference(config["inference"], paths, config_path)
     resources = _parse_resources(config["resources"], config_path)
     publication = _parse_publication(config["publication"], config_path)
-    return WorkerConfig(paths=paths, inference=inference, resources=resources, publication=publication)
+    retention = _parse_retention(config.get('retention', {}), config_path)
+    return WorkerConfig(paths=paths, inference=inference, resources=resources, publication=publication, retention=retention)

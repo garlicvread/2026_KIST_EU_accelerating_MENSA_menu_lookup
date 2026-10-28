@@ -1,246 +1,165 @@
 # 식단 갱신 프로그램의 설정과 운영
 
-식단을 주기적으로 수집·번역해 JSON 파일을 준비하는 Python 프로그램을 이 문서에서는 워커라고 부릅니다. 운영자는 [`scripts/local_refresh.py`](../scripts/local_refresh.py)의 실행 명령과 Linux/Mac 자동 실행 설정을 관리합니다. 이 프로그램에는 웹 백엔드나 데이터베이스 엔진이 없으며 대기 작업·완료 번역·마지막 실행 결과를 파일로 저장합니다.
-
-현재 환경을 이어받는 담당자는 아래 설치 현황과 상태 확인에서 시작합니다. 기존 시간대·모델·인증·자동 실행을 다시 준비할 필요는 없습니다. 브라우저용 TypeScript 컴파일은 게시용 사이트를 만들 때 필요하며, 매일 식단 갱신 프로그램은 HTML/CSS/JavaScript를 만들지 않습니다.
+워커는 원본 식단을 수집·번역·검사하고 Drive `current.json`을 갱신합니다. 실행 진입점은 [`scripts/local_refresh.py`](../scripts/local_refresh.py)입니다. 웹 백엔드나 데이터베이스 엔진은 없으며 큐·완료 번역·준비한 게시본·마지막 결과를 파일로 보관합니다. 화면 HTML/CSS/JavaScript는 별도의 Pages 코드 배포가 담당합니다.
 
 ## 현재 운영 환경
 
-2026년 10월 14일 기준으로 다음 설정을 사용합니다. 경로나 실행 계정을 실제로 바꾸는 경우 이 표와 연결된 자동 실행 설정도 함께 갱신합니다.
+기존 Mac 설치의 경로와 Drive 전환 후 사용할 설정은 다음과 같습니다. 전환 준비와 실제 활성화는 구별합니다. 공개 데이터 읽기·Pages 배포·워커 재개·Git 무변경 확인까지 끝나야 [전환 완료](deployment.md#기존-mac을-drive-방식으로-전환하기)로 기록합니다.
 
-| 대상 | 현재 설정 |
+| 대상 | 경로 또는 설정 |
 | --- | --- |
-| 코드 | `~/mensa`, `main` 브랜치 |
-| 작업 기록·런타임 | `~/Library/Application Support/Mensa` |
-| 워커의 코드 연결 | 작업 폴더의 `checkout` 링크가 `~/mensa`를 가리킵니다. |
+| 운영 코드 | `~/mensa`, 검토한 main 코드 |
+| 비공개 상태 BASE | `~/Library/Application Support/Mensa` |
+| 코드 연결 | `BASE/checkout`이 운영 코드 위치를 가리킵니다. |
+| 설정 | `BASE/worker.toml`; `--base`도 이 파일을 읽습니다. |
+| 로컬 데이터 준비 | 예: `~/Library/Application Support/Mensa Data`; 코드·BASE와 겹치지 않습니다. |
 | Python | `/opt/homebrew/opt/python@3.14/bin/python3.14` |
-| 모델 | 작업 폴더의 `runtime/ollama`와 `models`에 설치된 `gemma4:31b` |
-| 자동 실행 | 로그인 사용자의 `io.github.garlicvread.mensa-refresh`; 로그인 시와 900초 간격 |
-| 공개 방식 | 기존 GitHub 저장소와 Pages; Git/GitHub CLI 인증 사용 |
-| 날짜 기준 | `mensa/schedule.py`의 `Europe/Berlin`, 매일 09:00·10:00·11:00 |
+| 네이티브 모델 | `BASE/runtime/ollama`, `BASE/models`, `gemma4:31b`; 로그는 `BASE/logs` |
+| 실행 자원 | 기존 Mac 정책의 가용 메모리 32 GiB, CPU별 부하 계수 0.6과 전원 조건 |
+| 자동 실행 | 로그인 사용자의 `io.github.garlicvread.mensa-refresh`; 로그인 시·900초 간격 |
+| 데이터 목적지 | 설정한 rclone remote·폴더 ID·안정된 `current.json` 파일 ID |
+| 현재 폴더 이름 | `saarbruecken_mensa_data_storage`; 이름 변경은 폴더 ID를 바꾸지 않습니다. |
+| 화면 | 기존 GitHub Pages 주소, 저장소 변수 `MENSA_DRIVE_FILE_ID` |
+| 수집 시각 | `Europe/Berlin` 기준 매일 09:00·10:00·11:00 |
 
-베를린 날짜 계산은 설치된 Python에서 이미 동작합니다. 담당자가 시간대 데이터를 별도로 설치하거나 시스템 시간대를 다시 맞추는 절차는 없습니다. 코드 폴더와 모델·큐·복구 기록은 서로 다른 위치에 있으므로 코드 변경이나 개발 체크아웃 정리 때문에 기존 런타임을 지우지 않습니다.
-
-기존 로그인 사용자로 상태를 확인합니다. 이 명령은 파일을 읽기만 하며 수집·모델·게시를 실행하지 않습니다.
+현재 설치의 모델·큐·로그·LaunchAgent를 다시 설치하지 않습니다. 새 코드에서 BASE 설정이 없으면 자동 Git 게시로 되돌아가지 않습니다. 베를린 날짜 계산도 기존 Python의 시간대 정보를 사용하므로 시스템 시간대를 매번 바꾸지 않습니다.
 
 ```sh
 cd "$HOME/mensa"
 /opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
 ```
 
-수동 처리와 오류 복구가 필요할 때는 [실행 계정과 상태](#상태-확인과-실제-실행을-맡는-os-계정), [실패 확인과 재시도](#실패-확인과-재시도)를 사용합니다. 자동 실행은 등록되어 있으므로 평소에 설치 프로그램을 다시 실행하지 않습니다.
+`--status`는 큐와 마지막 결과를 읽고 수집·모델·게시를 실행하지 않습니다. 이를 뺀 명령은 대기 작업을 처리하되 일정·실패 후 대기·자원 기준을 따릅니다. 수동 실행도 강제 갱신은 아닙니다. `idle`은 할 작업 없음, `waiting`은 재시도 시각 전, `deferred`는 자원 조건 미충족, `busy`는 다른 실행이 잠금 보유, `completed`는 완료입니다. `failed`·`blocked`는 실패·자동 재시도 중지이며 CLI가 exit 1로 끝납니다. 종료 코드 0만으로 새 데이터 게시를 판단하지 마세요.
 
-## 매일 갱신할 때 날짜를 보존하는 방법
+## Drive 연결과 후임자 인계
 
-워커는 새 원본에 포함된 날짜의 메뉴와 가격을 최신 값으로 교체합니다. 새 원본의 시작 날짜보다 앞선 기존 공개 식단은 보존하므로, 날짜가 지나 원본 사이트에서 빠져도 우리 사이트에서는 계속 조회할 수 있습니다. 같은 날짜의 수집 결과를 여러 개 표시하지 않으며, 마지막으로 검사와 게시에 성공한 값 하나를 표시합니다. 현재 지난 공개 날짜를 자동 삭제하는 기간 설정은 없습니다.
+운영 계정에 rclone을 준비하고 `rclone config`로 자신의 Google Drive 연결을 만듭니다. 현재 설치의 쓰기 연결 이름은 `mensa-drive:`입니다. `publication.remote`는 rclone remote 이름이며 Git remote나 다운로드 URL이 아닙니다. 읽기 전용 토큰으로는 게시할 수 없습니다. 이 설치는 `drive.readonly,drive.file` 범위로 기존 파일을 읽고 rclone에서 사용하는 파일을 작성하도록 인증했습니다. 후임자는 자신의 계정으로 인증하고 remote·폴더 ID·파일 ID를 설정합니다. 다른 운영자의 OAuth token을 문서나 소스에 복사하지 않습니다.
 
-워커는 보존 처리 전에 새 원본의 유효성을 검사하고, 보존 처리 후에는 지난 날짜까지 포함해 필요한 번역을 검사합니다. 기존 메뉴·번역 JSON은 이 과정의 입력이므로 운영자가 수동으로 비우지 마십시오. 날짜 보존 범위와 `source`·`coverage` 필드의 의미는 [데이터 규칙](data-contract.md#날짜별-식단을-갱신하고-보존하는-규칙)에 설명되어 있습니다.
+현재 연결의 rclone 공용 `client_id`에는 2026년 중 사용 종료 공지가 있습니다. 현재 인증 성공이 계속된 사용을 보장하지는 않습니다. 후임자는 [rclone 공식 자체 client ID 안내](https://rclone.org/drive/#making-your-own-client-id)에 따라 Google 프로젝트·Drive API·OAuth 동의·데스크톱 client를 준비하고 rclone의 비공개 설정에 client ID/client secret을 넣어 재인증해 주세요. 이 절차에 결제 활성화나 유료 서비스 추가를 포함하지 않습니다. 인증 값과 token은 rclone 설정에서만 관리하고 워커 TOML·Git·로그·사이트에 넣지 않습니다.
 
-## 새 환경에 설치할 때
+이번 설치는 사용자가 제공한 폴더의 기존 공유 설정을 그대로 사용합니다. 후임자는 자신의 공유·공개 읽기 설정을 준비한 뒤 아래 주소가 로그인 없이 JSON을 반환하는지 확인합니다. 프로그램과 전환 절차는 폴더·파일의 공유 설정을 변경하지 않습니다.
 
-다른 컴퓨터·계정에서 처음 실행하거나 `--config` 기반 게시 방식을 새로 도입할 때의 절차입니다. 현재 Mac의 일상 운영에는 적용하지 않습니다.
-
-새 Mac에서는 Python 3.12 이상, Git/GitHub CLI와 해당 저장소의 게시 인증을 갖추고 검토한 `main` 코드를 사용할 폴더를 정합니다. 작업 폴더의 `checkout`이 그 코드를 가리키게 하고, `runtime/ollama`와 `models`에 사용할 실행 파일·모델을 배치한 뒤 아래 명령으로 로그인 사용자의 자동 실행을 한 번 등록합니다. 설치 프로그램은 모델 다운로드를 수행하지 않습니다. 다른 컴퓨터에서 가져온 기존 작업 기록이 있다면 초기화하지 말고 [복구 절차](#실패-확인과-재시도)에 따라 게시 상태와 대조합니다.
-
-```sh
-# 검토한 main 코드를 둔 프로젝트 폴더에서 실행합니다.
-python3 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa"
+```text
+https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuser=0&confirm=t
 ```
 
-TOML 기반 Linux 또는 별도 게시 환경을 처음 구성하는 경우에는 아래 폴더·모델·계정 계약과 [Linux 자동 실행 설치](#linux-자동-실행-파일-설치)를 적용합니다. 현재 Mac의 `--base` 경로는 TOML을 사용하지 않습니다.
+`FILE_ID`는 `current.json`의 파일 ID이며 폴더 ID와 다릅니다. 브라우저 Network 또는 익명 HTTP 요청에서 성공 상태·실제 JSON 본문·`Access-Control-Allow-Origin: *`를 확인합니다. Drive 로그인 화면이나 HTML 다운로드 확인 페이지는 성공한 데이터 응답이 아닙니다. 일반 보기 링크나 API key가 필요한 Drive API 주소를 앱 설정으로 사용하지 않습니다.
 
-### 설정 파일에 지정하는 폴더와 모델
+폴더 안의 예약 이름은 `current.json` 한 개입니다. 워커는 기존 파일의 ID와 내용을 확인하고 같은 파일을 갱신합니다. 이름이 중복되거나 ID가 달라지거나 기존 파일이 유효한 공개 묶음이 아니면 중단하므로 임의의 파일을 같은 이름으로 바꾸지 않습니다. 폴더의 다른 파일을 삭제·동기화하지 않습니다. 인계 기록에는 코드 버전, BASE·로컬 준비 경로, remote 이름, 폴더/파일 ID, 모델/revision, 마지막 검증·완료 시각을 남기며 인증 비밀은 제외합니다.
 
-설정을 읽는 `load_worker_config` 함수([`mensa/config.py`](../mensa/config.py))는 운영자가 `--config`로 지정한 TOML 파일을 읽습니다. 파일에는 정확히 `[paths]`, `[inference]`, `[resources]`, `[publication]` 네 부분이 필요합니다. 이 함수는 필수 값의 누락이나 알 수 없는 키를 오류로 처리하며 생략한 값을 기본값으로 채우지 않습니다. 문자열은 빈 값으로 둘 수 없습니다.
+Drive는 기존 계정의 저장 공간과 다운로드 한도를 사용합니다. 추가 운영비를 만들지 않으며 Cloudflare·새 유료 호스팅·용량 구매·결제 계정 연결을 도입하지 않습니다. 한도·인증·통신 오류가 나면 기존 공개 묶음을 보존하고 원인을 해결합니다.
 
-운영자는 먼저 코드 폴더, 웹에 공개하지 않을 작업 기록 폴더, 웹서버가 읽는 사이트 폴더를 나눠 지정해 주세요. 아래 경로는 Linux 예제의 값이며 실제 서버 경로에 맞춰 바꿀 수 있습니다.
+## 최초 데이터 이관과 설정 준비
 
-| 필수 키 | 프로그램이 이 값을 사용하는 방법 | 예제값 |
-| --- | --- | --- |
-| `paths.checkout_dir` | 원본 입력 JSON과 사람이 검토한 번역 파일을 읽는 코드 폴더입니다. | `/opt/mensa/worker-checkout` |
-| `paths.state_dir` | queue.json, 마지막 결과, 완료 번역과 복구 기록을 저장하는 비공개 작업 폴더입니다. | `/var/lib/mensa/private` |
-| `paths.public_dir` | 웹서버에 제공할 HTML과 data 폴더가 있는 사이트 최상위 폴더입니다. | `/srv/www/mensa` |
-| `inference.mode` | `managed`이면 프로그램이 Ollama를 시작/종료하고, `external`이면 이미 실행 중인 모델에 요청합니다. | `managed` |
-| `inference.provider` | 모델 요청 형식을 고릅니다. managed는 `ollama`, external은 `ollama` 또는 `openai`입니다. | `ollama` |
-| `inference.model` | 요청할 모델 이름입니다. 운영자가 실제 설치한 이름을 넣습니다. | `replace-with-provisioned-model`은 교체할 예시 문자열입니다. |
-| `inference.revision` | 저장된 번역이 같은 모델 버전에서 만들어졌는지 구별하는 운영자 선언입니다. | `replace-with-provisioned-revision`은 교체할 예시 문자열입니다. |
-| `resources.platform` | 메모리/CPU/전원을 읽을 운영체제를 고릅니다. | `linux` 또는 `macos`; 예제는 `linux`입니다. |
-| `resources.min_available_bytes` | 실행을 허용할 최소 가용 메모리입니다. 양의 정수 바이트를 지정합니다. | `8589934592` = 8 GiB |
-| `resources.max_load_per_cpu` | 가용 CPU 용량에 곱해 허용할 1분 평균 부하(load)를 정합니다. 양의 유한 숫자가 필요합니다. | `0.75` |
-| `publication.mode` | `directory`이면 사이트 data에 파일을 쓰고, `github`이면 GitHub 저장소와 배포 작업을 통해 게시합니다. | `directory` |
+[`scripts/configure_drive.py`](../scripts/configure_drive.py)는 기존 메뉴·번역 또는 이미 있는 Drive 묶음을 검증하여 로컬 준비 데이터와 BASE 설정을 준비합니다. 검증된 새 코드를 사용할 폴더에서 같은 운영 계정으로 실행합니다. 원래 큐가 대기 작업 없이 idle 상태여야 하며 명령이 기존 `worker.lock`을 확보합니다. 먼저 자동 실행과 수동 작업을 멈추고 [배포 순서](deployment.md#기존-mac을-drive-방식으로-전환하기)에 따라 백업해 주세요.
 
-설정을 읽는 함수는 선택한 방식에 필요한 추가 키만 허용합니다. 운영자가 managed와 external의 키를 한 부분에 함께 넣으면 설정을 읽는 함수는 ValueError 예외를 발생시켜 설정을 거절합니다.
+```sh
+python3 -m scripts.configure_drive \
+  --base "$HOME/Library/Application Support/Mensa" \
+  --checkout "$HOME/mensa" \
+  --data-dir "$HOME/Library/Application Support/Mensa Data" \
+  --remote gdrive: \
+  --folder-id FOLDER_ID \
+  --source-data OLD_PAIR_DIR
+```
 
-| 선택한 방식 | 운영자가 추가할 필수 키 | 지정할 대상 |
-| --- | --- | --- |
-| `inference.mode = "managed"` | `binary`, `models_dir`, `log_dir` | Ollama 실행 파일, 이미 준비한 모델 파일 폴더, 공개하지 않을 모델 로그 폴더입니다. |
-| `inference.mode = "external"` | `url` | 번역 요청을 받을 모델의 전체 HTTP/HTTPS 주소입니다. hostname이 필요하며 계정/암호·fragment·공백을 넣을 수 없습니다. |
-| `publication.mode = "directory"` | 없음 | 이 부분에는 `mode`만 둡니다. |
-| `publication.mode = "github"` | `repository`, `workflow`, `remote` | repository는 `owner/name`, workflow는 `.yml`/`.yaml` 파일 이름, remote는 Git origin에 사용할 절대 로컬 경로 또는 HTTPS 주소입니다. HTTPS remote에는 query/fragment/계정/암호를 넣지 않습니다. |
+`FOLDER_ID`는 목적지 폴더 ID로, `OLD_PAIR_DIR`는 `menu.json`·`translations.json`을 보존한 폴더로 바꿉니다. 구버전 체크아웃에 있던 `site/data`를 사용하려면 그 두 파일이 제거되는 코드 반영 전에 별도로 보존합니다. 이미 유효한 Drive `current.json`에서 인계받으면 `--source-data`를 생략합니다. 원격 파일이 없는 신규 목적지에는 명시한 검증 쌍이 필요합니다.
 
-설정 함수는 상대 경로를 TOML 파일이 있는 폴더에 붙여 해석합니다. 예를 들어 `/etc/mensa/worker.toml`의 `state_dir = "../state"`는 `/etc/state`를 가리킵니다. 함수는 symlink의 실제 경로도 확인합니다. `~`나 `$HOME`을 확장하지 않으므로 운영자는 절대 경로나 일반 상대 경로를 적어 주세요.
+명령은 기존 큐·모델·로그를 비우지 않고 `BASE/worker.toml`을 준비하며 `config_path`, `file_id`, `release_id`, `data_dir`를 반환합니다. 기존 번역을 워커용 재사용 캐시에 이관하고 30일 메뉴·참조 번역만 공개합니다. 기본 모델은 `gemma4:31b`이며 revision은 설치된 Ollama manifest의 SHA256 digest를 읽습니다. 다른 위치의 모델은 `--model-revision`에 `/api/tags`의 정확한 digest를 지정합니다. 모델을 실행하거나 내려받지는 않습니다. managed 실행은 실제 보고된 digest와 설정을 비교합니다. 기존 준비 데이터·설정과 충돌하면 중단합니다. 원격 묶음이 입력 또는 보관 정책 적용 결과와 다르면 덮어쓰지 않습니다. 실패하면 입력과 실제 원격 결과를 보존하여 같은 대상에 재개합니다.
 
-설정 함수는 코드/작업 기록/사이트 세 폴더가 서로 같거나 다른 폴더 안에 들어가면 거절합니다. 이 분리는 작업 기록과 모델 파일이 웹사이트로 공개되는 일을 막습니다. managed의 models_dir/log_dir도 코드/사이트 폴더와 겹칠 수 없으며 binary는 사이트 폴더 안에 둘 수 없습니다. 운영자는 아직 없는 경로를 설정에 적을 수 있으나, 이미 있는 경로가 파일/폴더 중 잘못된 종류이면 함수가 거절합니다.
+설정 준비 후 익명 공개 읽기를 확인하고 저장소 변수 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 한 번 설정합니다. 검토한 운영 코드·Pages를 반영한 뒤 워커를 재개합니다. 설정 파일을 만들었다는 사실만으로 활성화 완료를 기록하지 않습니다. 상세 순서는 [배포 안내](deployment.md)에 있습니다.
 
-운영자는 [상대 경로 전체 설정 예제](../config/worker.example.toml) 또는 [Linux 절대 경로 전체 설정 예제](../deploy/worker.example.toml)를 복사해 실제 값을 채워 주세요. [개발 경로 예제](../config/development.example.toml)는 `load_worker_paths` 함수가 읽는 `[paths]` 전용 파일입니다. 네 부분을 요구하는 `local_refresh --config`에는 이 개발 파일을 사용할 수 없습니다.
+전환 명령은 운영용 Mac의 소유한 `logs` 폴더를0700, 기존 `model.log`를0600으로 맞춰 모델 실행 검사를 준비합니다. 로그 내용과 inode·다른 파일은 보존하고 symlink·FIFO·hardlink·다른 소유자의 경로는 원격 작업 전에 거절합니다. 기존 설정에 같은 명령을 재실행해도 이 권한 준비를 수행합니다. Google Drive 폴더의 공유 권한을 바꾸는 작업이 아닙니다.
 
-설정 함수는 값을 읽고 검사할 뿐입니다. 새 환경에 처음 설치할 때는 실행 계정·모델 파일·게시 인증을 갖춘 뒤 실제 워커 실행을 확인합니다. 현재 환경에서 설정 파일을 읽거나 유지보수하는 작업은 기존에 준비된 계정·모델·인증을 사용합니다.
+## 설정 파일의 경로·모델·게시 값
 
-## 모델 주소와 저장된 번역의 재사용
+[`config/worker.drive.example.toml`](../config/worker.drive.example.toml)은 상대 경로의 Drive 예제입니다. `load_worker_config`는 `[paths]`, `[inference]`, `[resources]`, `[publication]`과 선택적인 `[retention]`을 받습니다. 보관 설정 생략 시 아래 기본값을 적용하며 알 수 없는 키·0 이하 한도·잘못된 형식을 거절합니다. 상대 경로는 TOML 위치 기준이며 symlink의 실제 경로도 확인합니다. `~`·환경변수는 확장하지 않습니다.
 
-번역 요청 함수 `request_translation`([`mensa/generation.py`](../mensa/generation.py))는 provider가 `ollama`이면 같은 컴퓨터를 가리키는 loopback hostname/IP의 `/api/chat` 주소만 허용하고 URL query도 거절합니다. provider가 `openai`이면 OpenAI-compatible 요청을 받을 전체 URL을 사용합니다. 운영자는 서버 최상위 주소가 아니라 실제 요청 주소를 url에 적어 주세요.
+| 키 | Drive 운영에서의 의미 |
+| --- | --- |
+| `paths.checkout_dir` | 코드와 검토 번역 사전을 읽는 체크아웃입니다. 운영 JSON을 쓰지 않습니다. |
+| `paths.state_dir` | 0700 비공개 큐·결과·중간 번역·준비 저널 폴더입니다. |
+| `paths.public_dir` | 로컬 메뉴·번역 릴리스 준비 폴더입니다. 웹사이트 루트가 아닙니다. |
+| `inference.mode` | `managed`는 준비된 Ollama를 시작/종료하고 `external`은 실행 중인 모델을 사용합니다. |
+| `inference.provider` | managed는 `ollama`, external은 `ollama` 또는 `openai`입니다. |
+| `inference.model`, `revision` | 실제 모델 이름과 버전입니다. managed Ollama는 실제 보고되는 digest와 revision이 일치해야 합니다. |
+| `resources.platform` | 실제 호스트의 `macos` 또는 `linux`입니다. |
+| `resources.min_available_bytes` | 최소 가용 메모리의 양의 정수 바이트입니다. |
+| `resources.max_load_per_cpu` | 가용 CPU 용량에 곱할 양의 유한 부하 계수입니다. |
+| `publication.mode` | Drive 설치는 `drive`입니다. |
+| `publication.remote` | 인증된 rclone remote 이름이며 `:`로 끝납니다. |
+| `publication.folder_id`, `file_id` | 목적지 폴더와 `current.json`의 ID입니다. 영문자·숫자·밑줄·하이픈 10~200자입니다. |
 
-TOML을 사용하는 `local_refresh` 명령에는 API key 설정이나 CLI 옵션이 없으며 모델 요청에 빈 key를 전달합니다. API key 인증이 필요한 모델을 연결하려면 유지보수자가 key 전달 코드를 별도로 검토해 연결해야 합니다. 아래 수동 `update_menu` 명령의 환경변수와 같은 설정이 아닙니다.
+checkout/state/public 세 경로는 같거나 서로 포함할 수 없습니다. managed의 `binary`, `models_dir`, `log_dir`도 명시해야 하며 모델/로그는 checkout·데이터 준비 폴더와 겹칠 수 없습니다. binary는 데이터 준비 폴더 안에 둘 수 없습니다. 경로는 아직 없어도 선언할 수 있지만 기존 경로의 파일/폴더 종류가 다르면 거절합니다. 설정 읽기는 모델·Drive 인증·호스트 적합성을 확인하거나 워커를 활성화하지 않습니다.
 
-번역 생성 조건을 기록하는 generation_identity 함수와 이전 번역의 재사용 여부를 판단하는 reusable_translation 함수는 `mensa/translation_contract.py`에 있습니다. generation_identity는 provider/model/선언된 revision과 번역 규칙·검토된 주의 표시 대응표를 SHA256 지문으로 기록합니다. reusable_translation은 모델이 만든 번역의 요청 규칙 버전·모델 이름·저장된 생성 조건을 확인해 다시 사용할 수 있는지 판단합니다. TOML 기반 번역에서는 이 기록에 임시 모델 포트·URL·API key를 넣지 않습니다. 운영자는 같은 주소 뒤의 모델 내용이 바뀌면 revision도 바꿔 주세요. revision은 운영자의 선언이며 프로그램이 가중치 파일을 증명한 값은 아닙니다.
+external에는 `url`만 추가하고 managed 전용 키를 섞지 않습니다. Ollama의 실제 요청은 loopback `/api/chat`을 사용하며 query를 허용하지 않습니다. OpenAI-compatible은 실제 요청 endpoint 전체를 지정합니다. 설정 기반 CLI에는 API key TOML 필드가 없으며 현재 빈 key를 전달하므로 인증이 필요한 endpoint는 별도의 검토된 연결이 필요합니다.
+
+모델 번역 재사용은 provider/model/revision과 번역 정책·주의 표시 대응표의 지문으로 판단합니다. 일시적인 URL·포트·API key는 설정 기반 재사용 정체성에 넣지 않습니다. revision은 운영자 선언이며 가중치 검증 결과는 아닙니다. 기존 Mac `--base`는 생성된 기본 설정의 코드·모델·로그 경로, model/revision, 자원 값이 모두 일치할 때만 네이티브 번역·캐시와 가용 메모리 32 GiB, 부하 `max(2, 0.6 × logical CPUs)`, 전원 정책을 재사용합니다. 설정을 바꿨으면 선언한 모델·자원 정책을 적용합니다. 다른 서버의 새 설치는 명시적인 `--config` 실행을 사용해 주세요.
 
 ## 명령별 옵션과 기본값
 
-운영자나 유지보수자는 프로젝트 최상위 폴더에서 아래 명령을 실행합니다. 각 명령에 `--help`를 붙이면 지원 옵션을 볼 수 있습니다.
+프로젝트 최상위에서 실행하며 실제 지원 옵션은 각 명령의 `--help`로 확인합니다.
 
-| 실행 명령 | 옵션과 기본값 | 명령이 읽거나 바꾸는 대상 |
-| --- | --- | --- |
-| `python3 -m scripts.local_refresh` | `--config PATH` / `--base PATH` 중 하나 필수; `--status` 선택 | 지정 위치의 대기 작업/최근 결과를 출력하거나 식단 갱신을 한 번 실행합니다. |
-| `python3 -m scripts.install_local_worker` | `--base` 기본 `$HOME/Library/Application Support/Mensa`; `--write-only` 선택 | 로그인 사용자의 Mac LaunchAgent 파일을 작성합니다. 기본은 해당 자동 실행을 등록하며 write-only는 등록/중지를 생략합니다. |
-| `python3 -m scripts.update_menu` | `--validate-only` 선택 | 선택 시 `site/data/menu.json`·`translations.json`을 검사합니다. 옵션이 없으면 원본 수집·번역 후 이 두 입력 파일을 교체합니다. |
-| `python3 -m scripts.build_site` | `--source` 기본 `site`; `--output` 기본 `.tmp/pages`; `--compiled` 기본 `dist/frontend`; `--glossary` 기본 `data/notice-translations.json` | HTML/CSS/JSON·컴파일된 JavaScript·검토 대응표를 읽고 output 폴더에 게시용 사이트를 만듭니다. |
+| 명령 | 주요 옵션과 효과 |
+| --- | --- |
+| `python3 -m scripts.local_refresh` | `--base BASE` 또는 `--config PATH` 중 하나; `--status`는 읽기 전용 조회입니다. |
+| `python3 -m scripts.configure_drive` | `--base`, `--checkout`, `--data-dir`, `--remote`, `--folder-id` 필수; `--source-data`, `--model-revision` 선택. 초기 데이터와 보관 한도·설정을 준비합니다. |
+| `python3 -m scripts.retention` | `--config PATH`로 정리 후보를 읽기 전용 JSON으로 출력합니다. `--apply`는 같은 큐 잠금에서 현재 원격·준비 참조를 확인하고 적용합니다. |
+| `python3 -m scripts.update_menu` | `--data-dir DIR`로 메뉴/번역 폴더를 선택합니다. `--validate-only`는 저장된 쌍만 검사합니다. 이를 빼면 수집·번역 후 그 로컬 쌍을 갱신하며 Drive 게시를 대신하지 않습니다. |
+| `python3 -m scripts.build_site` | `--drive-file-id ID`는 UI만 출력하고 `--data-dir DIR`는 명시한 로컬 쌍을 포함합니다. 두 옵션은 상호 배타적입니다. |
+| `python3 -m scripts.install_local_worker` | 새 Mac 또는 손상된 자동 실행을 준비할 때만 사용합니다. `--write-only`는 plist를 쓰되 등록·중지는 하지 않습니다. |
 
-사이트 생성 프로그램 `scripts/build_site.py`의 기본 입력/출력 위치는 코드가 있는 프로젝트 최상위 폴더 기준입니다. 프로그램은 `--output` 폴더를 새로 만들며, 기존 파일을 보호하기 위해 그 폴더가 이미 있으면 중단합니다. 유지보수자는 아직 사용하지 않은 `.tmp/build-example`처럼 폴더 이름을 골라 주세요. 기존 결과 폴더를 삭제할 필요는 없습니다. Python 사이트 생성 명령은 컴파일러를 실행하지 않으므로 먼저 `npm run compile`을 실행하거나 컴파일까지 하는 `npm run build -- --output .tmp/build-example`을 사용해 주세요.
+빌더의 `--source` 기본은 `site`, `--output`은 `.tmp/pages`, `--compiled`는 `dist/frontend`, 로컬 모드의 `--glossary`는 `data/notice-translations.json`이며 코드 루트 기준입니다. 출력은 새 폴더여야 합니다. Python 빌더는 TypeScript를 컴파일하지 않으므로 먼저 `npm run compile`을 실행하거나 `npm run build -- --drive-file-id FILE_ID --output NEW_DIR`를 사용합니다.
 
-`update_menu --validate-only`는 저장된 두 JSON이 표시 가능한 형식인지 검사하며 식단의 마지막 날짜가 오늘보다 과거인지는 검사하지 않습니다. 게시 전에 날짜 검사 함수 `require_current_coverage`([`scripts/update_menu.py`](../scripts/update_menu.py))도 호출해야 합니다. 이 함수는 `menu.json`의 coverage.end가 Berlin 오늘보다 과거이면 거절합니다.
+예제 검사는 `python3 -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data`입니다. 이 명령은 최신 날짜 검사가 아닙니다. 실제 게시 경로는 Berlin 오늘까지의 coverage와 전체 공개 조건을 검사합니다. 기존 호출 호환을 위한 기본 `site/data` 경로는 남아 있지만 운영 JSON을 소스에서 추적하거나 Drive의 대체 입력으로 사용하지 않습니다.
 
-수동 입력 갱신 명령의 모델 설정 함수 `model_config`([`scripts/translations.py`](../scripts/translations.py))는 `MENU_TRANSLATION_PROVIDER`(기본 `openai`), `MENU_TRANSLATION_URL`, `MENU_TRANSLATION_MODEL`, `MENU_TRANSLATION_API_KEY` 환경변수를 읽습니다. 기본 provider에서 URL/model/key가 모두 없으면 모델을 요청하지 않고 검토된 구문과 저장된 번역을 사용합니다. 운영자가 모델을 설정하면 URL/model은 함께 필요하며 key는 선택입니다. 함수는 HTTPS 또는 loopback HTTP를 허용하고 URL 안의 계정/암호·query·fragment는 거절합니다.
+## 새 환경에 설치할 때
 
-## 상태 확인과 실제 실행을 맡는 OS 계정
+Python 3.12 이상, rclone, 선택한 모델의 실행 파일·가중치와 실행 계정을 준비합니다. Drive 인증은 실제 워커 사용자로 설정합니다. 코드는 읽는 경로, 비공개 상태, 로컬 데이터 준비를 분리하고 Drive 예제의 모델·revision·자원·remote·ID를 실제 값으로 채웁니다. 모델을 자동으로 다운로드하거나 파일럿 예제를 실행 가능 증거로 취급하지 않습니다.
 
-Linux 자동 실행 설정 파일 [`deploy/mensa-refresh.service`](../deploy/mensa-refresh.service)의 `User=mensa`는 Python 프로그램을 OS 계정 `mensa`로 실행한다는 뜻입니다. 운영자가 작업 기록을 바꾸는 수동 실행이나 재시도를 할 때도 이 계정을 사용해 주세요. 다른 계정이 queue.json을 만들면 다음 자동 실행의 mensa 계정이 파일을 고치지 못할 수 있습니다. 관리자 계정에서 실행할 예는 다음과 같습니다.
+Linux에서는 같은 서비스 계정으로 `python3 -m scripts.local_refresh --config /etc/mensa/worker.toml --status`와 실제 실행을 사용합니다. Drive 예제를 복사하여 실제 모델·revision·Linux 자원을 명시합니다. `configure_drive`가 생성하는 설정은 Mac 기본값이므로 다른 호스트에서 사용하려면 활성화 전에 해당 설정을 조정합니다. 기존 [`deploy/mensa-refresh.service`](../deploy/mensa-refresh.service)·[timer](../deploy/mensa-refresh.timer)는 directory 방식 예제이므로 Drive 설치에는 실제 체크아웃·설정·상태·준비 폴더·rclone 인증 경로를 반영합니다. 쓰기 허용 경로도 로컬 준비 폴더와 상태·모델 경로에 맞춥니다. `User=mensa`, restrictive umask와 프로세스 그룹 종료 조건을 실제 호스트에서 확인해 주세요. Linux 자원 검사는 보이는 proc/cgroup-v2·CPU affinity를 반영하지만 다른 GPU 작업이나 숨은 상위 제한까지 증명하지 않습니다.
 
-```sh
-cd /opt/mensa/worker-checkout
-sudo -u mensa /usr/bin/python3.12 -m scripts.local_refresh --config /etc/mensa/worker.toml --status
-sudo -u mensa /usr/bin/python3.12 -m scripts.local_refresh --config /etc/mensa/worker.toml
-```
-
-`--status`를 받은 local_refresh.main은 설정의 state_dir에서 queue.json의 대기 수집 시각 작업과 last-result.json의 마지막 실행 결과를 읽어 출력합니다. main은 파일을 수정하지 않고 첫 실행 전에도 state_dir 폴더를 만들지 않습니다. 메모리/CPU 측정, 원본 수집, 모델 요청과 게시도 실행하지 않습니다.
-
-`--status` 없는 명령은 실제 갱신을 시도합니다. 프로그램은 수동 실행에서도 하루 세 번의 갱신 시각·실패 후 대기·자동 재시도 중지·메모리/CPU 기준을 따릅니다. `idle`은 대기 작업 없음, `waiting`은 재시도 시각 전, `deferred`는 컴퓨터 실행 조건 미충족, `busy`는 다른 실행이 파일 잠금 보유, `completed`는 완료, `failed`/`blocked`는 실패/자동 재시도 중지입니다. failed/blocked이면 명령은 exit 1로 끝납니다.
-
-Mac `--base` 명령은 LaunchAgent를 등록한 로그인 사용자가 실행해 주세요. LaunchAgent는 그 사용자의 로그인 세션에서 프로그램을 자동 실행하는 macOS 기능입니다. 이 경로의 수동 실행을 다른 사용자로 수행하면 base 아래 작업 기록의 소유자가 달라질 수 있습니다.
-
-```sh
-cd "$HOME/mensa"
-/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
-/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa"
-```
-
-현재 Mac 코드 폴더는 `~/mensa`이고 base/checkout은 그 폴더를 가리키는 링크입니다. Ollama 실행 파일은 base/runtime/ollama, 모델 파일은 base/models, 로그는 base/logs입니다. 프로그램은 base의 queue.json/last-result.json에 진행 기록을 저장하고 고정 모델 gemma4:31b와 `garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup`의 `update-and-deploy.yml`을 사용합니다. 등록된 LaunchAgent는 현재 `~/mensa`에서 실행합니다. 사용자 로그인이 필요하며 컴퓨터 강제 깨우기나 모델 설치는 하지 않습니다.
+새 Mac은 BASE의 `checkout` 연결, `runtime/ollama`, `models`와 비공개 상태를 준비하고 데이터/worker.toml을 먼저 검증합니다. 이후 같은 사용자로 `python3 -m scripts.install_local_worker --base BASE`를 실행하여 자동 실행을 한 번 등록합니다. 기존 Mac의 Drive 전환에는 이 등록을 반복하지 않습니다.
 
 ### Mac의 로그인·화면 잠금·잠자기
 
-운영자가 화면만 잠그면 로그인 세션은 유지됩니다. Mac 자체가 깨어 있고 리소스 기준을 통과하면 LaunchAgent는 잠금 화면에서도 작업을 실행할 수 있습니다. 화면 잠금 해제를 매번 수행할 필요는 없습니다. 로그아웃은 로그인 세션을 종료하므로 다르며, 다시 로그인하면 LaunchAgent가 작업을 실행합니다.
+화면 잠금은 로그인 세션을 유지하므로 Mac이 깨어 있고 자원·전원 조건을 통과하면 실행할 수 있습니다. 로그아웃·시스템 잠자기·전원 꺼짐 동안에는 실행하지 않습니다. 깨어난 후 다음 기회에 큐가 최신 미수집 시각을 판단하며 이미 준비한 게시와 재시도 대기는 유지합니다. LaunchAgent는 강제 깨우기를 하지 않습니다.
 
-시스템 잠자기 동안에는 식단 수집·번역 프로그램이 실행되지 않습니다. Mac이 깨어난 뒤 다음 실행 기회에 큐가 최신 수집 시각을 판단합니다. 프로그램은 놓친 시간대마다 수집을 반복하지 않으며, 이미 진행 중인 게시와 서버가 정한 재시도 대기는 보존합니다. 현재 Mac은 전원 연결 시 자동 시스템 잠자기가 꺼져 있으므로 같은 설정을 다시 할 필요는 없습니다. 새 Mac에서 이 운영 조건을 마련하거나 설정이 실제로 바뀌었을 때만 [Apple의 잠자기 설정 안내](https://support.apple.com/guide/mac-help/set-sleep-and-wake-settings-mchle41a6ccd/mac)를 참고합니다. 화면을 끄는 설정과 시스템 잠자기는 별개입니다.
-
-운영자는 `pmset -g custom`으로 AC Power의 `sleep` 값을 확인할 수 있습니다. `sleep 0`은 유휴 상태에 따른 자동 시스템 잠자기를 끈 설정입니다. 이 값은 덮개 닫기·수동 잠자기·전원 꺼짐까지 막는 설정은 아닙니다. FileVault가 켜진 Mac은 재부팅 후 사람이 첫 잠금 해제를 해야 하며, [자동 로그인도 사용할 수 없습니다](https://support.apple.com/en-us/102316). 식단 프로그램은 로그인 암호나 디스크 암호화를 변경하지 않습니다.
-
-Mac 설치 프로그램은 작업 기록 폴더인 base의 접근 권한을 `0700`으로 설정합니다. 이 권한은 폴더 소유자만 내부 파일을 읽고 변경할 수 있다는 뜻입니다. 실행 프로그램은 다른 사용자가 접근할 수 있는 작업 폴더를 거부합니다. `State directory must have private permissions` 오류가 발생하면 LaunchAgent를 등록한 사용자가 설치 프로그램을 다시 실행해 주세요. 설치 프로그램은 기존 큐 기록·모델·메뉴 파일을 보존하고 폴더 권한을 바로잡습니다. 다음 명령의 `--write-only`는 자동 실행을 시작하지 않고 설치 설정과 폴더 권한만 준비합니다.
-
-```sh
-/opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.install_local_worker --base "$HOME/Library/Application Support/Mensa" --write-only
-```
+현재 Mac의 전원 연결 시 자동 잠자기 설정은 그대로 사용합니다. 실제 변경이나 새 설치 때만 `pmset -g custom`과 [Apple 잠자기 안내](https://support.apple.com/guide/mac-help/set-sleep-and-wake-settings-mchle41a6ccd/mac)를 확인합니다. `sleep 0`도 수동 잠자기·덮개 닫기·전원 꺼짐을 막지는 않습니다. FileVault 재부팅 후 첫 잠금 해제는 사용자가 수행합니다. 워커는 로그인 암호나 디스크 암호화를 바꾸지 않습니다.
 
 ### 개발 산출물과 체크아웃 검사
 
-메뉴 게시와 체크아웃 복구를 담당하는 `mensa/git_repository.py`는 알려지지 않은 저장소 변경을 거부합니다. Git이 무시하는 `.tmp/`, `dist/`, `node_modules/` 내부의 일반 파일·폴더·심볼릭 링크는 개발 산출물로 허용하며 보존합니다. 이 세 루트는 실제 폴더여야 하며, 루트 이름만 같은 일반 파일이나 심볼릭 링크는 허용하지 않습니다. `.tmp/worktrees/` 안의 Git worktree처럼 Git이 폴더 한 항목으로 보고하는 경로도 검사합니다. Python이 `mensa/__pycache__/` 또는 `scripts/__pycache__/`에 생성했고 Git이 무시하는 알려진 일반 바이트코드 파일도 계속 허용합니다.
-
-프로그램은 허용한 산출물을 삭제하거나 링크를 따라가지 않습니다. 허용 경로라도 이동할 커밋의 추적 파일과 같거나 어느 한쪽이 다른 쪽의 상위 경로이면 게시·복구를 중단하여 기존 파일을 보호합니다. `.tmp-other/` 같은 다른 폴더, 다른 무시된 파일, 미추적 파일과 추적 코드 변경은 예외에 포함되지 않습니다.
-
-현재 Mac의 `~/mensa`는 새 워커 프로세스가 직접 읽는 운영 코드 위치입니다. 유지보수자는 코드 수정과 검사를 별도 개발 체크아웃에서 수행하고 검증한 커밋을 운영 체크아웃에 반영해 주세요. 이 Python 검사 변경은 설치된 코드에 반영하면 다음 새 프로세스에서 읽으므로 LaunchAgent를 재설치할 필요는 없습니다.
-
-## 설정으로 바꿀 값과 코드에 정해진 값
-
-운영자는 TOML의 memory/load 기준을 컴퓨터에 맞춰 정하고, Linux timer/Mac LaunchAgent의 실행 간격을 관리합니다. 아래 값은 현재 CLI가 사용하는 코드의 값이며 TOML 옵션이 아닙니다. 유지보수자가 이 값을 바꾸면 관련 함수의 검사도 함께 검토해야 합니다.
-
-| 담당 코드 | 그 코드가 적용하는 현재 동작/값 |
-| --- | --- |
-| `mensa/schedule.py`, `queue.py` | 매일 09:00·10:00·11:00 Europe/Berlin 이후 최신 수집 시각을 대기 작업으로 만듭니다. 아직 수집하지 않은 옛 작업만 최신 수집 시각으로 합칩니다. |
-| `mensa/queue.py` | 일반 실패 후 15 → 30 → 60 → 120 → 240 → 360분 기다리며 이후 360분 상한을 사용합니다. |
-| `mensa/errors.py`, `queue.py`, `generation.py` | network/timeout/HTTP 408·429·5xx 실패는 재시도합니다. HTTP Retry-After가 유효하면 위 대기 시간과 응답의 대기 시간 중 큰 값을 사용합니다. |
-| `mensa/queue.py` | 설정·인증·결과 형태 등 자동 재시도 불가로 분류한 모델 실패는 운영자가 해제할 때까지 중지합니다. 날짜가 바뀌어도 중지를 지우지 않습니다. |
-| `scripts/menu_source.py` | 원본 HTML을 최대 3회 요청하고 각 요청은 20초, 본문은 최대 5,000,000바이트로 제한합니다. |
-| `mensa/model_runtime.py` | managed 모델 시작 예산은 30초, 준비 확인 간격은 0.25초입니다. 종료 요청 TERM 후 10초 기다리고 필요하면 KILL 후 5초 기다립니다. |
-| `mensa/generation.py` | 번역 요청은 Ollama 180초/OpenAI-compatible 90초, 응답은 최대 100,000바이트입니다. |
-| `mensa/generation.py` | Ollama 요청은 thinking/stream 꺼짐, temperature 0, num_ctx 8192, num_predict 4096, keep_alive 5m입니다. |
-| `mensa/translation_contract.py` | 새 번역 요청 규칙은 menu-v4, 재사용 지원 버전은 menu-v3/menu-v4입니다. 변경한 표현에는 name_policy_version="semantic-names-v1", component_policy_version="semantic-components-v1"을 해당 항목에 기록합니다. |
-| `scripts/local_refresh.py` | GitHub 게시 요청이 조회되지 않으면 30분 확인 대기를 지킵니다. 요청 직후 조회는 최대 12회×2초, 실행 진행 확인은 timeout 600초입니다. |
-| `frontend/main.ts` | 브라우저 파일 요청과 JSON 읽기는 15초로 제한합니다. |
-
-컴퓨터 여유를 측정하는 [`mensa/resources.py`](../mensa/resources.py)는 TOML platform에 맞춰 측정합니다. Linux에서는 읽을 수 있는 proc/cgroup-v2 제한과 CPU affinity를 반영합니다. Linux 코드의 전원 허용은 서버 운용 기준이며 AC 전원 측정 결과가 아닙니다. 운영자는 보이지 않는 상위 제한·다른 GPU 작업·모델 크기에 따른 실제 적합성을 별도로 확인해야 합니다. 측정이 실패하면 프로그램은 작업을 연기합니다.
-
-Mac --base의 고정 기준은 가용 메모리 32 GiB, 1분 평균 부하 `max(2, 0.6 × logical CPUs)` 이하, AC 전원 또는 배터리 없음의 명시적인 측정 결과입니다. 측정값이 알 수 없으면 프로그램은 준비되었다고 판단하지 않습니다.
-
-## 새 환경의 게시 방법별 준비
-
-아래 권한·인증·폴더 준비는 신규 설치 또는 실제 구성 변경에 적용합니다. 현재 Mac의 기존 경로·권한·인증을 그대로 사용하는 담당자는 다시 준비하지 않습니다.
-
-사이트 폴더에 직접 쓰는 `directory` 방식에서는 운영자가 먼저 [README의 사이트 생성 절차](../README.md#로컬에서-코드와-화면-확인하기)로 HTML/CSS/JavaScript와 초기 메뉴/번역을 준비합니다. 예제의 `/srv/www/mensa`를 정적 웹서버가 읽게 하고 실제 `/srv/www/mensa/data` 폴더의 기존 내용까지 mensa 계정이 쓸 수 있게 준비해 주세요. Python 프로그램은 이 data와 작업 기록만 갱신합니다.
-
-JSON을 게시하는 DirectoryPublisher([`mensa/releases.py`](../mensa/releases.py))는 같은 식단의 menu.json과 translations.json을 하나의 묶음으로 저장합니다. 클래스는 두 파일 내용에서 계산한 ID로 data/releases/<ID>/ 폴더를 만들고, data/current.json에 지금 사용할 ID를 적습니다. 브라우저는 이 선택 파일을 한 번 읽어 같은 ID 폴더의 두 JSON을 읽습니다. 예제 Linux 경로에서는 /srv/www/mensa/data/current.json이 /srv/www/mensa/data/releases/<ID>/의 파일을 선택합니다. DirectoryPublisher는 두 파일을 완성한 뒤 선택 파일을 교체하고 이전 묶음을 남깁니다.
-
-DirectoryPublisher는 자신이 새로 만든 폴더에 0755, 파일에 0644 권한을 줍니다. 이 클래스는 이미 있는 폴더의 소유권/잘못된 권한을 고치지 않으므로 운영자가 준비해야 합니다. 운영자는 설정 파일·queue.json·번역 중간 기록·모델·로그를 사이트 폴더 아래에 두거나 웹서버에 연결하지 마세요.
-
-GitHub를 거치는 `github` 방식에서는 운영자가 쓰기 가능한 전용 main 코드 폴더와 Git/GitHub CLI 인증을 준비합니다. 코드 폴더의 origin 주소는 설정의 remote와 정확히 같아야 합니다. repository는 GitHub 작업 대상이고 remote는 Git 연결 주소이며 설정 함수는 두 선언이 같은 저장소인지 접속해 확인하지 않습니다. 이 방식의 프로그램은 public_dir에 직접 쓰지 않고 저장소의 두 데이터 파일과 GitHub 배포 작업을 사용합니다. 읽기 전용 코드 폴더를 가정한 아래 directory용 Linux 설정 파일을 그대로 적용하면 안 됩니다.
-
-작업 실행 클래스 JobRunner([`mensa/jobs.py`](../mensa/jobs.py))는 state_dir이 다른 사용자에게 열리지 않은 0700 폴더인지 검사합니다. 운영자는 이 폴더의 상위 디렉터리를 미리 준비하고 queue/result/lock 파일을 symlink가 아닌 정상 파일로 유지해 주세요. managed 모델 실행 함수도 준비된 실행 파일·모델 파일·비공개 models/log 폴더와 그 상위 경로를 요구합니다. 프로그램은 모델을 다운로드하지 않습니다. external 모델의 시작/종료/인증은 해당 모델 서버 운영자가 관리합니다.
-
-## Linux 자동 실행 파일 설치
-
-[`deploy/mensa-refresh.service`](../deploy/mensa-refresh.service)는 Linux의 systemd가 Python 프로그램을 실행할 방법을 적은 예제입니다. 식단 처리 순서를 호출하는 Python 클래스 RefreshService와 다릅니다. 운영자는 예제의 User=mensa, 작업 폴더 `/opt/mensa/worker-checkout`, Python `/usr/bin/python3.12`, 설정 `/etc/mensa/worker.toml`을 실제 환경에 맞춰 준비해 주세요.
-
-이 파일의 Type=oneshot은 프로그램을 한 번 실행하고 끝낸다는 뜻입니다. 파일은 `PYTHONDONTWRITEBYTECODE=1`, UMask=0077, 작업 기록 폴더 0700, `ProtectSystem=strict`를 지정하고 `/var/lib/mensa/private`와 `/srv/www/mensa/data`만 쓰게 합니다. 여러 요리를 번역하므로 전체 시작 제한은 infinity이며 종료 제한은 30초입니다. `KillMode=control-group`은 systemd가 해당 실행 그룹을 정리하도록 지정합니다. 모델 종료 함수는 자신이 시작한 그룹에만 TERM/KILL을 보냅니다.
-
-자동 실행 시각을 적은 [`deploy/mensa-refresh.timer`](../deploy/mensa-refresh.timer)는 부팅 2분 뒤, 작업 종료 15분 뒤에 Python 프로그램을 실행하도록 하며 accuracy는 1분입니다. queue.py가 하루 세 번의 식단 갱신 작업과 놓친 수집 시각을 판단하므로 timer에 날짜 판단을 넣지 않습니다.
-
-새 Linux 환경에 설치하는 운영자는 실제 계정·권한·Python·모델과 실행 조건에 맞춰 예제를 조정한 뒤 아래 파일을 설치합니다. 이미 등록된 서비스의 일상 운영은 상태 확인과 복구 절차를 사용합니다.
-
-```sh
-sudo cp deploy/mensa-refresh.service deploy/mensa-refresh.timer /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now mensa-refresh.timer
-```
-
-## 수집 일정과 최신 식단 교체
-
-자동 갱신 프로그램은 `Europe/Berlin` 기준 매일 09:00·10:00·11:00에 도래한 수집 작업을 처리합니다. `period`와 `completed_period`는 `2026-10-01T10:00`처럼 수집 날짜와 예정 시각을 기록합니다. 이는 같은 시간대의 중복 실행을 막는 비공개 작업 기록이며, 웹사이트에는 최신 메뉴 한 묶음만 표시합니다. 프로그램은 날짜만 있는 기존 작업 기록도 읽습니다. 서버가 요청한 재시도 대기 시간과 이미 진행 중인 게시 작업은 다음 수집 시각이 와도 유지합니다. Linux timer와 Mac LaunchAgent가 실행 기회를 주므로 실제 시작은 예정 시각보다 늦을 수 있습니다.
-
-원본 수집과 데이터 검사를 통과한 새 메뉴·번역은 현재 공개 식단을 대체합니다. 웹사이트는 이전 수집 결과를 별도 메뉴로 추가하지 않습니다. 원본에서 가격이나 구성품을 바꾸면 다음 수집에서 반영하고, 원문이 같은 번역은 저장된 결과를 다시 사용합니다. 공개 파일의 게시 ID별 폴더는 메뉴와 번역을 같은 묶음으로 읽기 위한 파일 보관 방식이며, 화면에서 과거 수집 내역을 나열하기 위한 기능이 아닙니다.
-
-메뉴 추가·삭제·교체, 동일 메뉴의 중복 수 증감과 구조가 유효한 빈 날짜·판매대는 정상적인 수집 결과입니다. 이전 식단과 항목 개수·증감률·가격 있는 중복 개수를 비교해 갱신을 차단하지 않습니다. 원문 구조·날짜 연결·가격 출처와 계속 존재하는 메뉴의 가격이 전부 사라지는 경우는 여전히 검사합니다.
+Drive 워커는 소스 체크아웃을 읽기만 합니다. 개발·검사는 운영 체크아웃과 분리하고, 검토 코드의 fast-forward는 자동 실행을 멈춘 뒤 같은 `worker.lock` 아래에서 진행합니다. 기존 미커밋/미추적 파일·큐·모델은 보존합니다. Git이 무시하는 개발 결과와 운영 데이터는 서로 다른 수명으로 관리하며, 코드 정리 때문에 로컬 데이터 준비 폴더를 삭제하지 않습니다.
 
 ## 실패 확인과 재시도
 
-자동 갱신 프로그램은 알레르기·첨가물 등 원본 안내 문구에 `data/notice-translations.json`을 우선 사용합니다. 사전에 없는 문구는 캐시에서 재사용하거나 LLM으로 번역합니다. 요리 번역이 모두 있어도 미등록 안내 번역이 필요하면 모델을 실행합니다. 새 식단은 미등록 안내까지 번역이 완성된 뒤 게시합니다. 안내 번역 요청이나 모델 시작 오류를 성공으로 처리하지 않으며, 기존 작업 큐에 전달해 재시도 가능한 통신 오류는 다시 실행합니다. 복구 전에는 마지막으로 완성된 게시본을 유지합니다. 새 요리의 번역·가격·원문 검사도 계속 적용합니다.
+먼저 `--status`에서 `pending.period`, `phase`, `attempts`, `next_attempt_at`, `last_error`와 마지막 결과를 읽습니다. `completed_period`, 공개 `menu.source.fetched_at`, Drive의 릴리스 ID를 대조하여 실제 완료를 판단합니다. 웹사이트의 오래된 자료 안내는 워커·인증·잠자기 원인을 판별하는 감시 장치는 아닙니다.
 
-이전 코드에서 `Unknown notice labels`로 멈춘 경우 이 동작을 포함한 수정본을 `main`과 현재 Mac의 `~/mensa`에 반영하고 기존 대기 작업을 재개합니다. 큐와 복구 기록은 보존합니다. 사람이 번역을 보정하려면 `notices`에 정확한 독일어 키와 `en`·`ko`를 추가할 수 있으며, 이 값이 모델 캐시보다 우선합니다. 사전 추가는 새 문구의 자동 갱신을 위한 필수 조건이 아닙니다. 아래 `request_retry`는 대기 작업과 누적 시도 횟수를 유지하면서 오류와 재시도 대기 조건을 해제합니다.
-
-운영자는 `--status` 출력에서 `queue.completed_period`, `queue.pending`과 최근 결과를 함께 확인해 주세요. `completed`는 해당 수집 시각의 게시까지 완료한 결과이고, `idle`은 현재 할 작업이 없다는 뜻입니다. `waiting`은 재시도 시각을 기다리는 상태이므로 운영자는 `pending.last_error`에서 원인을 확인해야 합니다. `deferred`는 메모리·CPU·전원 조건을 통과하지 못한 상태이고, `failed`·`blocked`는 오류 확인이 필요한 상태입니다. 다른 프로세스가 잠금을 보유할 때 반환하는 `busy`는 큐와 최근 결과 파일을 덮어쓰지 않습니다.
-
-프로그램은 정상적인 대기 상태에서도 종료 코드 0으로 끝납니다. 따라서 운영자는 LaunchAgent의 마지막 종료 코드만으로 새 식단이 게시됐다고 판단하지 마세요. 공개 메뉴의 `source.fetched_at`과 큐의 완료 수집 시각을 확인해 주세요. 웹사이트의 이틀 경과 경고는 공개 데이터가 오래되었다는 안내이며, 맥의 전원·로그인·실패 원인을 판별하는 감시 장치는 아닙니다. 아래 파일은 원인 확인과 복구에 사용합니다.
-
-| 파일 | 프로그램이 저장하는 내용과 운영자가 확인할 것 |
+| 보존할 대상 | 의미 |
 | --- | --- |
-| `queue.json` | 완료 수집 시각 completed_period와 대기 작업 pending입니다. pending에는 period(수집 날짜·시각), phase(수집 collect/게시 publish), attempts(시도 수), next_attempt_at, last_error와 Git commit_sha/run_id/dispatch_requested_at이 있습니다. |
-| `last-result.json` | 마지막 실행의 시각과 완료/실패/연기 이유입니다. |
-| `translation-checkpoint.json` | `--config` 경로가 저장한 검증된 중간 번역입니다. 일부 요리는 미완료일 수 있습니다. Mac 기본 `--base` 경로는 이 파일을 사용하지 않습니다. |
-| `snapshot-journal.json` | GitHub 경로에서 프로그램이 만든 게시용 커밋을 확인하고 복구하기 위한 기록입니다. |
+| `queue.json`, `last-result.json` | 완료/대기 수집 시각·시도·대기·오류와 최근 결과입니다. |
+| `translation-state.json` | 검증한 중간/재사용 번역과 마지막 사용일·보호 여부를 함께 저장합니다. 공개 파일이 아닙니다. |
+| `translation-checkpoint.json` | 전환 전 중간 번역입니다. 새 번역 상태가 생기기 전 한 번만 읽고 이후 재병합하지 않습니다. |
+| `retention-releases.json` | 로컬 준비본과 원격 성공본을 구별하는 소유권·성공 기록입니다. |
+| `drive-publication.json` | 준비한 수집 시각·릴리스 ID·목적지와 이전 공개 릴리스 ID입니다. 업로드 결과가 불명확해도 같은 준비본으로 재개하는 입력입니다. |
+| `worker.toml` | 경로·모델/revision·자원·Drive 목적지입니다. OAuth 비밀을 넣지 않습니다. |
+| 로컬 준비 폴더의 `data/current.json`, `data/releases/` | 완성된 로컬 묶음입니다. 현재 포인터가 가리키는 준비본이 원격에서 성공 확인된 게시본과 항상 같지는 않습니다. |
 
-운영자가 파일을 수정하거나 백업하기 전에는 자동 실행과 현재 작업을 먼저 멈춰 주세요. Linux 예제에서는 `sudo systemctl stop mensa-refresh.timer mensa-refresh.service`, Mac에서는 `launchctl bootout "gui/$(id -u)/io.github.garlicvread.mensa-refresh"`를 사용합니다. 별도로 실행한 수동 작업도 멈춥니다. 파일을 수정하는 코드에서는 worker.lock에 같은 파일 잠금을 걸어 다른 실행과 queue.json이 경합하지 않게 해야 합니다.
+업로드가 실패하거나 응답을 잃어도 준비한 로컬 묶음과 저널을 삭제하지 않습니다. 다음 실행은 원격을 검사하여 이미 같은 내용이면 업로드를 생략하고 완료를 이어갑니다. 같은 수집 시각의 목적지가 바뀌면 중단하므로 장애 복구 중 파일 ID를 임의로 새로 만들지 않습니다. 원격 중복 파일·ID 불일치·손상된 envelope는 내용을 보존하여 조사합니다.
 
-운영자는 오류의 원인인 설정·모델 버전·주의 표시 번역 등을 먼저 고칩니다. 자동 재시도가 중지된 모델 실패는 `request_retry` 함수([`mensa/queue.py`](../mensa/queue.py))로 중지를 해제할 수 있습니다. 전용 CLI 옵션은 없습니다. 아래 코드는 Mac 기본 작업 폴더와 정상 파일을 검사하고 잠금 안에서 queue.json을 저장합니다. Mac 운영자는 `base/checkout` 코드 폴더에서 실행해 주세요. Linux 운영자는 TOML의 `paths.checkout_dir` 코드 폴더에서 실행합니다. `--config` 실행을 복구하는 운영자는 명령 인자를 TOML의 `paths.state_dir` 값으로 바꿔 주세요. Linux 예제에서는 첫 줄의 이동 경로도 `paths.checkout_dir`로 바꿔 주세요. TOML 파일 이름을 인자로 전달하는 명령이 아닙니다. 갱신 날짜·처리 단계·시도 수·GitHub 게시 번호는 유지하므로 이미 진행한 작업을 잊지 않습니다. 운영자는 자동 실행과 같은 OS 계정에서 이 코드를 실행해 주세요.
+새 수집은 Drive의 현재 공개 묶음을 기준으로 삼아 공개본의 교정과 이력을 유지합니다. 재시도 중 원격이 원래 기준이나 준비본과 다른 유효한 묶음으로 바뀌었으면 그 공개본에서 다시 준비합니다. 수집 도중 다시 바뀌면 덮어쓰지 않고 다음 재시도로 넘깁니다. 로컬 준비 포인터만 보고 공개본의 교정을 되돌리지 않습니다.
+
+파일 수정·백업·코드 반영 전에는 자동 실행과 현재 작업을 멈춥니다. Mac은 아래 `bootout`, Linux는 `sudo systemctl stop mensa-refresh.timer mensa-refresh.service`를 사용하며 별도 수동 작업도 중지합니다. 수정 코드에서도 같은 `worker.lock`의 OS 잠금을 확보합니다. BASE·준비 폴더·설정·저널을 일관된 비공개 백업으로 보존하고 코드 이력을 다시 쓰지 않습니다.
+
+```sh
+launchctl bootout "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
+```
+
+원인인 인증·통신·자원·모델·원문·번역 문제를 먼저 고칩니다. 미등록 주의 표시는 검토 사전·캐시 또는 모델로 번역하며 원문을 삭제해 오류를 숨기지 않습니다. 자동 재시도가 중지된 모델 실패만 `mensa.queue.request_retry`로 해제할 수 있습니다. 전용 CLI 옵션은 없습니다. 다음 예는 자동 실행과 같은 사용자로, 중지 후 실제 `state_dir`를 인자로 받아 기존 기록을 보존합니다.
 
 ```sh
 cd "$HOME/mensa"
-/opt/homebrew/opt/python@3.14/bin/python3.14 - "$HOME/Library/Application Support/Mensa" <<'PYTHON'
+python3 - "$HOME/Library/Application Support/Mensa" <<'PYTHON'
 from pathlib import Path
 import os
 import stat
@@ -271,25 +190,47 @@ with exclusive_lock(state_dir / 'worker.lock'):
 PYTHON
 ```
 
-운영자는 `--status`로 대기 작업의 날짜·단계·시도 횟수·게시 번호가 유지됐는지 확인해 주세요. 앞에서 Mac LaunchAgent를 중지했다면 같은 사용자가 아래 명령으로 다시 등록하고 기존 대기 작업을 실행합니다. 이미 실행 중인 작업을 강제로 종료하는 명령은 아닙니다. Linux 운영자는 기존 systemd timer를 다시 활성화해 주세요.
+상태에서 수집 시각·단계·시도와 준비 저널이 보존됐는지 확인한 뒤 기존 자동 실행을 재개합니다. Mac은 같은 사용자로 다음 명령을 사용하고 Linux는 기존 timer를 재개합니다.
 
 ```sh
 launchctl bootstrap "gui/$(id -u)" "$HOME/Library/LaunchAgents/io.github.garlicvread.mensa-refresh.plist"
 launchctl kickstart "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
 ```
 
-운영자가 queue.json·완료 번역·복구 기록이나 게시 번호를 삭제하면 프로그램은 이미 수행한 작업을 잊을 수 있습니다. 운영자는 이 기록을 초기화하지 말고 기존 대기 작업을 재개해 주세요.
+기존 Git 게시의 `snapshot-journal.json`·commit/run 번호·복구 참조는 전환 전 작업 확인과 역사 보존 대상입니다. 이를 Drive 복구 절차에 섞거나 삭제하여 전환을 강행하지 않습니다. 현재 `directory`·`github` 예제는 명시적인 기존 설치 호환용이며 Drive의 기본 설정으로 복사하지 않습니다.
 
-Git 변경을 복구하는 SnapshotRepository(`mensa/git_repository.py`)는 워커가 두 데이터 JSON을 기록해 만든 커밋을 확인합니다. 이 커밋을 소유 커밋이라고 부릅니다. 이 클래스는 snapshot-journal.json의 부모 커밋·Git 트리·데이터 파일 내용을 대조하며 커밋 메시지만으로 소유 여부를 판단하지 않습니다. 게시 준비 중 원격 main이 앞서가면 SnapshotRepository의 plan_replacement/resume_replacement는 두 이력을 구별합니다. 원격 main 이력에 워커의 기존 커밋이 이미 들어 있으면 로컬 main을 원격 main 위치까지 앞으로 이동합니다(fast-forward). 기존 커밋이 main 이력에 남아 있으므로 이 경우에는 refs/mensa/superseded/<SHA>를 만들지 않습니다. 원격 main이 기존 커밋을 포함하지 않고 두 이력이 갈라졌다면, 클래스는 워커가 만든 커밋인지와 기록된 출발 커밋이 원격 main에 남아 있는지를 확인한 뒤 기존 커밋을 refs/mensa/superseded/<SHA>에 보존합니다. 프로그램은 최신 main에서 식단을 다시 수집하고 새 게시용 데이터 커밋을 준비합니다. 이 새 커밋을 대체 커밋이라고 부릅니다. 프로그램은 사람이 만든 변경·알 수 없는 커밋을 보존하며 운영자가 검토해야 합니다.
+## 수집 일정·날짜 보존과 운영 한계
 
-GitHub 게시 코드는 알려진 run_id를 먼저 조회하고 실패 실행을 같은 번호로 다시 요청합니다. 게시 요청 응답이 사라지면 같은 commit_sha의 실행을 조회합니다. 식단 날짜가 만료되었을 때 이미 성공한 실행이면 해당 갱신 날짜의 작업을 완료하고, 진행 중이면 기다리며, 완료되지 않은 만료 데이터는 새 수집으로 돌아갑니다. 운영자는 준비된 대체 커밋과 원래 게시 실행의 충돌·대체 식단의 만료·알 수 없는 변경을 보존하고 직접 검토해야 합니다.
+큐는 아직 수집하지 않은 지난 수집 시각만 최신 시각으로 합치고 이미 준비한 게시·서버 요청 대기는 보존합니다. 일반 실패의 대기는 15 → 30 → 60 → 120 → 240 → 360분이며 이후 360분 상한입니다. 모델의 network/timeout/HTTP 408·429·5xx 오류는 재시도하고 유효한 Retry-After와 기존 대기 중 큰 값을 사용합니다. 자동 재시도 불가 모델 실패는 날짜가 바뀌어도 운영자 해제 전까지 유지합니다.
 
-## 로그 보존과 이전 게시물로 되돌리기
+새 원본의 날짜는 최신 검증 값으로 교체하고 지난 날짜에는 아래 보관 한도를 적용합니다. 정상적인 메뉴 개수·중복 수 변화와 빈 식단은 허용하지만 원문 구조·날짜 연결·가격 출처·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다. 새 원본 자체를 먼저 검사하므로 보관 기간 적용으로 수집 누락을 숨기지 않습니다.
 
-managed 모델을 시작하는 함수는 log_dir/model.log를 최신 실행으로 덮어씁니다. 코드에는 로그 크기 제한이나 과거 실행 보관 기능이 없으므로 운영자가 회전/보관과 디스크 여유 감시를 준비합니다. Mac의 worker.stdout.log/worker.stderr.log도 운영자가 별도로 관리합니다. 운영자는 이 파일을 웹서버에 공개하지 않습니다.
+번역은 같은 원문·구성품 key에서 재사용하거나 교체하며 공개용 데이터와 워커용 재사용 캐시의 수명을 분리합니다. 과거 메뉴를 단순 순회·복사한 것만으로 미사용 항목의 마지막 사용일을 갱신하지 않습니다. 현재 메뉴·진행 작업·보호된 교정에 필요한 번역은 임의로 제거하지 않습니다.
 
-운영자는 프로그램 중지와 파일 잠금 확보 후 존재하는 queue.json·last-result.json·translation-checkpoint.json·snapshot-journal.json과 실제 TOML을 함께 백업합니다. 다른 사용자가 읽지 못하게 새 백업 폴더는 0700, 파일은 0600으로 준비합니다. GitHub 경로에서는 HEAD/main/origin/main과 보존한 `refs/mensa/superseded/`도 같이 남깁니다.
+같은 준비 폴더와 Drive 목적지에 한 워커만 연결합니다. 업로드 후 읽기 확인은 동시 원격 작성·전원 손실을 원자적으로 되돌린다는 보장이 아닙니다. 원격 오류가 나면 관찰한 결과와 보존한 준비본을 대조해 해당 단계만 복구해 주세요.
 
-웹사이트를 되돌릴 때 운영자는 검증된 전체 HTML/CSS/JavaScript와 같은 ID의 메뉴/번역 두 파일을 함께 사용합니다. 별도 사이트 폴더에서 확인한 뒤 웹서버가 읽는 폴더를 바꾸고 TOML public_dir과 Linux 쓰기 허용 경로를 맞춥니다. 서로 다른 게시본의 메뉴와 번역을 섞으면 원문 연결이 맞지 않을 수 있습니다.
+## 데이터 보관 한도와 정리
 
-작업 기록을 백업으로 되돌리기 전에는 운영자가 현재 GitHub commit_sha/run_id와 백업의 갱신 날짜·게시 번호·복구 기록을 대조해야 합니다. 이미 완료한 게시 실행을 잊지 않기 위해서입니다. 운영자는 `git reset --hard`, `git clean`, force push나 queue.json 삭제로 알 수 없는 변경을 버리지 않습니다.
+| `[retention]` 키 | 기본값·동작 |
+| --- | --- |
+| `history_days` | 30. Berlin 기준 `today - 30 days` 이후의 메뉴와 원본의 미래 날짜를 공개합니다. |
+| `cache_unused_days` | 180. 미사용 비참조 모델 번역·주의 표시를 정리합니다. |
+| `cache_max_entries`, `cache_max_bytes` | 5,000항목·16MiB. 식단/주의 표시와 사용 기록을 함께 제한하고 오래 사용하지 않은 항목부터 정리합니다. |
+| `keep_releases` | 현재본 포함 최근 성공10개. 현재 포인터·원격 현재본·준비 저널의 참조를 추가 보호합니다. |
+| `log_days`, `log_max_bytes` | 14일·총10MiB. 알려진 로그만 처리하며 열린 stdout/stderr 파일의 inode를 유지합니다. |
+| `backup_days` | 전환 검증 후14일. 등록한 전환 백업 중 최근1개를 보호하고 그 외에는 이 기간 뒤 정리합니다. |
+| `max_bundle_bytes` | 공개 envelope 전체8MiB. 필요한 원본·번역을 잘라 크기를 맞추지 않습니다. |
+| `max_storage_bytes` | 생성 자료256MiB. 모델·소스·Git을 제외하고 캐시·릴리스·로그·등록 백업을 포함합니다. |
+
+현재 메뉴·진행 작업에 필요한 항목과 `editorial-draft`·`reviewed-draft`는 캐시 퇴출에서 보호합니다. 명시적인 사용 기록의 `pinned`도 보호하며 model 출처로 남은 수동 교정은 자동 식별하지 못합니다. 보호 항목만으로 한도를 넘으면 삭제 대신 중단합니다. 사용 기록은 `translation-state.json`에서 캐시와 함께 원자적으로 바뀌고 제거한 항목의 기록도 정리합니다.
+
+다음 첫 명령으로 정리 후보와 보호 사유·전후 바이트를 확인한 뒤 두 번째 명령으로 적용합니다. 적용은 idle 큐와 같은 `worker.lock`을 요구하며 실제 원격·로컬 포인터와 준비 저널의 릴리스를 보호합니다.
+
+```sh
+python3 -m scripts.retention --config "$HOME/Library/Application Support/Mensa/worker.toml"
+python3 -m scripts.retention --config "$HOME/Library/Application Support/Mensa/worker.toml" --apply
+```
+
+원격 업로드·읽기 확인 후 성공 기록을 남기고 오래된 등록 릴리스를 정리합니다. 로컬 포인터만으로 성공을 판단하지 않습니다. 로그는 유휴·실패 상태에도 잠금 안에서 한도를 적용합니다. 미등록 파일·알 수 없는 symlink·인증·큐·모델·다른 Drive 파일은 삭제하지 않습니다. 전환 백업은 명시적으로 소유권을 기록하고 검증 완료일을 남긴 경로만 자동 관리합니다.
+
+Drive 내부 이전 버전은 현재 파일 크기와 별개입니다. 영구 고정을 사용하지 않으며 [Google의 blob 버전 정리 정책](https://developers.google.com/workspace/drive/api/guides/manage-revisions)에 맡깁니다. 일반적인30일 보관/100개 버전 기준은 Google의 정책이며 이 프로그램이 보장하는 Drive 전체 바이트 상한은 아닙니다. 폴더 전체 purge/cleanup으로 정리하지 않습니다.

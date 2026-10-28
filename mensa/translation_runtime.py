@@ -46,7 +46,7 @@ def _runtime_config(value, identity, key):
 
 def resume_configured_translations(menu, published, phrases, settings, *, state_dir,
                                    glossary_provider, translate=request_translation,
-                                   runtime=model_session, key='', checkpoint=None):
+                                   runtime=model_session, key='', checkpoint=None, checkpoint_store=None):
     """resume_configured_translations가 선언된 공급자·모델·리비전으로 번역을 재개하고, 새 번역이 필요할 때만 모델 실행 환경을 사용합니다.
 
     호출자는 큐 잠금, load_worker_config로 검증된 설정 및 상태 디렉터리의 상위 경로
@@ -55,7 +55,9 @@ def resume_configured_translations(menu, published, phrases, settings, *, state_
     결과가 공개 처리에 전달되기 전에 모델 실행 환경의 정리를 마칩니다.
     """
     _validate_settings(settings, key)
-    store = TranslationCheckpointStore(state_dir)
+    store = TranslationCheckpointStore(state_dir) if checkpoint_store is None else checkpoint_store
+    if not callable(getattr(store, 'load', None)) or not callable(getattr(store, 'save', None)):
+        raise TypeError('checkpoint_store must provide load and save')
     for name, port in (('glossary_provider', glossary_provider), ('translate', translate),
                        ('runtime', runtime)):
         if not callable(port):

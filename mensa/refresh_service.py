@@ -6,7 +6,7 @@ from mensa.menu_contract import retain_published_days, validate_menu
 class RefreshService:
     """RefreshService가 수집한 메뉴를 생성 전에 검사하고, 메뉴와 번역 캐시를 공개 전에 검증합니다. 실제 수집·번역·공개 작업은 호출자가 전달한 함수가 수행합니다."""
 
-    def __init__(self, *, source, coverage_guard, translate, validator, publisher):
+    def __init__(self, *, source, coverage_guard, translate, validator, publisher, menu_transform=None):
         for name, port in (
             ('source', source), ('coverage_guard', coverage_guard),
             ('translate', translate), ('validator', validator), ('publisher', publisher),
@@ -18,6 +18,9 @@ class RefreshService:
         self._translate = translate
         self._validator = validator
         self._publisher = publisher
+        if menu_transform is not None and not callable(menu_transform):
+            raise TypeError('menu_transform must be callable')
+        self._menu_transform = menu_transform
 
     def refresh(self, previous, cache, phrases, *, checkpoint=None):
         """RefreshService.refresh가 원본 메뉴를 수집·검증하고 유효 기간을 확인한 뒤 번역 캐시를 만들고, 메뉴·번역 쌍을 검증·공개하여 반환합니다."""
@@ -29,6 +32,9 @@ class RefreshService:
         # 새 원본의 검사에 통과한 뒤 지난 공개 날짜를 보존합니다. 보존한 날짜도 번역과
         # 게시 검사에 포함하여 메뉴만 남고 해당 번역이 빠지는 일을 막습니다.
         menu = retain_published_days(menu, previous)
+        if self._menu_transform is not None:
+            menu = self._menu_transform(menu)
+            validate_menu(menu, previous=previous)
         candidate = self._translate(menu, cache, phrases, checkpoint=checkpoint)
         self._validator(menu, candidate)
         self._publisher(menu, candidate, previous=previous)

@@ -1,13 +1,9 @@
-name: Validated menu and Pages
-run-name: Publish menu ${{ inputs.snapshot_sha }}
+name: Deploy Pages code
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      snapshot_sha:
-        description: Validated main-branch commit to publish
-        type: string
-        required: true
 
 permissions:
   contents: read
@@ -30,16 +26,6 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: main
-          fetch-depth: 0
-      - name: Verify requested snapshot belongs to main
-        env:
-          SNAPSHOT_SHA: ${{ inputs.snapshot_sha }}
-        run: |
-          [[ "$SNAPSHOT_SHA" =~ ^[0-9a-f]{40}$ ]] || exit 1
-          git merge-base --is-ancestor "$SNAPSHOT_SHA" origin/main
-          git checkout --detach "$SNAPSHOT_SHA"
       - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
@@ -53,12 +39,12 @@ jobs:
         run: |
           python -m unittest discover -s tests -v
           npm test
-      - name: Validate the locally prepared snapshot
-        run: |
-          python -m scripts.update_menu --validate-only
-          python -c "from pathlib import Path; from scripts.update_menu import read_json, require_current_coverage; require_current_coverage(read_json(Path('site/data/menu.json')))"
-      - name: Build versioned Pages assets
-        run: python -m scripts.build_site
+      - name: Validate deterministic menu fixtures
+        run: python -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data
+      - name: Build versioned Pages UI assets
+        env:
+          MENSA_DRIVE_FILE_ID: ${{ vars.MENSA_DRIVE_FILE_ID }}
+        run: python -m scripts.build_site --drive-file-id "$MENSA_DRIVE_FILE_ID"
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
@@ -69,4 +55,4 @@ jobs:
       - name: Explain rejected deployment
         if: failure()
         run: |
-          echo 'Deployment failed. The previous public Pages deployment remains unchanged. The local queue retains the request for inspection/retry.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Code deployment failed. Check the tests and MENSA_DRIVE_FILE_ID repository variable, then retry this workflow. Runtime menu updates are published directly to Drive.' >> "$GITHUB_STEP_SUMMARY"

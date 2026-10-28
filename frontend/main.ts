@@ -21,7 +21,9 @@ if (typeof document !== 'undefined') {
   try {
     let storage: Storage | undefined; try { storage = localStorage; } catch { /* 브라우저의 비공개 모드에서는 localStorage 접근이 차단될 수 있으므로 앱 시작 코드가 저장소 없이 화면을 구성합니다. */ }
     const languages = typeof navigator !== 'undefined' ? navigator.languages : [];
-    const app = createApp({ document, client: createDataClient(fetchPort), clock: () => new Date(), browserLanguages: languages, ...(storage === undefined ? {} : { storage }) });
+    const driveFileId = document.querySelector<HTMLMetaElement>('meta[name="mensa-drive-file-id"]')?.content;
+    const client = createDataClient(fetchPort, driveFileId ? { driveFileId } : {});
+    const app = createApp({ document, client, clock: () => new Date(), browserLanguages: languages, ...(storage === undefined ? {} : { storage }) });
     void app.load().catch(() => fallback(document));
   } catch { fallback(document); }
 }

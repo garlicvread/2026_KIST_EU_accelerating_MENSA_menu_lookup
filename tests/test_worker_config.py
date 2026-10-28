@@ -24,10 +24,13 @@ class WorkerConfigTests(unittest.TestCase):
         }
         self.resources = {'platform': 'linux', 'min_available_bytes': 1024, 'max_load_per_cpu': 1.5}
         self.publication = {'mode': 'directory'}
+        self.retention = None
 
     def write_config(self):
         tables = {'paths': self.paths, 'inference': self.inference,
                   'resources': self.resources, 'publication': self.publication}
+        if self.retention is not None:
+            tables['retention'] = self.retention
         lines = []
         for name, values in tables.items():
             lines.append(f'[{name}]')
@@ -64,6 +67,48 @@ class WorkerConfigTests(unittest.TestCase):
         self.assertEqual(result.resources.min_available_bytes, 1024)
         self.assertEqual(result.resources.max_load_per_cpu, 1.5)
 
+    def test_retention_defaults_preserve_existing_configs_and_constructor_callers(self):
+        self.write_config()
+        result = self.load()
+        self.assertEqual(result.retention, config_module.RetentionSettings())
+        self.assertEqual(vars(result.retention), {
+            'history_days': 30, 'cache_unused_days': 180, 'cache_max_entries': 5000,
+            'cache_max_bytes': 16777216, 'keep_releases': 10, 'log_days': 14,
+            'log_max_bytes': 10485760, 'backup_days': 14, 'max_bundle_bytes': 8388608,
+            'max_storage_bytes': 268435456,
+        })
+        legacy = config_module.WorkerConfig(result.paths, result.inference, result.resources, result.publication)
+        self.assertEqual(legacy.retention, result.retention)
+
+    def test_retention_optional_table_overrides_only_declared_positive_integer_limits(self):
+        self.retention = {'history_days': 7, 'cache_max_entries': 123, 'keep_releases': 4}
+        self.write_config()
+        result = self.load()
+        self.assertEqual(result.retention.history_days, 7)
+        self.assertEqual(result.retention.cache_max_entries, 123)
+        self.assertEqual(result.retention.keep_releases, 4)
+        self.assertEqual(result.retention.cache_unused_days, 180)
+        self.retention = {}
+        self.write_config()
+        self.assertEqual(self.load().retention, config_module.RetentionSettings())
+
+    def test_retention_rejects_unknown_names_nonintegers_nonpositive_and_inconsistent_caps(self):
+        for declaration in ({'unlimited': 1}, {'history_days': -1}, {'history_days': 0},
+                            {'keep_releases': True}, {'cache_max_entries': 1.5},
+                            {'cache_unused_days': '180'}, {'max_storage_bytes': 100},
+                            {'max_bundle_bytes': 268435457}, {'cache_max_bytes': 268435457},
+                            {'log_max_bytes': 268435457}):
+            with self.subTest(declaration=declaration):
+                self.retention = declaration
+                self.write_config()
+                self.assert_invalid('retention')
+
+    def test_drive_example_declares_approved_retention_defaults(self):
+        example = Path(__file__).resolve().parents[1] / 'config/worker.drive.example.toml'
+        result = config_module.load_worker_config(example)
+        self.assertEqual(result.retention, config_module.RetentionSettings())
+        self.assertIn('[retention]', example.read_text())
+
 
     def test_publication_modes_preserve_explicit_declarations_without_provisioning(self):
         for declaration in ({'mode': 'directory'},
@@ -90,6 +135,30 @@ class WorkerConfigTests(unittest.TestCase):
                 self.assertEqual(result.inference.url, 'https://api.example.test/v1?version=one')
                 for name in ('binary', 'models_dir', 'log_dir'):
                     self.assertIsNone(getattr(result.inference, name))
+
+    def test_drive_publication_is_explicit_and_has_no_git_destination(self):
+        self.publication = {'mode': 'drive', 'remote': 'my-drive:',
+                            'folder_id': 'folder_1234567890', 'file_id': 'snapshot_1234567890'}
+        self.write_config()
+        before = set(self.root.rglob('*'))
+        result = self.load()
+        self.assertEqual(result.publication.mode, 'drive')
+        self.assertEqual(result.publication.remote, 'my-drive:')
+        self.assertEqual(result.publication.folder_id, 'folder_1234567890')
+        self.assertEqual(result.publication.file_id, 'snapshot_1234567890')
+        self.assertIsNone(result.publication.repository)
+        self.assertIsNone(result.publication.workflow)
+        self.assertEqual(set(self.root.rglob('*')), before)
+
+    def test_drive_publication_rejects_paths_options_and_missing_ids(self):
+        valid = {'mode': 'drive', 'remote': 'gdrive:',
+                 'folder_id': 'folder_1234567890', 'file_id': 'snapshot_1234567890'}
+        for field, value in (('remote', 'gdrive:another-folder'), ('remote', 'gdrive,token=secret:'),
+                             ('folder_id', '../folder'), ('file_id', ''), ('file_id', 'id?key=secret')):
+            with self.subTest(field=field, value=value):
+                self.publication = {**valid, field: value}
+                self.write_config()
+                self.assert_invalid('publication.' + field)
 
 
     def test_managed_inference_rejects_unsupported_mode_and_provider(self):

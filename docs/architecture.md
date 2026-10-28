@@ -1,105 +1,82 @@
 # 코드가 담당하는 일과 파일 위치
 
-이 사이트에는 두 실행 부분이 있습니다. 식단 갱신 Python 프로그램은 원본 페이지를 읽어 메뉴·번역 JSON을 준비합니다. 이용자의 브라우저에서 실행되는 JavaScript는 웹서버가 제공한 JSON을 읽어 화면을 만듭니다. 브라우저 요청을 처리하는 Python 웹 백엔드나 데이터베이스 엔진은 없습니다.
+Python 워커는 원본 HTML에서 메뉴·가격을 읽어 번역과 함께 검사하고 Drive에 게시합니다. 브라우저는 GitHub Pages의 화면 코드와 Drive의 공개 JSON 한 개를 읽습니다. 웹 요청을 처리하는 Python 백엔드나 데이터베이스 엔진은 없습니다. 화면 배포와 식단 갱신은 별도의 작업입니다.
 
-이 문서에서 유지보수자는 코드와 번역 문구를 수정하는 사람이고, 운영자는 설치된 워커와 게시 상태를 관리하는 사람입니다. 새로운 환경을 도입하거나 실제 구성을 바꿀 때는 운영자가 계정·경로·모델·자동 실행을 설정합니다. 현재 Mac의 모델·인증·LaunchAgent와 베를린 기준 갱신은 이미 준비되어 있으며, 인계받은 담당자가 같은 설정을 반복할 필요는 없습니다.
+## 실행 위치와 설정
 
-## 현재 설치와 실행 위치
+진입점 [`scripts/local_refresh.py`](../scripts/local_refresh.py)는 `--config PATH` 또는 `--base BASE`를 받습니다. `--base`도 `BASE/worker.toml`을 읽으며, 설정 누락을 이전 자동 Git 게시로 처리하지 않습니다. [`mensa/config.py`](../mensa/config.py)의 `load_worker_config`는 경로·모델·자원·게시 방식을 검사합니다. 설정을 읽는 것만으로 워커를 시작하거나 모델·Drive 연결을 확인하지 않습니다.
 
-현재 Mac은 `~/mensa`의 `main` 코드를 실행합니다. `~/Library/Application Support/Mensa/checkout`은 이 폴더를 가리키는 링크이며, 같은 작업 폴더에 모델·큐·로그·Git 복구 기록을 보존합니다. 등록된 LaunchAgent는 Python 3.14로 `scripts.local_refresh --base`를 로그인 시와 900초 간격에 호출하고, 완료된 JSON은 GitHub 작업이 검증·빌드하여 Pages에 게시합니다. 구체적인 경로와 읽기 전용 상태 명령은 [운영 환경](operations.md#현재-운영-환경)에 있습니다.
+현재 Mac은 `~/mensa`의 코드를 사용하고, `~/Library/Application Support/Mensa`에 큐·체크포인트·모델·로그를 보관합니다. 기존 LaunchAgent는 같은 로그인 사용자로 `--base`를 호출합니다. Drive 준비 폴더는 예를 들어 `~/Library/Application Support/Mensa Data`처럼 코드·비공개 상태와 겹치지 않는 별도 경로입니다. 실제 전환 완료 여부는 [배포 확인](deployment.md)으로 판단합니다.
 
-`mensa/schedule.py`가 `ZoneInfo("Europe/Berlin")`로 날짜를 계산합니다. 이는 프로그램이 사용하는 날짜 규칙이며, 유지보수자가 매번 시간대 데이터를 준비하거나 컴퓨터의 시간대를 바꾸는 절차가 아닙니다. 수집·번역·게시 과정은 이용자의 브라우저 요청과 독립적으로 실행됩니다.
+`--status`는 큐와 마지막 결과만 읽습니다. 실행 시 [`JobRunner`](../mensa/jobs.py)는 비공개 상태 폴더의 `worker.lock`에 OS 파일 잠금을 걸고 작업을 처리합니다. 다른 실행이 잠금을 갖고 있으면 큐와 결과를 바꾸지 않고 `busy`를 반환합니다. 성공한 수집 시각만 `queue.json`의 `completed_period`로 기록합니다. 재시도·연기·실패 상태는 `last-result.json`에도 기록합니다.
 
-## 식단 갱신을 한 번 실행할 때
+[`schedule.py`](../mensa/schedule.py)는 `Europe/Berlin` 기준 매일 09:00·10:00·11:00의 수집 시각을 계산합니다. [`queue.py`](../mensa/queue.py)는 대기 작업·중복 실행·실패 후 대기를 관리합니다. LaunchAgent와 Linux timer는 실행 기회를 제공하며 날짜 판단을 대신하지 않습니다.
 
-실행 진입점 [`scripts/local_refresh.py`](../scripts/local_refresh.py)의 `main` 함수는 운영자가 전달한 `--config` 또는 `--base`를 읽습니다. 설정 파일을 사용하는 경우 경로와 값을 검사하는 `load_worker_config` 함수([`mensa/config.py`](../mensa/config.py))를 호출합니다. `--status`가 있으면 main은 작업 기록의 `queue.json`과 `last-result.json`만 읽고 내용을 출력합니다.
+## Drive 갱신과 복구
 
-대기 작업을 실행하는 `JobRunner` 클래스([`mensa/jobs.py`](../mensa/jobs.py))는 공개하지 않는 작업 기록 폴더를 준비하고 `worker.lock` 파일에 OS 파일 잠금을 겁니다. 이 잠금은 두 프로그램이 같은 `queue.json`을 동시에 고치지 못하게 합니다. 다른 실행이 잠금을 보유하면 JobRunner는 기다리지 않고 `busy`를 반환하며 queue.json과 last-result.json을 바꾸지 않습니다. 잠금을 얻은 JobRunner는 대기 작업과 메모리/CPU 기준을 확인합니다. 작업이 성공했을 때만 queue.json의 completed_period(완료 수집 시각)를 저장합니다. last-result.json에는 완료뿐 아니라 작업 없음(idle), 재시도 대기(waiting), 실행 조건 미충족(deferred), 실패(failed), 자동 재시도 중지(blocked) 결과도 저장합니다. 이 결과 파일을 쓸 때도 잠금을 유지합니다.
+[`DriveRefreshJob`](../mensa/drive_refresh.py)은 `publication.mode = "drive"`를 처리합니다. 일상 실행은 코드 체크아웃을 읽기만 하며 Git·gh·GitHub Actions를 호출하지 않습니다. 새 수집은 현재 공개 Drive 묶음을 기준으로 교정과 이력을 보존합니다. 원격 묶음이 없는 최초 구성에서만 로컬 준비본을 대체 입력으로 사용할 수 있으며, 소스의 `site/data`를 자동 대체 입력으로 사용하지 않습니다.
 
-예정 수집 시각을 계산하는 함수는 [`mensa/schedule.py`](../mensa/schedule.py)에 있고, 대기 작업과 실패 후 재시도 시간을 관리하는 함수들은 [`mensa/queue.py`](../mensa/queue.py)에 있습니다. JobRunner는 이 함수들이 반환한 내용을 파일에 저장합니다. 실패하면 JobRunner는 중간에 저장된 queue.json을 다시 읽고 다음 재시도 시간을 기록합니다. 프로그램 중지 요청은 위로 전달되어 파일 잠금이 해제됩니다.
+식단 처리 순서를 맡는 [`RefreshService`](../mensa/refresh_service.py)는 새 원본의 구조·가격·현재 날짜 범위를 먼저 검사합니다. `retain_published_days`는 새 원본의 시작보다 앞선 기존 공개 날짜를 보존하고 같은 날짜는 새 값으로 교체합니다. 이어 지난 날짜까지 필요한 번역과 주의 표시를 완성하고 전체 게시 조건을 검사합니다. 구조가 유효한 메뉴 추가·삭제·교체·중복 수 변화와 빈 식단을 이전 항목 개수로 차단하지 않습니다. 날짜 연결·가격 출처·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다.
 
-식단 갱신의 호출 순서를 관리하는 Python 클래스 `RefreshService`는 [`mensa/refresh_service.py`](../mensa/refresh_service.py)에 있습니다. 이 클래스는 원본 수집 함수를 호출하고, 새 원본의 메뉴/가격 검사와 현재 날짜 검사를 먼저 수행합니다. 검사를 통과하면 `retain_published_days` 함수가 새 원본의 시작 날짜보다 앞선 기존 식단을 보존합니다. 같은 날짜의 메뉴는 새 원본으로 교체합니다. 이어 보존한 날짜까지 포함한 메뉴를 번역 함수에 전달하고, 모든 필요한 번역과 주의 표시가 있는지 검사한 뒤 파일 게시 함수를 호출합니다. 실제 HTTP는 원본 수집 함수가, 모델 요청은 번역 함수가, 파일 쓰기는 게시 함수가 수행합니다. RefreshService는 Linux 자동 실행 설정 파일 `deploy/mensa-refresh.service`와 별개의 이름입니다.
+DriveRefreshJob은 검증한 날짜에서 지난 30일·오늘·원본의 미래 메뉴를 선택하고 필요한 번역만 공개합니다. [`retention.py`](../mensa/retention.py)는 기간·참조 집합·캐시 한도를 계산하고, [`retention_runtime.py`](../mensa/retention_runtime.py)는 비공개 번역과 사용 기록을 한 파일에 원자적으로 보관합니다. 새 원본에서 실제 사용한 항목만 수명을 갱신합니다. 검증된 공개 쌍은 [`DirectoryPublisher`](../mensa/releases.py)의 `data/releases/<release_id>/`에 준비하고 비공개 `drive-publication.json`에 이전 공개 릴리스·준비 ID·수집 시각·목적지를 기록합니다. 재시도 중 공개 교정이 생기면 최신 공개본에서 다시 준비합니다.
 
-`scripts/menu_source.py`는 날짜·판매대 구조가 유효하면 비어 있는 메뉴 배열도 반환합니다. `mensa/menu_contract.py::_validate_previous`는 날짜 연결과 계속 존재하는 동일 메뉴의 실제 가격 소실을 검사합니다. 이전 식단과 현재 식단의 개수·증감률이나 가격 있는 중복 발생 수는 비교하지 않습니다. 동일 날짜·분류·독일어 이름의 현재 발생 중 하나라도 가격이 있으면 과거 중복 수가 줄었다는 이유로 거부하지 않으며, 현재 가격이 전혀 없으면 가격 소실로 거부합니다. 형식·원문 소유 관계·추출 누락·가격 출처 검증은 이 정책과 함께 유지합니다.
+[`maintenance.py`](../mensa/maintenance.py)는 원격 읽기 확인 후 최근 성공본 10개와 현재·재시도 참조를 보호하며 오래된 등록 릴리스를 정리합니다. 성공 여부는 비공개 `retention-releases.json`에 기록하므로 로컬 포인터를 원격 성공으로 오인하지 않습니다. 유휴·실패 상태에도 JobRunner가 같은 잠금 아래 로그 한도와 생성 데이터 용량을 검사합니다. 미등록 자료·모델·소스·인증을 정리하지 않습니다.
 
-유지보수자가 테스트할 때는 RefreshService에 원본/번역/게시 함수를 인자로 전달할 수 있습니다. 예를 들어 원본 페이지를 가져오는 함수 대신 저장된 HTML을 읽는 함수를 전달하면 네트워크 없이 같은 검사 순서를 확인할 수 있습니다. 데이터 검사 함수에는 HTTP나 파일 쓰기를 넣지 않고, 어느 함수를 어떤 순서로 실행할지는 RefreshService에서 관리해 주세요.
+[`DrivePublisher`](../mensa/drive_publication.py)는 rclone의 설정된 remote와 폴더 ID로 `current.json` 한 개만 읽고 갱신합니다. 파일 ID와 내용을 검사하고 업로드 후 다시 읽어 확인합니다. 같은 내용이면 업로드를 생략합니다. 이름이 중복되거나 설정과 파일 ID가 다르거나 기존 파일이 유효한 게시 묶음이 아니면 덮어쓰지 않습니다. 다른 파일의 삭제·동기화나 공유 설정 변경은 수행하지 않습니다.
 
-아래 그림은 처리 순서를 나타냅니다. 각 단계의 함수를 호출하는 주체는 위에서 설명한 실행 클래스이며, 화살표가 인접한 두 함수의 직접 호출을 뜻하지는 않습니다.
+업로드 결과나 완료 기록 저장을 확인하지 못하면 다음 시도는 저널이 가리키는 같은 로컬 묶음을 재사용합니다. 준비한 묶음이 현재 날짜에 유효하지 않으면 다시 수집합니다. 목적지 설정이 바뀌거나 이전 Git 게시 번호가 남은 대기 작업은 자동으로 버리지 않고 중단합니다. 네트워크 경합·전원 손실·Drive 동시 작성까지 원자적 복구를 보장하는 구조는 아니므로 같은 목적지에는 한 워커만 연결해 주세요.
 
 ```mermaid
 flowchart TD
-  Entry[local_refresh.main: 실행 옵션 읽기] --> Runner[JobRunner: 잠금과 수집 시각별 작업 기록]
-  Runner --> Queue[queue.py: 대기 작업과 재시도 계산]
-  Queue --> Schedule[schedule.py: 매일 9시·10시·11시 수집 판단]
-  Runner --> Job[설정에 맞는 식단 갱신 작업]
-  Job --> Service[RefreshService: 함수 호출 순서]
-  Service --> Source[menu_source: 원본 HTML과 개별·공통 가격 읽기]
-  Source --> Check[menu_contract: 메뉴와 가격 검사]
-  Check --> Retain[retain_published_days: 지난 공개 날짜 보존·같은 날짜 최신 값 사용]
-  Retain --> Translate[번역 저장·재사용·필요한 모델 요청]
-  Translate --> Complete[publication: 모든 표시 데이터 검사]
-  Complete --> Publish[파일 또는 GitHub에 게시]
+  Timer[LaunchAgent 또는 timer] --> Runner[JobRunner: 잠금·큐·자원 확인]
+  Runner --> DriveJob[DriveRefreshJob]
+  DriveJob --> Source[원본 HTML·가격 검사]
+  Source --> Retain[지난 공개 날짜 보존]
+  Retain --> Translate[번역 재사용·필요한 모델 요청]
+  Translate --> Validate[전체 게시 검사]
+  Validate --> Local[로컬 release·준비 저널 저장]
+  Local --> Drive[Drive current.json 갱신·읽기 확인]
+  Drive --> Complete[큐 완료 기록]
+  Pages[Pages HTML·CSS·JavaScript] --> Browser[이용자 브라우저]
+  Drive --> Browser
 ```
 
-## 파일을 웹사이트 폴더에 직접 게시하는 경우
+## 번역과 모델
 
-설정의 `publication.mode = "directory"`를 처리하는 `DirectoryRefreshJob` 클래스([`mensa/directory_refresh.py`](../mensa/directory_refresh.py))는 코드 폴더의 `data/notice-translations.json`을 한 번 읽습니다. 이 파일은 사람이 검토한 독일어 주의 표시의 영어/한국어 대응표입니다. DirectoryRefreshJob은 이 표와 Berlin 기준 오늘 날짜를 번역·검사·게시 함수에 전달합니다.
+[`TranslationService`](../mensa/translation_service.py)는 검토 구문·완성된 번역·주의 표시 대응표를 먼저 사용합니다. [`translation_contract.py`](../mensa/translation_contract.py)는 원문 이름과 순서가 있는 구성품으로 번역 key를 만들고 표시값·출처·모델 버전·생성 정책을 검사합니다. 미등록 주의 표시도 캐시에서 찾거나 `kind:notice` 요청으로 번역한 뒤 게시합니다.
 
-현재 웹사이트에 식단이 있으면 DirectoryRefreshJob은 `data/current.json`이 지정한 메뉴/번역을 이전 데이터로 읽습니다. 첫 게시라서 지정 파일이 없으면 코드 폴더의 `site/data/menu.json`과 `translations.json`을 읽습니다. 이 클래스는 코드 폴더나 Git을 수정하지 않으며 HTML/CSS/JavaScript도 생성하지 않습니다.
+설정 기반 번역은 [`resume_configured_translations`](../mensa/translation_runtime.py)를 사용합니다. Drive는 `RetainedTranslationStore`를 연결하여 운영용 Mac의 `translation-state.json`에 완료한 번역과 사용 기록을 함께 저장합니다. 최초 이관 이후 옛 체크포인트를 다시 읽지 않아 만료 항목의 재유입을 막습니다. 일부 요리가 미완료일 수 있으므로 공개하지 않습니다. Mac 기본 경로는 기존 번역을 재사용하고 빠진 요리·주의 표시만 digest를 확인한 모델에 요청합니다. 이용자 브라우저에는 운영 캐시를 저장하지 않습니다.
 
-공개할 두 JSON 파일을 쓰는 `DirectoryPublisher` 클래스([`mensa/releases.py`](../mensa/releases.py))는 두 파일의 내용을 묶어 계산한 ID를 폴더 이름으로 사용합니다. 완성된 `data/releases/<ID>/menu.json`과 `translations.json`을 만든 뒤 `data/current.json`을 교체합니다. 이전 ID의 파일은 남깁니다. 파일을 게시한 후 JobRunner가 완료 기록 저장에 실패하면, 다음 실행은 식단을 다시 수집하면서 이미 저장한 번역을 재사용합니다. 게시 파일과 수집 시각별 완료 기록은 서로 다른 파일에서 관리합니다.
+새 번역이 필요할 때만 [`model_session`](../mensa/model_runtime.py)이 모델 연결을 준비합니다. `managed`는 설치된 Ollama를 별도 프로세스 그룹으로 시작하고 자신이 시작한 그룹만 종료합니다. `external`은 운영자가 준비한 endpoint를 사용합니다. 프로그램은 모델을 다운로드하지 않습니다. 요청 함수 [`request_translation`](../mensa/generation.py)은 완료 여부·응답 크기·두 언어·구성품 수와 잘못된 바이트 토큰 등을 검사하고 실패를 큐로 전달합니다.
 
-## 필요한 번역과 모델 실행
+## 브라우저의 읽기와 화면 상태
 
-번역 준비를 맡는 `TranslationService`([`mensa/translation_service.py`](../mensa/translation_service.py))는 검토된 구문과 이미 저장된 번역을 먼저 사용합니다. 번역 재개 함수 `resume_translations`([`mensa/translation_runner.py`](../mensa/translation_runner.py))는 현재 메뉴에 필요한 번역을 확인하고 이전에 완료한 항목을 다시 사용할 수 있는지 판단합니다.
+[`main.ts`](../frontend/main.ts)는 HTML의 `mensa-drive-file-id` 메타 정보를 읽어 [`createDataClient(fetchPort, {driveFileId})`](../frontend/data_client.ts)에 전달합니다. Drive 모드의 `loadManifest`는 공개 다운로드 URL에서 묶음을 한 번 읽고 envelope와 64자리 릴리스 ID를 검사하여 ID별로 고정합니다. `loadMenu`와 `loadTranslations`는 그 묶음의 각 분기를 독립적으로 검사하며 추가 요청을 하지 않습니다.
 
-설정 기반 재개 함수 `resume_configured_translations`([`mensa/translation_runtime.py`](../mensa/translation_runtime.py))는 완료된 번역을 저장하는 `TranslationCheckpointStore`([`mensa/checkpoints.py`](../mensa/checkpoints.py))를 호출합니다. 저장 파일 `translation-checkpoint.json`에는 이미 검사를 통과한 요리별 번역이 들어갑니다. 일부 요리가 아직 미완료일 수 있으므로 운영자가 이 파일을 웹사이트에 직접 복사하면 안 됩니다. Mac 기본 `--base` 실행의 `RefreshJob.translate`는 이 재개 함수를 사용하지 않습니다. Mac 기본 경로는 공개 캐시의 완료 번역을 재사용하고 새 번역을 메모리에 보관하다가 전체 검사를 통과하면 저장합니다. 번역 도중 프로세스가 종료되면 그 실행에서 새로 만들던 번역은 다음 시도에서 다시 생성하며, 기존 공개 식단과 저장된 번역은 유지합니다.
+브라우저는 메뉴·번역의 SHA256을 다시 계산하지 않습니다. [`contracts.ts`](../frontend/contracts.ts)는 표시 스키마를 검사하고 [`display.ts`](../frontend/display.ts)는 번역과 독일어 원문 이름·구성품 순서가 맞는지 확인합니다. 번역이 실패하거나 원문이 다르면 유효한 독일어 메뉴를 유지합니다. 파일 요청과 JSON 읽기 제한은 15초입니다.
 
-새 번역이 필요한 순간에만 모델 실행을 관리하는 `model_session` 함수([`mensa/model_runtime.py`](../mensa/model_runtime.py))를 호출합니다. `managed` 설정이면 이 함수는 준비된 Ollama 실행 파일을 별도 프로세스 그룹으로 시작하고 요청이 끝나면 자신이 만든 그룹만 종료합니다. 컴퓨터에서 따로 실행 중인 Ollama는 종료하지 않습니다. `external` 설정이면 이미 실행 중인 모델의 URL을 사용하며 그 프로세스를 시작하거나 종료하지 않습니다. 번역 재개 함수는 모델 정리를 끝낸 뒤에 메뉴/번역을 게시 함수에 넘깁니다.
+[`controller.ts`](../frontend/controller.ts)는 오래된 로드 결과가 새 메뉴나 번역 상태를 덮어쓰지 못하게 합니다. [`state.ts`](../frontend/state.ts)는 날짜·언어·가격 그룹과 독립된 메뉴/번역 요청 상태를 보관합니다. [`selectors.ts`](../frontend/selectors.ts)의 `visibleMeals`는 같은 날짜에서 ID 이외의 모든 내용이 같은 항목만 한 번 표시하며 원본 발생을 삭제하지 않습니다. 다른 날짜·위치·구성·주의 표시·가격의 메뉴는 유지합니다.
 
-알레르기·첨가물·식재료 안내 문구는 `scripts/notices.py`가 읽는 `data/notice-translations.json`을 우선 사용합니다. `TranslationService`는 미등록 문구를 캐시에서 찾고, 없으면 `kind:notice` 요청으로 모델에 영어·한국어 번역을 요청합니다. `mensa/generation.py`는 안내 전용 지시문으로 부정·미량 함유 등의 한정 표현과 모든 물질을 보존하도록 요청하고 응답 형식을 검사합니다. 번역 성공 시 정확한 독일어 키로 캐시와 설정 기반 체크포인트에 저장합니다. 실패는 작업 큐로 전달하고 통신 오류는 기존 재시도 정책을 적용합니다. 게시 검사는 미등록 문구를 포함한 모든 안내 번역의 완성을 요구하고, 등록된 사전 값의 일치도 검사합니다. 브라우저는 원문 안내 문구를 항상 보존해 표시합니다. 사전 전체는 요리 번역의 생성 식별 정보에 포함됩니다.
+[`render.ts`](../frontend/render.ts), [`cards.ts`](../frontend/cards.ts), [`app.ts`](../frontend/app.ts)는 일간/주간·열린 상세·초점·보조기기 안내를 관리합니다. 언어·가격·번역 변경은 선택 날짜와 열린 상세를 유지합니다. 날짜·주·보기 변경은 화면에 남은 입력의 초점을 유지하며, 사라지는 주간 하루 보기 버튼의 초점만 날짜 선택창으로 옮깁니다. 별도 스크롤 이동은 하지 않습니다. 날짜와 최신성 판단은 Berlin 기준입니다.
 
-번역 요청을 보내는 `request_translation`([`mensa/generation.py`](../mensa/generation.py))은 응답 크기·완료 여부·언어별 결과·구성품 개수를 검사합니다. 실패 종류를 나타내는 `GenerationError`와 다시 요청할 수 있는 오류 구분은 [`mensa/errors.py`](../mensa/errors.py)에 있습니다.
+## 화면 빌드와 호환 경로
 
-## GitHub에 데이터를 보내서 게시하는 경우
+[`build_site.py`](../scripts/build_site.py)는 이미 컴파일된 `main.js`에서 도달하는 정적 모듈만 내용별 해시 경로로 복사합니다. CSS도 내용별 경로를 사용합니다. `--drive-file-id`는 HTML 메타 설정과 UI 자산만 출력하며 운영 JSON을 읽거나 포함하지 않습니다. `--data-dir`는 명시한 로컬 메뉴·번역을 검증하고 DirectoryPublisher 형식으로 출력합니다. 테스트 예제는 `tests/fixtures/menu-data`에 있습니다.
 
-설정의 `publication.mode = "github"`를 처리하는 `ConfiguredRefreshJob`은 [`scripts/local_refresh.py`](../scripts/local_refresh.py)에 있습니다. 이 클래스는 쓰기 가능한 전용 main 코드 폴더에서 `site/data/menu.json`과 `translations.json`의 변경만 게시용 커밋으로 준비합니다. Mac `--base`의 `RefreshJob`도 같은 GitHub 게시 절차를 사용하되 고정 경로와 모델 정책을 적용합니다.
+[`ci.yml`](../.github/workflows/ci.yml)은 코드 PR을 검사합니다. [`update-and-deploy.yml`](../.github/workflows/update-and-deploy.yml)은 main push 또는 수동 요청으로 화면 코드만 Pages에 배포하며 저장소 변수 `MENSA_DRIVE_FILE_ID`를 사용합니다. 일상 Drive 갱신은 이 작업을 요청하지 않습니다.
 
-게시용 Git 커밋과 복구 기록을 관리하는 `SnapshotRepository`([`mensa/git_repository.py`](../mensa/git_repository.py))는 이 워커가 두 데이터 JSON을 기록해 만든 커밋을 확인합니다. 문서와 코드에서 이 커밋을 소유 커밋이라고 부릅니다. SnapshotRepository는 snapshot-journal.json의 부모 커밋·Git 트리·데이터 파일 내용을 대조해 실제로 워커가 만든 변경인지 판단합니다. 커밋 메시지만으로 소유 여부를 판단하거나 사람이 만든 변경을 버리지 않습니다.
+Drive 설정이 없는 DataClient는 기존 상대 `data/current.json`과 `data/releases/<ID>/` 읽기를 지원합니다. 명시적인 `directory`·`github` WorkerConfig와 관련 코드는 기존 설치 호환용으로 남아 있습니다. 기존 Git 게시 큐·`snapshot-journal.json`·복구 참조는 전환 전에 정리 여부를 검토하고 보존합니다. 이 호환 경로는 Drive 설치의 일상 게시나 복구 절차가 아닙니다.
 
-게시 준비 중 원격 main이 앞서가면 SnapshotRepository의 plan_replacement/resume_replacement는 두 이력을 구별합니다. 원격 main 이력에 워커의 기존 커밋이 이미 들어 있으면 로컬 main을 원격 main 위치까지 앞으로 이동합니다(fast-forward). 기존 커밋이 main 이력에 남아 있으므로 이 경우에는 refs/mensa/superseded/<SHA>를 만들지 않습니다. 원격 main이 기존 커밋을 포함하지 않고 두 이력이 갈라졌다면, 클래스는 워커가 만든 커밋인지와 기록된 출발 커밋이 원격 main에 남아 있는지를 확인한 뒤 기존 커밋을 refs/mensa/superseded/<SHA>에 보존합니다. 프로그램은 최신 main에서 식단을 다시 수집하고 새 게시용 데이터 커밋을 준비합니다. 이 새 커밋을 대체 커밋이라고 부릅니다. 소유 여부를 확인할 수 없는 변경·사람의 변경·알 수 없는 커밋은 보존하며 운영자가 검토합니다. 대체 커밋과 이전 게시 실행이 충돌하는 경우도 운영자가 확인해야 합니다.
+## 수정할 파일 찾기
 
-GitHub 실행을 요청하고 조회하는 `GitHubPublication`([`mensa/github_publication.py`](../mensa/github_publication.py))은 지정 repository/workflow에서 같은 커밋의 실행을 찾고, 게시 실행 요청(dispatch), 진행 확인(watch), 실패 실행 재요청(rerun)을 수행합니다. ConfiguredRefreshJob은 요청 시각을 queue.json에 먼저 저장하고 발견한 실행 번호(run_id)를 진행 확인 전에 저장합니다. 운영자가 복구할 때는 이 번호를 보존해야 이미 게시한 작업을 중복 요청하거나 잊지 않습니다.
-
-## 어느 파일을 수정해야 하는지 찾기
-
-| 수정할 내용 | 담당 파일과 함수의 일 |
+| 수정 대상 | 시작할 파일 |
 | --- | --- |
-| 원본 페이지 형태 | [`scripts/menu_source.py`](../scripts/menu_source.py)가 HTML을 읽고 메뉴를 추출하며, 별도 항목 개수 검사와 대조합니다. 같은 판매대의 마지막 가격표가 하나뿐이면 나열된 메뉴들의 공통 가격으로 적용합니다. |
-| 날짜·ID·가격 규칙과 날짜 보존 | [`mensa/menu_contract.py`](../mensa/menu_contract.py)가 메뉴 형식과 같은 원본 가격의 정수 센트를 검사합니다. `retain_published_days`는 검사를 통과한 새 메뉴에 앞선 공개 날짜를 보존합니다. |
-| 번역 key·표현·재사용 | [`mensa/translation_contract.py`](../mensa/translation_contract.py)가 원문으로 key를 계산하고 번역 형식/표현/모델 버전을 검사합니다. |
-| 주의 표시·전체 게시 가능 여부 | [`mensa/notice_contract.py`](../mensa/notice_contract.py)와 [`publication.py`](../mensa/publication.py)가 검토 대응표와 모든 메뉴 번역을 검사합니다. |
-| 검토 문구 입력 | [`scripts/notices.py`](../scripts/notices.py)가 대응표를 읽으며, 유지보수자는 `data/notice-translations.json`과 `data/editorial-translations.json`을 편집합니다. |
-| 설정·컴퓨터 여유 확인 | [`mensa/config.py`](../mensa/config.py)가 TOML 값을 검사하고 [`resources.py`](../mensa/resources.py)가 메모리/CPU/전원 정보를 읽습니다. |
-| 직접 입력 갱신·호환 명령 | [`scripts/update_menu.py`](../scripts/update_menu.py), [`translations.py`](../scripts/translations.py), [`refresh_queue.py`](../scripts/refresh_queue.py)가 수동 파일 갱신·환경변수 설정·Mac 리소스 판단을 연결합니다. |
-| 게시용 사이트 생성 | [`scripts/build_site.py`](../scripts/build_site.py)가 입력 HTML/CSS/JavaScript와 메뉴/번역을 새 폴더에 모읍니다. |
-
-## 브라우저가 JSON을 읽고 화면을 바꾸는 순서
-
-브라우저 시작 코드 [`frontend/main.ts`](../frontend/main.ts)는 파일 요청과 JSON 읽기에 15초 제한을 적용합니다. 파일 읽기 코드 [`data_client.ts`](../frontend/data_client.ts)는 data/current.json을 한 번 읽고 그 ID의 두 파일을 동시에 요청합니다. 데이터 검사 코드 [`contracts.ts`](../frontend/contracts.ts)는 받은 값이 정해진 메뉴/번역 형식인지, 번역이 해당 독일어 원문에 연결되는지 확인합니다. 브라우저는 두 파일의 SHA256을 다시 계산하지 않습니다.
-
-화면 상태를 저장하는 [`state.ts`](../frontend/state.ts)는 선택 날짜·언어·가격 그룹과 메뉴/번역 로딩 결과를 보관합니다. 사용자 입력과 파일 응답을 처리하는 [`controller.ts`](../frontend/controller.ts)는 오래된 요청의 응답이 새 선택을 덮어쓰지 못하게 합니다. 유효한 메뉴가 먼저 도착하면 화면은 독일어로 요리를 보여 주고 번역 파일을 받으면 언어별 표현을 보완합니다. 번역 파일 실패 때문에 이미 읽은 메뉴를 숨기지 않습니다.
-
-표시 메뉴를 고르는 `visibleMeals(day)`([`selectors.ts`](../frontend/selectors.ts))는 같은 날짜의 항목 중 ID를 제외한 모든 내용이 같은 첫 번째 항목만 반환합니다. 원본 수집 코드가 각 반복 발생에 붙인 ID는 원본 JSON과 앱 상태에 모두 남습니다. 일간/주간 화면을 그리는 [`render.ts`](../frontend/render.ts)는 두 보기에서 이 함수를 사용하고 [`cards.ts`](../frontend/cards.ts)는 첫 번째 ID로 카드와 열린 상세 상태를 유지합니다. 메뉴 이름이나 가격 그룹 하나가 같다는 이유로 다른 요리를 합치지 않습니다.
-
-일간·주간 카드의 색상은 원본 판매대 위치로 결정합니다. `cards.ts`는 메뉴의 `location`을 카드의 `data-location` 속성에 기록하고, [`site/styles.css`](../site/styles.css)는 `Aufgang A`에 연초록, `Aufgang B`에 연파랑, `Aufgang C`에 연살구색을 적용합니다. 같은 판매대의 요리는 같은 색을 사용하며, Mensacafé와 그 밖의 위치는 기본 흰색을 유지합니다. 메뉴 개수·순서나 번역 언어·가격 그룹은 이 색상 대응에 영향을 주지 않습니다.
-
-주간 날짜 범위를 표시하는 rangeLabel 함수는 같은 해에서는 월·일을 간결하게 표시하고, 연도가 바뀌면 두 해를 모두 표시합니다. 좁은 화면에서 긴 날짜 범위는 줄을 나누어 이동 버튼과 겹치지 않게 합니다. 날짜·가격 선택의 라벨과 값은 공간이 허용하는 한 같은 줄에 놓습니다. 모바일 제목과 로고의 크기는 창 폭에 따라 줄어들며, 제목은 최소 20px를 유지합니다. 한국어 제목은 단어 중간에서 줄을 나누지 않습니다.
-
-화면 문구와 표시값은 [`copy.ts`](../frontend/copy.ts)/[`display.ts`](../frontend/display.ts)가 만들고, HTML 요소 생성과 연결은 [`dom.ts`](../frontend/dom.ts)/[`app.ts`](../frontend/app.ts)가 맡습니다. 언어·가격·번역 변경 때 화면 코드는 선택 날짜와 열린 상세를 유지합니다. 사용자가 날짜·주·보기 방식을 바꾸면 app.ts의 navigate 함수는 메뉴를 갱신하고 변경 내용을 보조기기의 읽기 영역에 알립니다. navigate 함수는 날짜 버튼과 날짜 선택창 등 화면에 남아 있는 선택 도구의 키보드 초점을 유지하며, 별도의 스크롤 명령을 실행하지 않습니다. 주간 화면의 “하루 보기” 버튼은 일간 화면으로 전환할 때 사라지므로, 이 경우에만 navigate 함수가 날짜 선택창으로 키보드 초점을 옮깁니다. 이 초점 이동에도 preventScroll 옵션을 사용하여 화면 위치를 유지합니다.
-
-## 게시용 파일에 포함하는 범위
-
-사이트 생성 프로그램은 `frontend/main.ts`에서 컴파일된 main.js와 그 파일이 정적 import/re-export로 참조하는 JavaScript를 따라갑니다. 이 파일들만 `assets/<graphID>/`에 모으고 CSS에는 내용 해시가 붙은 이름을 사용합니다. HTML은 이 경로를 참조합니다. 이전 HTML을 저장한 브라우저를 위해 `app.js` 연결 파일과 `styles.css` 대체 이름도 만듭니다.
-
-운영자는 생성된 HTML/favicon/JavaScript/CSS와 선택된 메뉴·번역 파일만 웹서버에 연결해 주세요. TypeScript 원본·source map·queue.json·번역 중간 기록·모델·로그를 공개하지 않습니다. 공개 JSON의 정확한 필드는 [데이터 설명](data-contract.md), 파일 권한과 재시도 절차는 [운영 문서](operations.md)에 있습니다.
+| 원본 페이지 추출 | [`scripts/menu_source.py`](../scripts/menu_source.py) |
+| 메뉴·가격·날짜 보존 | [`mensa/menu_contract.py`](../mensa/menu_contract.py), [`refresh_service.py`](../mensa/refresh_service.py) |
+| 번역 key·표현·재사용 | [`mensa/translation_contract.py`](../mensa/translation_contract.py) |
+| 검토 문구 | [`data/editorial-translations.json`](../data/editorial-translations.json), [`notice-translations.json`](../data/notice-translations.json) |
+| 전체 게시 검사 | [`mensa/publication.py`](../mensa/publication.py), [`notice_contract.py`](../mensa/notice_contract.py) |
+| Drive 게시·재개 | [`mensa/drive_publication.py`](../mensa/drive_publication.py), [`drive_refresh.py`](../mensa/drive_refresh.py) |
+| 최초 전환 설정 | [`scripts/configure_drive.py`](../scripts/configure_drive.py) |
+| 설정·자원·큐 | [`mensa/config.py`](../mensa/config.py), [`resources.py`](../mensa/resources.py), [`jobs.py`](../mensa/jobs.py) |
+| 데이터 요청·화면 | [`frontend/data_client.ts`](../frontend/data_client.ts), [`app.ts`](../frontend/app.ts) |

@@ -1,63 +1,68 @@
-# 사이트 배포 안내
+# 화면 배포와 Drive 전환
 
-이 문서에서 게시 담당자는 웹사이트와 자동 실행 프로그램을 관리하는 운영자입니다. 게시 담당자는 검토된 코드를 사이트에 반영하고, 이용자가 읽는 HTML/CSS/JavaScript와 메뉴/번역 파일이 서로 맞는지 확인합니다. 코드와 설정의 위치는 [유지보수 설명서](maintenance.md), 계정과 파일 권한은 [운영 문서](operations.md)에 설명되어 있습니다.
+화면 코드는 GitHub Pages에, 식단·번역은 Google Drive의 `current.json`에 게시합니다. 일상적인 Drive 갱신은 Git 커밋·PR·GitHub Actions·Pages 배포를 만들지 않습니다. 이 문서는 검토한 코드의 반영과 최초 활성화 절차를 설명하며, 절차를 문서화했다는 사실이 실제 설치의 전환 완료를 뜻하지는 않습니다.
 
-현재 서비스는 준비된 Mac 워커와 기존 GitHub Pages를 사용합니다. 배포할 때 시간대·모델·LaunchAgent·인증을 다시 설정하지 않습니다. 현재 코드 폴더는 `~/mensa`이고 모델·큐·복구 기록은 `~/Library/Application Support/Mensa`에 보존합니다. 다른 서버에 처음 설치할 때만 [새 환경 설치](operations.md#새-환경에-설치할-때)와 파일 직접 게시 절차를 사용합니다.
+[공개 식단](https://garlicvread.github.io/2026_KIST_EU_accelerating_MENSA_menu_lookup/) · [설정과 복구](operations.md) · [데이터 계약](data-contract.md)
 
-## 화면 코드 반영과 매일 식단 갱신의 차이
+## 코드 배포 준비
 
-유지보수자가 frontend/ 또는 site/의 화면 코드를 바꾸면 게시 담당자는 전체 사이트를 다시 만들어 게시합니다. 사이트 생성 프로그램 scripts/build_site.py가 HTML/CSS/JavaScript와 메뉴/번역을 출력 폴더에 모읍니다.
-
-매일 식단 갱신 Python 프로그램 scripts/local_refresh.py는 원본 페이지를 읽고 완성된 메뉴/번역 JSON을 준비합니다. 파일 직접 게시 방식(directory)에서는 이 프로그램이 사이트 data 폴더만 바꾸며 HTML/CSS/JavaScript는 바꾸지 않습니다. GitHub 방식(github)에서는 프로그램이 데이터 커밋을 보내고 GitHub 작업이 전체 사이트를 만들어 게시합니다.
-
-화면·실행 코드나 공개 데이터를 바꾸는 경우에는 아래 검증·게시 절차를 적용합니다. README와 docs만 바꾸고 사이트 입력·실행 코드가 그대로라면 문서 확인과 `main` 반영으로 끝나며, 식단 수집이나 Pages 배포를 반복하지 않습니다.
-
-## 기존 Mac 워커에 수정본 반영하기
-
-검토한 실행 코드·번역 사전 변경은 원격 `main`뿐 아니라 `~/mensa`에도 반영되어야 다음 갱신이 사용합니다. 작업 기록의 `checkout` 링크는 이 폴더를 가리킵니다. 자동·수동 작업이 실행 중이라면 먼저 끝날 때까지 기다리거나 [운영 문서의 중지 절차](operations.md#실패-확인과-재시도)를 따르고, 같은 `worker.lock`을 확보한 상태에서 브랜치·원격·미커밋 변경을 확인한 뒤 검토한 `main`으로 fast-forward합니다. 다른 변경은 보존합니다.
-
-메뉴 항목 수가 달라졌다는 이유로 갱신을 실패시키는 조건은 없습니다. 구조가 유효한 빈 식단과 중복 수 변화도 게시할 수 있으며 원문·날짜·실제 가격 소실 검증은 유지합니다. 사전 미등록 안내 문구도 LLM으로 번역을 완료한 뒤 게시합니다. 호출 오류가 나면 기존 게시본을 보존하고 작업 큐의 재시도·오류 처리로 전달합니다. 이전 코드의 `Unknown notice labels`로 멈춘 작업은 수정본 반영 후 기존 기록을 보존해 재개합니다. 큐·모델·복구 기록을 지워 다시 설치하는 방식으로 반영하지 않습니다.
-
-## 게시할 코드와 파일을 준비하기
-
-1. 유지보수자와 게시 담당자는 프로젝트 폴더에서 현재 브랜치와 `git status --short`를 확인하고 게시할 변경 파일을 정합니다. 이미 있는 미커밋/미추적 파일과 main의 다른 변경을 보존합니다. 관련 없는 파일을 reset/clean으로 지우지 않습니다.
-2. 유지보수자는 변경한 기능의 Python/브라우저 검사를 실행합니다. [README](../README.md)의 `python3 -m unittest discover -s tests -v`, `npm test`, `python3 -m scripts.update_menu --validate-only`는 기본 명령입니다. 마지막 명령은 site/data의 메뉴/번역 형식과 원문 연결을 검사합니다.
-3. 게시 담당자는 프로젝트 폴더에서 아래 날짜 검사를 실행해 menu.json의 coverage.end가 Berlin 오늘보다 과거가 아닌지 확인합니다. 저장 파일 검사인 validate-only에는 이 판단이 없으므로 별도로 실행합니다.
-4. 유지보수자는 `npm run build -- --output .tmp/build-example`으로 새 출력 폴더를 만들고 로컬 웹서버가 이 폴더를 읽게 합니다. 이미 이 폴더가 있으면 프로그램이 기존 파일 보호를 위해 중단하므로 다른 이름을 사용합니다. 유지보수자는 일간/주간, 세 언어와 가격, 원문/열린 상세, 날짜 이동, 작은 화면과 하위 URL 경로를 확인합니다.
-5. GitHub에 반영하는 게시 담당자는 검토한 변경을 커밋하고 최신 main의 변경과 충돌을 해결합니다. 게시 대상은 검토 결과를 포함한 main의 정확한 커밋 SHA입니다. SHA는 Git에서 한 커밋을 식별하는 값이며 아래 워크플로는 40자리 형식을 요구합니다.
+운영 체크아웃과 분리된 개발 폴더에서 기존 변경을 확인하고 보존해 주세요. Python 3.12 이상과 Node.js 24로 다음 검사를 실행합니다. 의존성 잠금 파일이 바뀌었거나 새 환경일 때만 먼저 `npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org`를 실행합니다.
 
 ```sh
-python3 -c "from pathlib import Path; from scripts.update_menu import read_json, require_current_coverage; require_current_coverage(read_json(Path('site/data/menu.json')))"
+python3 -m unittest discover -s tests -v
+npm test
+python3 -m scripts.update_menu --validate-only --data-dir tests/fixtures/menu-data
+npm run build -- --drive-file-id FILE_ID --output .tmp/deploy-example
 ```
 
-생성한 출력 폴더에는 data/current.json이 선택한 같은 ID의 menu.json과 translations.json이 있어야 합니다. 현재 선택 파일이 ID A를 지정한다면 두 파일 모두 data/releases/A에서 읽어야 합니다. 게시 담당자는 작업 기록 queue.json·개별 번역 기록·모델·로그가 공개 출력에 들어가지 않는지 확인합니다.
+`FILE_ID`는 해당 설치의 공개 `current.json` 파일 ID로 바꿉니다. 출력 경로는 아직 없는 폴더여야 합니다. Drive 빌드는 UI 자산과 HTML 메타 설정만 만들며 JSON을 포함하지 않습니다. 네트워크 없이 화면을 확인하려면 별도 출력에 `--data-dir tests/fixtures/menu-data`를 사용합니다. 두 데이터 옵션은 동시에 지정할 수 없습니다.
 
-## GitHub Pages에 게시하기
+일간/주간·세 언어·가격·독일어 원문·열린 상세·날짜 이동·작은 화면을 확인합니다. 고정 예제의 형식 검사는 현재 식단의 최신성 검사가 아닙니다. 실제 Drive 묶음의 수집 시각·날짜 범위는 활성화 단계에서 별도로 확인합니다.
 
-GitHub 게시 작업 정의는 [update-and-deploy.yml](../.github/workflows/update-and-deploy.yml)입니다. 게시 담당자는 main에서 수동 workflow_dispatch를 실행하고 필수 입력 snapshot_sha에 게시할 main 커밋 SHA를 지정합니다. 이 파일에는 push/주간 자동 실행 일정이 없습니다.
+## GitHub Pages에 화면 코드 게시하기
 
-GitHub 작업은 입력 SHA가 40자리이고 origin/main의 이력에 포함되는지 확인한 뒤 그 커밋의 파일을 읽습니다. 작업은 잠금 파일의 컴파일러 설치, Python/브라우저 검사, 저장 메뉴/번역 검사와 현재 날짜 검사, 사이트 생성을 차례로 실행하고 `.tmp/pages` 폴더를 Pages에 게시합니다. 같은 mensa-pages 실행 그룹은 진행 중인 작업을 취소하지 않도록 설정되어 있습니다.
+저장소의 Actions 변수 `MENSA_DRIVE_FILE_ID`에 공개 `current.json`의 파일 ID를 넣습니다. 저장소 Settings → Secrets and variables → Actions → Variables에서 관리합니다. 값은 브라우저에 공개되는 식별자이며 OAuth token이나 client secret을 넣는 자리가 아닙니다. 설치를 처음 연결하거나 파일 ID를 바꿀 때만 설정합니다. 매일 식단을 올릴 때 이 변수나 저장소를 변경하지 않습니다.
 
-일별 갱신 Python 프로그램도 이 GitHub 작업을 요청합니다. 프로그램은 작업 기록 폴더의 queue.json에 데이터 commit_sha, 요청 시각 dispatch_requested_at, 실행 번호 run_id를 저장합니다. 게시 담당자는 수동 코드 게시 전에 이미 진행 중인 식단 게시가 있는지 확인해 두 게시가 경합하지 않게 해 주세요. 응답을 잃거나 게시가 실패했을 때 프로그램은 같은 커밋/실행 번호를 먼저 조회하며 실패한 실행은 같은 번호로 다시 요청합니다.
+[`ci.yml`](../.github/workflows/ci.yml)은 코드 PR·main push·수동 요청에서 Python/브라우저 검사, 고정 예제 검증과 JSON 없는 화면 빌드를 실행합니다. [`update-and-deploy.yml`](../.github/workflows/update-and-deploy.yml)은 main push 또는 main의 수동 `workflow_dispatch`에서 UI를 빌드해 Pages에 배포합니다. `snapshot_sha` 입력과 데이터 커밋은 필요하지 않습니다. 수동 요청은 다음과 같습니다.
 
-게시 담당자는 요청한 SHA의 GitHub 작업이 성공했는지 확인하고 [공개 식단](https://garlicvread.github.io/2026_KIST_EU_accelerating_MENSA_menu_lookup/)에서 파일 로딩·식단 날짜·일간/주간·번역·가격·상세 표시를 확인합니다. 확인 대상은 이용자가 쓰는 이 주소입니다.
+```sh
+gh workflow run update-and-deploy.yml --ref main --repo garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup
+```
 
-## 사이트 폴더에 직접 게시하기
+배포 작업은 Python 3.12·Node.js 24·잠금 파일의 컴파일러를 사용하고 검사 후 `MENSA_DRIVE_FILE_ID`로 빌드합니다. `.tmp/pages`를 기존 GitHub Pages 주소에 배포하며 `mensa-pages` 그룹의 진행 중인 배포를 취소하지 않습니다. 실패하면 해당 코드 실행을 확인하여 수정·재실행합니다. Drive 워커 큐에서 Pages 실행 번호를 찾거나 일일 게시를 다시 요청하지 않습니다.
 
-파일 직접 게시 방식을 사용하는 운영자는 전체 출력 폴더를 별도 서버 폴더에 준비하고 웹서버가 읽을 수 있는지 먼저 확인합니다. 운영자가 실제 제공 폴더를 바꿀 때 TOML의 public_dir과 Linux 자동 실행 파일의 쓰기 허용 경로도 맞춥니다. 예제의 웹사이트 폴더는 /srv/www/mensa이며 Python 프로그램이 쓰는 범위는 그 안의 data와 비공개 작업 기록 /var/lib/mensa/private입니다.
+성공한 실행의 코드 SHA와 공개 주소를 확인합니다. 브라우저 Network에서 `drive.usercontent.google.com`의 JSON 요청이 한 번 발생하고, 현재 Drive 묶음의 날짜·번역·가격이 표시되는지 확인해 주세요.
 
-Linux 자동 실행 파일 deploy/mensa-refresh.service는 Python 프로그램을 User=mensa로 실행합니다. 운영자는 이 OS 계정이 기존 data 파일까지 읽고 쓸 수 있고 정적 웹서버 계정은 공개 파일을 읽을 수 있게 권한을 준비합니다. 사이트 전체의 HTML/CSS/JavaScript 교체는 운영자가 하고, 이후 일별 메뉴 JSON 갱신은 Python 프로그램이 합니다.
+## 기존 Mac을 Drive 방식으로 전환하기
 
-새 Linux 서버에 deploy의 service/timer를 처음 설치할 때는 실제 계정·경로·Python·Ollama·모델·권한과 실행 조건에 맞춰 예제를 조정합니다. 이미 설치된 서비스의 정기 갱신에는 설치 작업을 반복하지 않습니다. GitHub 방식을 선택하면 프로그램이 전용 main 코드 폴더를 써야 하므로 읽기 전용 코드 폴더를 가정한 directory용 Linux 파일을 그대로 사용하지 않습니다.
+현재 설치의 코드·모델·큐·로그와 기존 LaunchAgent를 보존하며 진행합니다. 기존 데이터에는 지난 공개 날짜와 검증된 가격·번역이 있으므로 새 코드에서 추적 JSON을 제거하기 전에 별도 보존본을 준비합니다. 사용자 폴더 `saarbruecken_mensa_data_storage`의 폴더 ID는 이름을 바꿔도 같습니다. 폴더·파일 공유 설정은 이번 전환에서 변경하지 않습니다.
 
-## 실패를 조사하고 이전 사이트로 되돌리기
+1. 분리된 개발 체크아웃에서 코드 검사를 완료하고, 현재 큐에 진행 중인 작업이 없는지 기존 워커의 `--status`로 확인합니다. Git 게시 단계나 게시 번호가 남아 있으면 기존 작업을 먼저 확인합니다. 전환 명령은 활성 대기 작업을 버리지 않습니다.
+2. [중지 절차](operations.md#실패-확인과-재시도)로 자동 실행과 수동 작업을 멈춥니다. 같은 `worker.lock`을 확보하여 기존 큐·결과·저널·모델 설정과 메뉴/번역의 일관된 비공개 백업을 만듭니다. 기존 소스의 `site/data` 쌍을 이용한다면 코드 fast-forward 전에 보존합니다. 잠금을 풀고 다른 작성자가 시작되지 않게 유지합니다.
+3. 검증한 새 코드가 있는 폴더에서 아래 전환 명령을 실행합니다. 이 명령은 같은 큐 잠금을 직접 확보하며 검증된 쌍을 로컬 준비 폴더와 Drive에 보존하고 `BASE/worker.toml`을 작성합니다. 외부에서 잠금을 잡은 채 명령을 중첩 실행하지 않습니다.
+4. 반환된 `config_path`, `file_id`, `release_id`, `data_dir`를 기록합니다. 익명 HTTP 성공·실제 JSON·CORS를 확인하고, 지난30일·오늘·원본의 미래 날짜와 필요한 번역만 공개됐는지 검사합니다. 원본 가격·교정 번역과 워커용 재사용 캐시는 보존돼야 합니다. 설정 생성만으로 공개 읽기를 확인했다고 판단하지 않습니다. main 반영 전에 `MENSA_DRIVE_FILE_ID`를 반환된 파일 ID로 설정합니다.
+5. 다시 같은 `worker.lock`을 확보하여 운영 `~/mensa`의 브랜치·origin·기존 변경을 확인하고 검토한 main으로 fast-forward합니다. 다른 변경은 보존하며 reset/clean/force push로 해결하지 않습니다. `BASE/checkout`의 코드 연결과 모델·큐 위치를 유지합니다.
+6. main 코드의 Pages 배포를 완료하고 공개 화면이 Drive를 읽는지 확인한 뒤 기존 LaunchAgent를 재개합니다. LaunchAgent의 `--base` 호출은 그대로이므로 재설치하지 않습니다.
+7. 재개한 워커의 완료 수집 시각과 Drive 릴리스·수집 시각을 대조합니다. 실제 갱신 전후의 Git HEAD와 추적 파일이 바뀌지 않고, 데이터용 커밋·PR·Actions·Pages 배포가 생기지 않았는지 확인한 뒤 전환 완료를 기록합니다.
 
-게시 담당자는 현재 공개된 전체 사이트와 같은 ID의 메뉴/번역을 보존합니다. 작업 기록을 수정하거나 백업하기 전에는 자동 실행과 현재 Python 작업을 멈추고 worker.lock의 파일 잠금을 사용합니다. 운영 문서에는 Linux/Mac 중지 명령과 잠금 아래의 request_retry 예제가 있습니다.
+```sh
+python3 -m scripts.configure_drive \
+  --base "$HOME/Library/Application Support/Mensa" \
+  --checkout "$HOME/mensa" \
+  --data-dir "$HOME/Library/Application Support/Mensa Data" \
+  --remote gdrive: \
+  --folder-id FOLDER_ID \
+  --source-data OLD_PAIR_DIR
+```
 
-운영자는 실제 작업 기록 폴더의 queue.json·last-result.json을 백업해 주세요. `--config` 실행을 사용하는 운영자는 translation-checkpoint.json과 실제 TOML도 함께 보존해 주세요. GitHub 게시 방식을 사용하는 운영자는 복구용 snapshot-journal.json도 보존해 주세요. Mac 기본 `--base` 실행은 TOML이나 translation-checkpoint.json을 사용하지 않으므로, 운영자는 이 파일이 없다는 이유로 복구 실패라고 판단하지 마세요. GitHub 운영자는 같은 커밋/실행 번호의 성공 여부를 조사한 뒤 원인을 고칩니다. 파일이나 게시 번호를 지우면 프로그램이 이미 수행한 게시를 잊을 수 있으므로 운영자는 queue.json/번역 기록/복구 기록 삭제나 force push로 해결하지 않습니다.
+`FOLDER_ID`는 실제 폴더 ID, `OLD_PAIR_DIR`는 보존한 `menu.json`·`translations.json` 폴더로 바꿉니다. 이미 검증된 Drive 묶음에서 인계받으면 `--source-data`를 생략합니다. 명령은 기존 유효한 원격 파일을 함부로 덮어쓰거나 중복 `current.json`을 선택하지 않습니다. 전환 명령의 상세 조건은 [운영 문서](operations.md#최초-데이터-이관과-설정-준비)를 참고해 주세요.
 
-Git 변경을 복구하는 SnapshotRepository(`mensa/git_repository.py`)는 워커가 두 데이터 JSON을 기록해 만든 커밋인지 snapshot-journal.json의 부모 커밋·Git 트리·데이터 파일 내용으로 확인합니다. 이 커밋을 소유 커밋이라고 부르며 커밋 메시지만으로 판단하지 않습니다. 게시 준비 중 원격 main이 앞서가면 SnapshotRepository의 plan_replacement/resume_replacement는 두 이력을 구별합니다. 원격 main 이력에 워커의 기존 커밋이 이미 들어 있으면 로컬 main을 원격 main 위치까지 앞으로 이동합니다(fast-forward). 기존 커밋이 main 이력에 남아 있으므로 이 경우에는 refs/mensa/superseded/<SHA>를 만들지 않습니다. 원격 main이 기존 커밋을 포함하지 않고 두 이력이 갈라졌다면, 클래스는 워커가 만든 커밋인지와 기록된 출발 커밋이 원격 main에 남아 있는지를 확인한 뒤 기존 커밋을 refs/mensa/superseded/<SHA>에 보존합니다. 프로그램은 최신 main에서 식단을 다시 수집하고 새 게시용 데이터 커밋을 준비합니다. 이 새 커밋을 대체 커밋이라고 부릅니다. 사람이 만든 변경과 알 수 없는 커밋은 보존하며 운영자가 검토합니다.
+생성 설정의 `[retention]`과 모델의 실제 digest를 확인합니다. 전환 후 `scripts.retention --config PATH`로 정리 후보·보호 사유를 보고 승인한 보관 정책을 적용합니다. 전환 백업은 기록한 소유권과 검증 완료일에 따라 관리하며, 미완료 전환의 입력을 먼저 삭제하지 않습니다. 공개본과 워커 캐시의 분리는 방문자 기기에 캐시 파일을 만드는 기능이 아닙니다.
 
-이전 화면으로 되돌릴 때 게시 담당자는 검증된 전체 HTML/CSS/JavaScript와 같은 ID의 메뉴/번역을 함께 제공합니다. 작업 기록도 되돌릴 필요가 있다면 현재 게시 커밋/실행 번호와 백업의 갱신 날짜/게시 번호/복구 기록을 먼저 대조합니다. 운영자는 알 수 없는 변경과 대체 커밋의 충돌을 보존하고 검토해야 합니다.
+## 평소 실행 코드 반영과 장애 복구
 
-게시 담당자는 마지막으로 정확한 코드 SHA, 현재 선택한 data/current.json과 식단 날짜, 실제 게시 성공과 공개 화면, 일별 갱신 프로그램의 대기/완료 기록이 서로 맞는지 확인합니다. 모델 준비와 Linux 자동 실행 확인은 해당 컴퓨터에서 실제 수행한 항목을 기준으로 판단합니다.
+운영 코드·검토 번역 사전을 바꿀 때는 자동 실행을 멈추고 같은 잠금 안에서 검토한 커밋을 운영 체크아웃에 fast-forward한 뒤 재개합니다. 코드만 바꾸면서 큐·체크포인트·Drive 파일 ID를 초기화하지 않습니다. 화면 코드를 바꾼 경우에는 위 Pages 배포도 확인합니다.
+
+화면 롤백은 Drive envelope를 지원하는 검증한 코드·Drive 메타 설정을 단위로 진행합니다. 식단 복구는 로컬 보존 릴리스의 메뉴·번역을 같은 쌍으로 읽고 현재 날짜·원문·가격·번역 조건을 검증한 뒤 같은 Drive 파일에 게시합니다. 오래된 묶음을 최신 식단인 것처럼 올리거나 메뉴와 번역을 서로 다른 릴리스에서 가져오지 않습니다. 복구 작업도 자동 실행 중지와 같은 큐 잠금 아래에서 수행해 주세요.
+
+업로드 결과가 불명확하면 원격 파일과 `drive-publication.json`이 가리키는 로컬 릴리스를 확인합니다. 같은 준비본을 재사용하는 정상 재시도를 우선하며 큐·저널·번역 기록을 삭제하지 않습니다. 이전 Git 게시 기록은 역사 자료로 보존하고, 기존 명시적 Git 설치를 조사할 때만 해당 코드를 확인합니다. Drive 운영에서 Git 커밋 복구나 Pages 재배포로 일일 업로드 실패를 해결하지 않습니다.
