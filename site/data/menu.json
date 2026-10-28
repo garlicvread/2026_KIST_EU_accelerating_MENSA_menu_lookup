@@ -2,8 +2,8 @@
   "schema_version": 1,
   "source": {
     "url": "https://www.stw-saarland.de/gastro/mensa-saarbruecken/",
-    "fetched_at": "2026-10-28T08:04:16Z",
-    "sha256": "2192e6ad354c657a3f071271f1ce56e2677742e91570de7519c5003f4bd97da9"
+    "fetched_at": "2026-10-28T09:00:15Z",
+    "sha256": "b4a230096f95a22214d8e4139e7afa506f0e0c22747ce01fba21eceb86bb6bb3"
   },
   "coverage": {
     "start": "2026-09-30",
@@ -6680,23 +6680,12 @@
       "date": "2026-10-28",
       "meals": [
         {
-          "id": "2026-10-28-3d500570b137de6a93453f0ee7193fc1b9a0e1b5dc883867bb042b49fbd58a43",
-          "translation_key": "503e12f29205b49e619b9f91e34350761928f6f91f6fbdd8165ce0c26f7c6c88",
+          "id": "2026-10-28-d9d0bf1bff31b46f04257829bab48e64de5e40f398604a0924d9ab71df73c379",
+          "translation_key": "c0a231ed6b0dc1973bea0658787edc4186a4bcc7f8f0a29a90cfc1ea66877adc",
           "category": "Menü 1",
           "location": "Aufgang A",
-          "name_de": "Hähnchengyros mit Balkangemüse",
+          "name_de": "Hähnchengyros mit Balkangemüse und Knoblauchsoße",
           "components": [
-            {
-              "name_de": "Knoblauchsoße",
-              "notices": [
-                "Süßungsmittel",
-                "Knoblauch",
-                "Ei",
-                "Milch und Laktose",
-                "Senf",
-                "Weizen"
-              ]
-            },
             {
               "name_de": "Pommes Frites",
               "notices": [
@@ -6719,7 +6708,11 @@
             "aus zum Teil fein zerkleinertem Fleisch",
             "Milch und Laktose",
             "Sellerie",
-            "Senf"
+            "Senf",
+            "Süßungsmittel",
+            "Knoblauch",
+            "Ei",
+            "Weizen"
           ],
           "prices": {
             "student": 365,
@@ -6730,21 +6723,17 @@
           "price_source": {
             "date": "2026-10-28",
             "category": "Menü 1",
-            "name": "Hähnchengyros mit Balkangemüse",
+            "name": "Hähnchengyros mit Balkangemüse und Knoblauchsoße",
             "raw": "S: 3,65 | M: 6,70 | G: 9,35"
           }
         },
         {
-          "id": "2026-10-28-4191a77e3ea1fcc08dd7aebc88a72d338736ffa6b35e38b85de50efc9d741198",
-          "translation_key": "35a3eb523cf216a6528472410072ad3556f4ee3791f7a38a20b76161ff1c6e5d",
+          "id": "2026-10-28-fd670e84b738804fb62832e0d9ceffb2ffa3489a5d484bf1f15bd9848ebc6c55",
+          "translation_key": "04f33988565442d883f11626918a04cbadcd9dc575788a5f22d052dcd1222338",
           "category": "Menü 2",
           "location": "Aufgang B",
-          "name_de": "KlimaTeller: Vegetarischer Schales",
+          "name_de": "KlimaTeller: Vegetarischer Schales mit Apfelmus",
           "components": [
-            {
-              "name_de": "Apfelmus",
-              "notices": []
-            },
             {
               "name_de": "Bunt gemischter Blattsalat",
               "notices": []
@@ -6786,7 +6775,7 @@
           "price_source": {
             "date": "2026-10-28",
             "category": "Menü 2",
-            "name": "KlimaTeller: Vegetarischer Schales",
+            "name": "KlimaTeller: Vegetarischer Schales mit Apfelmus",
             "raw": "S: 3,10 | M: 5,60 | G: 7,80"
           }
         },
@@ -6820,18 +6809,52 @@
           }
         },
         {
-          "id": "2026-10-28-85690e90a983d9fb1bccb3601a47a8852453f9f00225bcd18c7d0b16744a5eb6",
-          "translation_key": "dacb2075c64f62618c5c886dd76db3a6c91f2c0827ef4b241d07f5eae4d83576",
+          "id": "2026-10-28-b15fd46a362449e1c7ff103b6fc1566896e0a0de0cccd17ac899b0667f91db4b",
+          "translation_key": "58b35b7ca999d4906723022cf2d587d976c8cd14da82be9a1a75d5a8a6c9a5a7",
           "category": "Wahlessen",
           "location": "Aufgang C",
-          "name_de": "KlimaTeller: Vegane Hackrolle mit Tomaten-Füllung",
+          "name_de": "Tagesessen: Asiatisches Hühnchen oder Brew-Bites Frikassee mit Reis",
           "components": [
             {
-              "name_de": "Vegan: Rahmsoße",
-              "notices": [
-                "Soja"
-              ]
-            },
+              "name_de": "Solange der Vorrat reicht!",
+              "notices": []
+            }
+          ],
+          "notices": [
+            "Konservierungsstoff",
+            "Geschmacksverstärker",
+            "Geflügel",
+            "Knoblauch",
+            "Krebstiere, Krusten- und Schalentiere",
+            "Fisch",
+            "Soja",
+            "Sellerie",
+            "Sesamsamen",
+            "Weizen",
+            "Antioxidationsmittel",
+            "Milch und Laktose",
+            "Gerste"
+          ],
+          "prices": {
+            "student": 230,
+            "staff": 330,
+            "guest": 400
+          },
+          "price_status": "verified",
+          "price_source": {
+            "date": "2026-10-28",
+            "category": "Wahlessen",
+            "name": "Tagesessen: Asiatisches Hühnchen oder Brew-Bites Frikassee mit Reis",
+            "raw": "S: 2,30 | M: 3,30 | G: 4,00"
+          }
+        },
+        {
+          "id": "2026-10-28-9fb8e470da920a9bb1839c1c31ce8c76e68fc7a2740f43d40588f9c61c3bd690",
+          "translation_key": "0586ab48553e1f25d3fb16322f19ae5bb6a13c7483b6c5b87eefbae9657bd5bf",
+          "category": "Wahlessen",
+          "location": "Aufgang C",
+          "name_de": "KlimaTeller: Vegane Hackrolle mit Tomaten-Füllung und veganer Rahmsoße",
+          "components": [
             {
               "name_de": "Petersilienkartoffel (aus biologischem Anbau)",
               "notices": []
@@ -6840,7 +6863,8 @@
           "notices": [
             "Senf",
             "Weizen",
-            "Hafer"
+            "Hafer",
+            "Soja"
           ],
           "prices": {
             "student": 515,
@@ -6851,13 +6875,13 @@
           "price_source": {
             "date": "2026-10-28",
             "category": "Wahlessen",
-            "name": "KlimaTeller: Vegane Hackrolle mit Tomaten-Füllung",
+            "name": "KlimaTeller: Vegane Hackrolle mit Tomaten-Füllung und veganer Rahmsoße",
             "raw": "S: 5,15 | M: 6,30 | G: 7,00"
           }
         },
         {
           "id": "2026-10-28-dc54c80dce10236d342d5b73d95f4c9ef5daf3528dc1d8db73d3b8d4e3e8f517",
-          "translation_key": "d462036047b80f4b9e6b361642b31c28f87cec74545a050e07aec05f691750a1",
+          "translation_key": "3bd675b140042c8c6180188e645165347696012b1be84248b5297905233d1041",
           "category": "Wahlessen",
           "location": "Aufgang C",
           "name_de": "Salatbuffet",
@@ -6867,7 +6891,7 @@
               "notices": []
             },
             {
-              "name_de": "Weisskraut",
+              "name_de": "Weißkraut",
               "notices": []
             },
             {
@@ -6911,6 +6935,21 @@
               "notices": [
                 "Senf"
               ]
+            },
+            {
+              "name_de": "Schnittlauch-Senfdressing",
+              "notices": [
+                "Farbstoff",
+                "Süßungsmittel",
+                "Ei",
+                "Milch und Laktose",
+                "Senf",
+                "Weizen"
+              ]
+            },
+            {
+              "name_de": "Kräuter und Hülsenfrüchte",
+              "notices": []
             }
           ],
           "notices": [],
