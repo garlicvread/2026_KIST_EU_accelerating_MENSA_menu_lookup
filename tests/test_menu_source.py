@@ -67,6 +67,41 @@ class MenuSourceTests(unittest.TestCase):
         html = page(meal(prices="")).replace("<body>", f"<body><aside>{PRICES}</aside>")
         self.assertIsNone(self.first(self.parse(html))["prices"])
 
+    def test_component_option_prices_do_not_block_other_meal_prices(self):
+        option = "oder Nusscremefüllung\nS: 2,50 € B: 2,50 € G: 3,10 €"
+        crepe_prices = "<p><strong>Preise:</strong> S: 2,20 | M: 2,20 | G: 2,80</p>"
+        brew_prices = "<p><strong>Preise:</strong> S: 3,90 | M: 5,05 | G: 5,75</p>"
+        crepe = meal(name="Crêpes mit Zimt und Zucker", category="Mensacafé", prices=crepe_prices)
+        crepe = crepe.replace("Reis</div>", option + "</div>", 1)
+        brew = meal(name="Grünes Thai-Curry mit Brew Bites", category="Mensacafé", prices=brew_prices)
+        records = self.parse(page(crepe + brew, category="Mensacafé"))["days"][0]["meals"]
+        self.assertEqual(records[0]["components"][0]["name_de"], " ".join(option.split()))
+        self.assertEqual(records[0]["prices"], {"student": 220, "staff": 220, "guest": 280})
+        self.assertEqual(records[1]["prices"], {"student": 390, "staff": 505, "guest": 575})
+        self.assertEqual(records[1]["price_source"]["name"], "Grünes Thai-Curry mit Brew Bites")
+
+    def test_component_price_group_text_stays_text_when_meal_has_no_price(self):
+        option = "Wahlweise S: 2,50 | M: 2,50 | G: 3,10"
+        html = page(meal(prices="").replace("Reis</div>", option + "</div>", 1))
+        record = self.first(self.parse(html))
+        self.assertEqual(record["components"][0]["name_de"], option)
+        self.assertIsNone(record["prices"])
+        self.assertEqual(record["price_status"], "source_pending")
+
+    def test_formatted_price_text_in_component_is_not_a_meal_price_block(self):
+        option = "Alternative <strong>Preise:</strong> S: 2,50 | M: 2,50 | G: 3,10"
+        for price in (PRICES, ""):
+            with self.subTest(price=price):
+                html = page(meal(prices=price).replace("Reis</div>", option + "</div>", 1))
+                record = self.first(self.parse(html))
+                self.assertEqual(record["components"][0]["name_de"], "Alternative Preise: S: 2,50 | M: 2,50 | G: 3,10")
+                self.assertEqual(record["prices"], {"student": 350, "staff": 465, "guest": 535} if price else None)
+
+    def test_unextracted_price_groups_outside_components_are_still_rejected(self):
+        html = page(meal().replace(PRICES, PRICES + "<div>S: 9,00 | M: 9,00 | G: 9,00</div>"))
+        with self.assertRaisesRegex(ValueError, "Source inventory mismatch"):
+            self.parse(html)
+
     def test_single_trailing_price_applies_to_every_dish_in_counter(self):
         records = self.parse(page(meal(name="Käsespätzle", prices="") +
                                   meal(name="Vegan: Rote Bete Puffer", prices="") +
