@@ -197,6 +197,49 @@ class DriveRefreshTests(unittest.TestCase):
             self.assertEqual(f.run()['status'], 'completed')
             self.assertEqual(f.remote_pair[1]['entries'][key]['ko']['name'], '공개본에서 교정한 요리')
 
+    def test_source_refresh_keeps_reviewed_title_component_and_notice_while_filling_gaps(self):
+        from scripts.menu_source import parse_menu
+        from test_menu_source import meal, page
+        def menu(names, day, generated_at):
+            html = ''.join(meal(name=name, date=day).replace(
+                "<div class='component-name'>Reis</div>",
+                "<div class='component-name'>Peperoni</div>") for name in names)
+            return parse_menu(page(html, date=day), generated_at)
+        with directory_fixture.DirectoryRefreshTests().fixture() as f:
+            f.menu = menu(('Wikingertopf',), '21.09.2026', f.now.isoformat())
+            self.setup_drive(f)
+            published = f.cache(f.menu)
+            key = f.menu['days'][0]['meals'][0]['translation_key']
+            reviewed = published['entries'][key]
+            reviewed['origin'] = 'reviewed-draft'
+            reviewed['en']['name'] = 'Publicly reviewed stew title'
+            reviewed['ko']['name'] = '공개본에서 검토한 스튜 이름'
+            reviewed['en']['components'][0] = 'Publicly reviewed pepper wording'
+            reviewed['ko']['components'][0] = '공개본에서 검토한 고추 표현'
+            reviewed = copy.deepcopy(reviewed)
+            corrected_notice = {'en': 'Publicly reviewed wheat notice', 'ko': '공개본에서 검토한 밀 표시'}
+            published['notices']['Weizen'] = copy.deepcopy(corrected_notice)
+            published['notices'].pop('Sellerie')
+            f.remote_pair = (copy.deepcopy(f.menu), published)
+            f.write(f.checkout/'data/editorial-translations.json', {'phrases': {
+                text: {'en': 'Fixture authored translation', 'ko': '테스트 편집 번역'}
+                for text in ('New fixture meal', 'Peperoni', 'Soße & Gemüse')}})
+            f.now += timedelta(days=1)
+            f.menu = menu(('Wikingertopf', 'New fixture meal'), '22.09.2026', f.now.isoformat())
+            result = JobRunner(f.state, resources=lambda: self.fail('Source defaults need no model'), work=f.job).run(f.now)
+            self.assertEqual(result['status'], 'completed')
+            self.assertEqual(result['translations']['status'], 'idle')
+            self.assertEqual((f.source_calls, f.translation_calls), (1, 0))
+            actual = f.remote_pair[1]
+            with self.subTest(correction='reviewed title and component'):
+                self.assertEqual(actual['entries'][key], reviewed)
+            with self.subTest(correction='reviewed notice'):
+                self.assertEqual(actual['notices']['Weizen'], corrected_notice)
+            self.assertEqual(actual['notices']['Sellerie'], f.glossary['Sellerie'])
+            missing_key = f.menu['days'][0]['meals'][1]['translation_key']
+            self.assertIn(missing_key, actual['entries'])
+            self.assertEqual(actual['entries'][missing_key]['origin'], 'editorial-draft')
+
     def test_retry_reprepares_when_published_drive_changes_after_lost_response(self):
         with directory_fixture.DirectoryRefreshTests().fixture() as f:
             self.setup_drive(f)
