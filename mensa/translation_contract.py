@@ -205,15 +205,20 @@ def recover_cache(cache):
             or cache['schema_version'] != 1 or not isinstance(cache.get('entries'), dict)
             or ('notices' in cache and not isinstance(cache['notices'], dict))):
         raise ValueError('Unsupported translation cache')
-    recovered = copy.deepcopy(cache)
+    recovered = {name: copy.deepcopy(value) for name, value in cache.items()
+                 if name not in ('entries', 'notices')}
     for kind in ('entries', 'notices'):
-        for key, value in list(recovered.get(kind, {}).items()):
+        if kind not in cache:
+            continue
+        recovered[kind] = {}
+        for key, value in cache[kind].items():
             candidate = {'schema_version': 1, 'entries': {}}
             candidate[kind] = {key: value}
             try:
                 validate_cache(candidate)
                 json.dumps(candidate, ensure_ascii=False, allow_nan=False).encode('utf-8')
+                recovered[kind][key] = copy.deepcopy(value)
             except (ValueError, TypeError, KeyError, IndexError, AttributeError,
                     OverflowError, RecursionError, UnicodeError):
-                del recovered[kind][key]
+                continue
     return recovered

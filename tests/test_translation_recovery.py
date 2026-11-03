@@ -173,3 +173,13 @@ class TranslationRecoveryTests(unittest.TestCase):
                     config={'model': 'fixture'}, generate=generate)
                 self.assertEqual(cache['notices'], {})
                 self.assertEqual(len(cache['entries']), 2)
+
+    def test_deeply_malformed_history_is_discarded_before_copying_healthy_siblings(self):
+        nested = []
+        for _ in range(600):
+            nested = [nested]
+        self.cache['entries']['bad-history'] = nested
+        cache = json.loads(json.dumps(self.cache))
+        repaired = self.build(cache)
+        self.assertNotIn('bad-history', repaired['entries'])
+        self.assertEqual(len(repaired['entries']), 2)

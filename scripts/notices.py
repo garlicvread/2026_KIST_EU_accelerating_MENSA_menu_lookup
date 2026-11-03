@@ -42,5 +42,3 @@ def translated_notices(menu, *, glossary=None):
     if glossary is None:
         glossary = load_glossary()
     return translate_notice_labels(labels, glossary)
-
-
