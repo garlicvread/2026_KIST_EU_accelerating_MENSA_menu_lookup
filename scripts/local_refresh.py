@@ -1,7 +1,7 @@
 """큐에 저장된 식단 갱신 작업 하나를 수집·번역·공개하는 명령 진입점입니다.
 
---base 경로는 worker.toml의 Drive 설정과 기존 macOS 모델을 사용하고, --config 경로는
-명시한 TOML의 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 디렉터리 준비, 큐 잠금,
+--base 경로는 해당 디렉터리의 worker.toml을 읽고, --config 경로는 명시한 TOML을 읽습니다.
+두 실행은 같은 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 디렉터리 준비, 큐 잠금,
 완료·실패·재시도 기록과 last-result.json 저장을 담당합니다. 이 모듈의 작업 객체는
 수집과 공개 진행을 수행하며, 재개에 필요한 큐 체크포인트를 잠금 안에서 저장합니다.
 """
@@ -20,6 +20,7 @@ import time
 import urllib.request
 
 from mensa.jobs import JobRunner, record_result
+from mensa.errors import GenerationError
 from mensa.git_repository import SnapshotRepository
 from mensa.github_publication import GitHubPublication
 from mensa.directory_refresh import DirectoryRefreshJob
@@ -27,15 +28,16 @@ from mensa.drive_refresh import DriveRefreshJob
 from mensa.config import load_worker_config
 from mensa.generation import request_translation
 from mensa.model_runtime import model_session
-from mensa.ollama_revision import installed_ollama_revision
 from mensa.resources import resource_status as configured_resource_status
 from mensa.translation_runtime import resume_configured_translations
+from mensa.translation_work import load_translation_state, retry_translations
+from mensa.queue import BusyError
 from mensa.model_runtime import stop_model
 from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
 from scripts.notices import load_glossary
-from mensa.notice_contract import source_notices
+from mensa.notice_contract import source_notices, validate_notice_translations
 from mensa.translation_contract import validate_result, validate_cache
 from scripts.translations import build_translations, reusable_translation
 from scripts.update_menu import read_json, require_current_coverage, write_snapshot, summarize
@@ -301,13 +303,28 @@ class RefreshJob:
                 with model_session(self.inference) as config:
                     for label in sorted(source_notices(menu) - candidate.get('notices', {}).keys()):
                         source = {'kind': 'notice', 'name_de': label, 'components': []}
-                        result = request_translation(source, config)
-                        validate_result(result, source)
-                        candidate.setdefault('notices', {})[label] = {
-                            language: result[language]['name'] for language in ('en', 'ko')}
+                        try:
+                            result = request_translation(source, config)
+                        except GenerationError as error:
+                            if error.code in {'invalid_json', 'invalid_envelope', 'incomplete_generation',
+                                              'invalid_result', 'response_too_large'}:
+                                continue
+                            raise
+                        try:
+                            validate_result(result, source)
+                            translated = {language: result[language]['name'] for language in ('en', 'ko')}
+                            validate_notice_translations({label: translated})
+                        except ValueError:
+                            continue
+                        candidate.setdefault('notices', {})[label] = translated
                         validate_cache(candidate)
                         if checkpoint is not None:
                             checkpoint(copy.deepcopy(candidate))
+                    # 안내별 실패는 같은 실행에서 다시 요청하지 않습니다.
+                    for day in remaining['days']:
+                        for meal in day['meals']:
+                            for record in (meal, *meal.get('components', [])):
+                                record['notices'] = []
                     candidate = build_translations(remaining, candidate, phrases, config, checkpoint=checkpoint)
         return candidate
 
@@ -551,20 +568,23 @@ class ConfiguredRefreshJob(RefreshJob):
 def main(argv=None):
     """명령 인자를 해석하여 상태를 출력하거나 큐 작업 하나를 실행하고 결과를 출력합니다.
 
-    --status는 설정·기존 큐·마지막 결과만 읽으며 상태 디렉터리나 큐 파일을 만들지
-    않습니다. 일반 실행은 --base 또는 TOML 설정에 맞는 자원 검사와 공개 작업을
+    --status는 설정·기존 큐·번역 상태·마지막 결과만 읽으며 파일을 만들지 않습니다.
+    --retry-translations는 같은 잠금 아래 번역 대기만 해제합니다.
+    일반 실행은 --base 또는 TOML 설정에 맞는 자원 검사와 공개 작업을
     JobRunner에 연결합니다. failed·blocked 결과에는 종료 코드 1을 사용합니다.
     """
     parser = argparse.ArgumentParser(description=__doc__)
     location = parser.add_mutually_exclusive_group(required=True)
     location.add_argument('--base', type=Path)
     location.add_argument('--config', type=Path)
-    parser.add_argument('--status', action='store_true')
+    operation = parser.add_mutually_exclusive_group()
+    operation.add_argument('--status', action='store_true')
+    operation.add_argument('--retry-translations', action='store_true')
     args = parser.parse_args(argv)
     config_path = args.config if args.config is not None else args.base / 'worker.toml'
-    # --status는 최초 설정 전에도 큐를 읽을 수 있습니다. 실행은 설정이 없을 때
+    # 상태 조회·명시적 번역 재시도는 모델 설정 없이도 비공개 상태만 사용합니다. 실행은 설정이 없을 때
     # 과거 Git 게시기로 되돌아가지 않고 명시적인 Drive 구성을 요구합니다.
-    if args.base is not None and args.status and not config_path.exists():
+    if args.base is not None and (args.status or args.retry_translations) and not config_path.exists():
         config = None
     else:
         if args.base is not None and not config_path.is_file():
@@ -576,8 +596,17 @@ def main(argv=None):
             last_result = json.loads((directory / 'last-result.json').read_text())
         except FileNotFoundError:
             last_result = None
-        print(json.dumps({'queue': load_state(directory / 'queue.json'), 'last_result': last_result},
+        print(json.dumps({'queue': load_state(directory / 'queue.json'), 'last_result': last_result,
+                          'translation_work': load_translation_state(directory / 'translation-work.json')},
                          ensure_ascii=False, indent=2))
+        return
+    if args.retry_translations:
+        try:
+            state = retry_translations(directory)
+            result = {'status': 'retry_requested', 'translation_work': state}
+        except BusyError:
+            result = {'status': 'busy', 'reason': 'Another refresh worker holds the queue lock'}
+        print(json.dumps(result, ensure_ascii=False))
         return
     if args.base is not None and config.publication.mode == 'github':
         raise ValueError('--base requires Drive or directory publication; use an explicit --config only for legacy Git recovery')
@@ -594,32 +623,8 @@ def main(argv=None):
                 runtime=lambda settings, *, key: model_session(settings, key=key),
             )
         elif config.publication.mode == 'drive':
-            ports = {}
-            if args.base is not None:
-                base = args.base.expanduser().resolve()
-                native = (config.resources.platform == 'macos'
-                          and config.resources.min_available_bytes == 32 * 1024 ** 3
-                          and config.resources.max_load_per_cpu == 0.6
-                          and config.paths.state_dir == base
-                          and config.paths.checkout_dir == (base / 'checkout').resolve()
-                          and config.inference.mode == 'managed'
-                          and config.inference.provider == 'ollama'
-                          and config.inference.model == MODEL
-                          and config.inference.binary == (base / 'runtime/ollama').resolve()
-                          and config.inference.models_dir == (base / 'models').resolve()
-                          and config.inference.log_dir == (base / 'logs').resolve())
-                if native:
-                    try:
-                        native = config.inference.revision == installed_ollama_revision(
-                            config.inference.models_dir, config.inference.model)
-                    except ValueError:
-                        native = False
-                if native:
-                    # 기존 Mac의 검증된 번역 캐시·모델 실행은 유지하고 Git 게시 메서드는 호출하지 않습니다.
-                    resources = resource_status
-                    ports['translation_builder'] = RefreshJob(base, inference=config.inference).translate
             work = DriveRefreshJob(config, source=lambda: parse_menu(fetch_html()),
-                                   clock=lambda: datetime.now(timezone.utc), **ports)
+                                   clock=lambda: datetime.now(timezone.utc))
         else:
             work = ConfiguredRefreshJob(config)
         result = process_queue(directory, datetime.now(timezone.utc), resources, work)

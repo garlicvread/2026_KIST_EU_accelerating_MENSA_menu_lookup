@@ -6,7 +6,7 @@ from pathlib import Path
 import stat
 import tempfile
 
-from mensa.translation_contract import validate_cache
+from mensa.translation_contract import validate_cache, recover_cache
 
 
 def _reject_constant(value):
@@ -59,7 +59,7 @@ class TranslationCheckpointStore:
             return None
         raw = self._path.read_bytes()
         try:
-            cache = json.loads(raw.decode("utf-8"), parse_constant=_reject_constant)
+            cache = recover_cache(json.loads(raw.decode("utf-8"), parse_constant=_reject_constant))
             # load는 JSON 디코더가 표현할 수 있어도 UTF-8 작성기가 저장할 수 없는 숫자 오버플로와
             # 이스케이프된 잘못된 유니코드를 _serialize로 검사하여 거부합니다.
             self._serialize(cache)

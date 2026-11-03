@@ -67,8 +67,8 @@ def model_config(env=None):
 def build_translations(menu, previous, phrases, config, translate=None, *, checkpoint=None):
     """메뉴·이전 캐시·편집 문구·모델 설정을 받아 검증된 번역 캐시 사전을 반환합니다.
 
-    TranslationService는 편집 문구, 재사용할 수 있는 캐시, 새 모델 번역을 순서대로
-    선택합니다. config가 None이면 모델을 호출하지 않으므로 반환 캐시에 모든 요리의
+    TranslationService는 재사용할 수 있는 캐시를 보존하고 빠진 항목에 편집 문구나
+    새 모델 번역을 적용합니다. config가 None이면 모델을 호출하지 않으므로 모든 요리의
     번역이 채워졌다고 가정하지 마십시오. 공개 가능 여부는 공개 단계에서 검사합니다.
 
     기본 용어집은 파일에서 읽고, 새 모델 번역에는 전달된 translate 또는 HTTP 요청

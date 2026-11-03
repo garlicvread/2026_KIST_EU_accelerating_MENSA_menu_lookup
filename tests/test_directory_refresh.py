@@ -117,8 +117,8 @@ mode="directory"
             selections = []
             def publish(publisher, menu, cache, **kwargs):
                 self.assertFalse(f.active, 'Runtime must close before actual publisher entry')
-                self.assertEqual(f.closed, 1)
-                self.assertEqual(json.loads((f.state/'translation-checkpoint.json').read_text()), cache)
+                self.assertEqual(f.closed, len(selections))
+                self.assertEqual(json.loads((f.state/'translation-state.json').read_text())['cache'], cache)
                 selections.append(actual_publish(publisher, menu, cache, **kwargs))
                 return selections[-1]
             job = f.job()
@@ -137,25 +137,27 @@ mode="directory"
             self.assertEqual({path.name for path in f.public.rglob('*') if path.is_file()}, {'menu.json', 'translations.json', 'current.json'})
             self.assertNotIn('fixture-secret', ''.join(path.read_text() for path in f.public.rglob('*') if path.is_file()))
             self.assertEqual(JobRunner(f.state, resources=lambda: self.fail('Idle resources'), work=job).run(f.now)['status'], 'idle')
-            self.assertEqual(len(selections), 1)
+            self.assertEqual(len(selections), 2)
 
     def test_partial_history_retry_uses_latest_published_review_and_only_generates_missing_b(self):
         with self.fixture() as f:
             old_menu = f.menu_for(('Old dish',))
             old_id = f.publisher.publish(old_menu, f.cache(old_menu), today='2026-09-21')
             f.fail_name = 'Suppe B'
-            self.assertEqual(f.run()['status'], 'failed')
-            private = json.loads((f.state/'translation-checkpoint.json').read_text())
+            result = f.run()
+            self.assertEqual(result['status'], 'completed')
+            self.assertEqual(result['translations']['status'], 'failed')
+            private = json.loads((f.state/'translation-state.json').read_text())['cache']
             records = f.menu['days'][0]['meals']; A, B = (record['translation_key'] for record in records)
             self.assertIn(A, private['entries']); self.assertNotIn(B, private['entries'])
-            self.assertEqual(f.publisher.load_current()[0], old_menu)
-            reviewed_menu = f.menu_for(('Suppe A',)); reviewed = f.cache(reviewed_menu)
+            self.assertEqual(f.publisher.load_current()[0], f.menu)
+            reviewed_menu = copy.deepcopy(f.menu); reviewed = f.cache(f.menu_for(('Suppe A',)))
             reviewed['entries'][A]['en']['name'] = 'Newest reviewed A'
             reviewed['entries'][A]['ko']['name'] = '최신 검토 A'
             reviewed_id = f.publisher.publish(reviewed_menu, reviewed, today='2026-09-21')
-            f.now = datetime.fromisoformat(load_state(f.queue)['pending']['next_attempt_at']) + timedelta(seconds=1)
+            f.now = datetime.fromisoformat(json.loads((f.state/'translation-work.json').read_text())['next_attempt_at']) + timedelta(seconds=1)
             f.fail_name = None
-            self.assertEqual(f.run()['status'], 'completed')
+            self.assertEqual(f.run()['status'], 'idle')
             _, final = f.publisher.load_current()
             self.assertEqual(final['entries'][A], reviewed['entries'][A])
             self.assertEqual(final['entries'][B]['en']['name'], 'Generated Suppe B')
@@ -165,7 +167,7 @@ mode="directory"
                 self.assertTrue((f.public/'data/releases'/release_id/'menu.json').is_file())
             self.assertEqual((f.opened, f.closed, f.active), (2, 2, False))
 
-    def test_expired_source_generation_and_selection_failures_retain_previous_release(self):
+    def test_expired_source_and_selection_keep_previous_but_generation_keeps_fresh_source(self):
         for boundary in ('expired', 'generation', 'selection'):
             with self.subTest(boundary=boundary), self.fixture() as f:
                 old = f.menu_for(('Old dish',)); f.publisher.publish(old, f.cache(old), today='2026-09-21')
@@ -176,21 +178,26 @@ mode="directory"
                     with patch.object(DirectoryPublisher, '_select', side_effect=OSError('Fixture selection interrupted')):
                         result = f.run()
                 else: result = f.run()
-                self.assertEqual(result['status'], 'failed')
-                self.assertEqual(pointer.read_bytes(), before)
-                self.assertEqual(f.publisher.load_current()[0], old)
+                self.assertEqual(result['status'], 'completed' if boundary == 'generation' else 'failed')
+                if boundary == 'generation':
+                    self.assertEqual(result['translations']['status'], 'failed')
+                    self.assertEqual(f.publisher.load_current()[0], f.menu)
+                else:
+                    self.assertEqual(pointer.read_bytes(), before)
+                    self.assertEqual(f.publisher.load_current()[0], old)
                 pending = load_state(f.queue)['pending']
-                self.assertEqual((pending['phase'], pending['commit_sha'], pending['run_id'], pending['dispatch_requested_at']), ('collect', None, None, None))
+                if boundary != 'generation':
+                    self.assertEqual((pending['phase'], pending['commit_sha'], pending['run_id'], pending['dispatch_requested_at']), ('collect', None, None, None))
                 self.assertFalse(f.active)
                 if boundary == 'expired':
                     self.assertIn('past menus', result['reason'])
                     self.assertEqual((f.opened, f.requests), (0, []))
-                    self.assertFalse((f.state/'translation-checkpoint.json').exists())
+                    self.assertFalse((f.state/'translation-state.json').exists())
                 else:
-                    self.assertTrue((f.state/'translation-checkpoint.json').is_file())
-                    self.assertEqual((f.opened, f.closed), (1, 1))
+                    self.assertTrue((f.state/'translation-state.json').is_file())
+                    self.assertEqual((f.opened, f.closed), (1, 1) if boundary == 'generation' else (0, 0))
 
-    def test_completion_write_gap_retries_same_release_from_private_history(self):
+    def test_completion_write_gap_retries_source_before_starting_translation(self):
         import mensa.jobs as jobs
         with self.fixture() as f:
             old = f.menu_for(('Old dish',)); old_id = f.publisher.publish(old, f.cache(old), today='2026-09-21')
@@ -203,9 +210,9 @@ mode="directory"
             pointer = f.public/'data/current.json'; selected = json.loads(pointer.read_text())['release_id']
             self.assertEqual(load_state(f.queue)['pending']['phase'], 'collect')
             self.assertEqual(f.publisher.load_current()[0], f.menu)
-            self.assertEqual(len(f.requests), 2)
+            self.assertEqual(len(f.requests), 0)
             self.assertEqual(f.run()['status'], 'completed')
-            self.assertEqual(json.loads(pointer.read_text())['release_id'], selected)
+            self.assertNotEqual(json.loads(pointer.read_text())['release_id'], selected)
             self.assertEqual((f.source_calls, len(f.requests), f.opened, f.closed), (2, 2, 1, 1))
             self.assertIsNone(load_state(f.queue)['pending'])
             self.assertTrue((f.public/'data/releases'/old_id/'translations.json').is_file())
@@ -232,3 +239,54 @@ mode="directory"
                     self.assertEqual((result['status'], result['period']), ('completed', '2026-09-28T11:00'))
                     self.assertEqual(load_state(f.queue)['completed_period'], '2026-09-28T11:00')
                     self.assertEqual(f.publisher.load_current()[0], f.menu)
+
+
+class IndependentTranslationLaneTests(unittest.TestCase):
+    fixture = DirectoryRefreshTests.fixture
+
+    def test_legacy_bad_generated_response_is_adopted_for_automatic_retry(self):
+        from mensa.errors import GenerationError
+        from mensa.queue import failed
+        with self.fixture() as f:
+            f.state.mkdir(mode=0o700)
+            state = failed(reconcile({'schema_version': 1, 'completed_period': None, 'pending': None}, NOW),
+                           GenerationError('invalid_json'), NOW)
+            save_state(f.queue, state)
+            result = f.run()
+            self.assertEqual(result['status'], 'completed')
+            self.assertEqual(result['translations']['status'], 'completed')
+            self.assertEqual(f.opened, 1)
+            state = json.loads((f.state/'translation-work.json').read_text())
+            self.assertEqual(state['attempts'], 1)
+    def test_model_deferral_publishes_source_then_idle_tick_translates_without_source(self):
+        with self.fixture() as f:
+            job = f.job()
+            first = JobRunner(f.state, resources=lambda: (False, 'model busy'), work=job).run(f.now)
+            self.assertEqual(first['status'], 'completed')
+            self.assertEqual(first['translations']['status'], 'deferred')
+            self.assertEqual(f.publisher.load_current()[0], f.menu)
+            self.assertEqual(f.publisher.load_current()[1]['entries'], {})
+            self.assertEqual((f.source_calls, f.opened), (1, 0))
+            second = JobRunner(f.state, resources=lambda: (True, 'ready'), work=job).run(f.now)
+            self.assertEqual(second['status'], 'idle')
+            self.assertEqual(second['translations']['status'], 'completed')
+            self.assertEqual((f.source_calls, f.opened), (1, 1))
+            self.assertEqual(len(f.publisher.load_current()[1]['entries']), 2)
+
+    def test_permanent_translation_failure_does_not_block_next_source_period(self):
+        from mensa.errors import GenerationError
+        with self.fixture() as f:
+            job = adapter.DirectoryRefreshJob(f.config, source=lambda: copy.deepcopy(f.menu),
+                clock=lambda: f.now, runtime=lambda *args, **kwargs: self.fail('runtime'),
+                translate=lambda *args: self.fail('generation'))
+            with patch('mensa.directory_refresh.resume_configured_translations',
+                       side_effect=GenerationError('authentication')):
+                first = JobRunner(f.state, resources=lambda: (True, 'ready'), work=job).run(f.now)
+            self.assertEqual(first['status'], 'completed')
+            self.assertEqual(first['translations']['status'], 'blocked')
+            f.now += timedelta(days=1)
+            f.menu = f.menu_for(day='22.09.2026')
+            second = JobRunner(f.state, resources=lambda: self.fail('blocked resources'), work=job).run(f.now)
+            self.assertEqual(second['status'], 'completed')
+            self.assertEqual(second['translations']['status'], 'blocked')
+            self.assertEqual(f.publisher.load_current()[0]['coverage']['end'], '2026-09-22')

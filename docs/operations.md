@@ -96,7 +96,7 @@ checkout/state/public 세 경로는 같거나 서로 포함할 수 없습니다.
 
 external에는 `url`만 추가하고 managed 전용 키를 섞지 않습니다. Ollama의 실제 요청은 loopback `/api/chat`을 사용하며 query를 허용하지 않습니다. OpenAI-compatible은 실제 요청 endpoint 전체를 지정합니다. 설정 기반 CLI에는 API key TOML 필드가 없으며 현재 빈 key를 전달하므로 인증이 필요한 endpoint는 별도의 검토된 연결이 필요합니다.
 
-모델 번역 재사용은 provider/model/revision과 번역 정책·주의 표시 대응표의 지문으로 판단합니다. 일시적인 URL·포트·API key는 설정 기반 재사용 정체성에 넣지 않습니다. revision은 운영자 선언이며 가중치 검증 결과는 아닙니다. 기존 Mac `--base`는 생성된 기본 설정의 코드·모델·로그 경로, model/revision, 자원 값이 모두 일치할 때만 네이티브 번역·캐시와 가용 메모리 32 GiB, 부하 `max(2, 0.6 × logical CPUs)`, 전원 정책을 재사용합니다. 설정을 바꿨으면 선언한 모델·자원 정책을 적용합니다. 다른 서버의 새 설치는 명시적인 `--config` 실행을 사용해 주세요.
+모델 번역 재사용은 provider/model/revision과 번역 정책·주의 표시 대응표의 지문으로 판단합니다. 일시적인 URL·포트·API key는 설정 기반 재사용 정체성에 넣지 않습니다. revision은 운영자 선언이며 가중치 검증 결과는 아닙니다. Drive의 `--base`와 `--config`는 같은 설정 기반 번역 실행기를 사용합니다. `--base`는 설정 파일을 BASE에서 찾는 편의 경로이며 특정 Mac 설정값과 일치해야 별도 번역 경로를 선택하는 조건은 없습니다. 모델·자원·전원 정책은 TOML 선언을 적용합니다. 생성 조건 기록이 없는 이전 모델 번역은 우선 표시하고 별도 번역 작업에서 현 설정으로 재생성할 수 있습니다. 운영체제별 자동 실행 등록과 자원 측정은 해당 호스트에 맞는 구현을 사용합니다.
 
 ## 명령별 옵션과 기본값
 
@@ -137,10 +137,13 @@ Drive 워커는 소스 체크아웃을 읽기만 합니다. 개발·검사는 �
 
 먼저 `--status`에서 `pending.period`, `phase`, `attempts`, `next_attempt_at`, `last_error`와 마지막 결과를 읽습니다. `completed_period`, 공개 `menu.source.fetched_at`, Drive의 릴리스 ID를 대조하여 워커 완료를 판단합니다. 웹사이트 반영 여부는 Pages의 `data/current.json` ID와 Drive ID 및 Actions 실행 결과로 별도 확인합니다. 웹사이트의 오래된 자료 안내는 워커·인증·잠자기 원인을 판별하는 감시 장치는 아닙니다.
 
+Drive·directory 모드에서는 수집과 번역이 같은 잠금 아래 별도 상태로 진행합니다. 수집은 모델 자원을 기다리지 않고 원본 메뉴·가격과 사용할 수 있는 번역을 게시합니다. 번역이 빠지거나 손상된 항목은 독일어로 표시합니다. `--status`의 `translation_work`와 마지막 결과의 `translations`에서 번역 상태를 확인합니다. `idle`·`completed`·`deferred`·`waiting`·`blocked`·`failed`는 번역 결과이며 성공한 수집을 실패로 바꾸지 않습니다. 상태 조회는 Drive·모델을 호출하지 않습니다.
+
 | 보존할 대상 | 의미 |
 | --- | --- |
 | `queue.json`, `last-result.json` | 완료/대기 수집 시각·시도·대기·오류와 최근 결과입니다. |
 | `translation-state.json` | 검증한 중간/재사용 번역과 마지막 사용일·보호 여부를 함께 저장합니다. 공개 파일이 아닙니다. |
+| `translation-work.json` | 번역 대상·준비 게시본 ID, 시도·재시도 시각·안전한 오류와 자동 재시도 중지 상태입니다. 수집 큐와 별도입니다. |
 | `translation-checkpoint.json` | 전환 전 중간 번역입니다. 새 번역 상태가 생기기 전 한 번만 읽고 이후 재병합하지 않습니다. |
 | `retention-releases.json` | 로컬 준비본과 원격 성공본을 구별하는 소유권·성공 기록입니다. |
 | `drive-publication.json` | 준비한 수집 시각·릴리스 ID·목적지와 이전 공개 릴리스 ID입니다. 업로드 결과가 불명확해도 같은 준비본으로 재개하는 입력입니다. |
@@ -157,40 +160,15 @@ Drive 워커는 소스 체크아웃을 읽기만 합니다. 개발·검사는 �
 launchctl bootout "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
 ```
 
-원인인 인증·통신·자원·모델·원문·번역 문제를 먼저 고칩니다. 미등록 주의 표시는 검토 사전·캐시 또는 모델로 번역하며 원문을 삭제해 오류를 숨기지 않습니다. 자동 재시도가 중지된 모델 실패만 `mensa.queue.request_retry`로 해제할 수 있습니다. 전용 CLI 옵션은 없습니다. 다음 예는 자동 실행과 같은 사용자로, 중지 후 실제 `state_dir`를 인자로 받아 기존 기록을 보존합니다.
+원인인 인증·통신·자원·모델·원문 문제를 먼저 고칩니다. 기존 개별 번역의 손상·원문 연결 오류는 캐시에서 제외하고 다시 생성합니다. 새로운 모델 응답이 JSON·필드·구성품 수를 지키지 않으면 해당 항목을 미완성으로 남겨 다음 항목으로 진행하고, 남은 번역은 대기 후 재시도합니다. 기존 번역 문장과 다르다는 이유로 실패시키지 않습니다. 미등록 주의 표시도 원문을 유지하며 번역합니다. 인증·설정 같은 자동 재시도 중지 원인을 고친 뒤에는 다음 명령으로 번역 대기만 해제합니다.
 
 ```sh
 cd "$HOME/mensa"
-python3 - "$HOME/Library/Application Support/Mensa" <<'PYTHON'
-from pathlib import Path
-import os
-import stat
-import sys
-from mensa.queue import exclusive_lock, load_state, request_retry, save_state
-
-state_dir = Path(sys.argv[1]).expanduser().absolute()
-mode = state_dir.lstat().st_mode
-if not stat.S_ISDIR(mode) or stat.S_IMODE(mode) & 0o077:
-    raise SystemExit('Existing private state directory required')
-for name in ('queue.json', 'worker.lock'):
-    path = state_dir / name
-    try:
-        mode = path.lstat().st_mode
-    except FileNotFoundError:
-        if name == 'worker.lock':
-            continue
-        raise
-    if not stat.S_ISREG(mode):
-        raise SystemExit('Queue and lock must be regular nonsymlink files')
-os.umask(0o077)
-with exclusive_lock(state_dir / 'worker.lock'):
-    state = load_state(state_dir / 'queue.json')
-    if state['pending'] is None:
-        raise SystemExit('No pending work to retry')
-    save_state(state_dir / 'queue.json', request_retry(state))
-    print('Retry requested; period, publication IDs and attempts retained')
-PYTHON
+python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --retry-translations
+python3 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
 ```
+
+`--config /path/to/worker.toml --retry-translations`도 지원합니다. 이 명령은 같은 `worker.lock` 아래 번역 대기와 오류만 해제하고 시도 이력·수집 큐·공개 자료는 보존합니다. 모델이나 수집을 즉시 실행하지 않으며 다음 정상 실행에서 작업합니다. 수집·업로드 실패의 대기는 이 명령으로 지우지 않습니다. 이전 Git 설치의 큐는 기존 `mensa.queue.request_retry` 경로를 사용합니다.
 
 상태에서 수집 시각·단계·시도와 준비 저널이 보존됐는지 확인한 뒤 기존 자동 실행을 재개합니다. Mac은 같은 사용자로 다음 명령을 사용하고 Linux는 기존 timer를 재개합니다.
 
@@ -205,7 +183,7 @@ launchctl kickstart "gui/$(id -u)/io.github.garlicvread.mensa-refresh"
 
 큐는 아직 수집하지 않은 지난 수집 시각만 최신 시각으로 합치고 이미 준비한 게시·서버 요청 대기는 보존합니다. 일반 실패의 대기는 15 → 30 → 60 → 120 → 240 → 360분이며 이후 360분 상한입니다. 모델의 network/timeout/HTTP 408·429·5xx 오류는 재시도하고 유효한 Retry-After와 기존 대기 중 큰 값을 사용합니다. 자동 재시도 불가 모델 실패는 날짜가 바뀌어도 운영자 해제 전까지 유지합니다.
 
-새 원본의 날짜는 최신 검증 값으로 교체하고 지난 날짜에는 아래 보관 한도를 적용합니다. 정상적인 메뉴 개수·중복 수 변화와 빈 식단은 허용하지만 원문 구조·날짜 연결·가격 출처·계속 존재하는 메뉴의 실제 가격 소실은 계속 검사합니다. 새 원본 자체를 먼저 검사하므로 보관 기간 적용으로 수집 누락을 숨기지 않습니다.
+새 원본의 날짜는 최신 검증 값으로 교체하고 지난 날짜에는 아래 보관 한도를 적용합니다. 정상적인 메뉴 개수·중복 수 변화와 빈 식단은 허용하며 원문 구조·날짜 연결·가격 출처·가격표 추출은 계속 검사합니다. 현재 원본에 실제로 가격이 없으면 `source_pending`으로 게시하고 이전 금액을 복사하지 않습니다. 새 원본 자체를 먼저 검사하므로 보관 기간 적용으로 수집 누락을 숨기지 않습니다.
 
 번역은 같은 원문·구성품 key에서 재사용하거나 교체하며 공개용 데이터와 워커용 재사용 캐시의 수명을 분리합니다. 과거 메뉴를 단순 순회·복사한 것만으로 미사용 항목의 마지막 사용일을 갱신하지 않습니다. 현재 메뉴·진행 작업·보호된 교정에 필요한 번역은 임의로 제거하지 않습니다.
 

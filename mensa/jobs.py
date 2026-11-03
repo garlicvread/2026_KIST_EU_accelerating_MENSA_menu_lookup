@@ -7,6 +7,8 @@ JobRunner는 상태 디렉터리의 유형·비공개 권한과 기존 상태 �
 """
 
 from datetime import datetime, timedelta
+import copy
+import inspect
 import json
 import os
 from pathlib import Path
@@ -49,6 +51,18 @@ class JobRunner:
         self._resources = resources
         self._work = work
         self._clock = clock
+        def declared(name, default):
+            try:
+                inspect.getattr_static(work, name)
+            except AttributeError:
+                return default
+            return getattr(work, name)
+        self._source_needs_model_resources = declared('source_needs_model_resources', True)
+        if type(self._source_needs_model_resources) is not bool:
+            raise TypeError('source_needs_model_resources must be boolean')
+        self._translation_work = declared('translation_work', None)
+        if self._translation_work is not None and not callable(self._translation_work):
+            raise TypeError('translation_work must be callable')
 
     def _prepare_state(self):
         directory = self._state_dir
@@ -65,7 +79,7 @@ class JobRunner:
             raise ValueError('State path must be a directory, not a symlink')
         if stat.S_IMODE(mode) & 0o077:
             raise ValueError('State directory must have private permissions')
-        for name in ('queue.json', 'worker.lock', 'last-result.json'):
+        for name in ('queue.json', 'worker.lock', 'last-result.json', 'translation-work.json'):
             try:
                 mode = (directory / name).lstat().st_mode
             except FileNotFoundError:
@@ -91,38 +105,62 @@ class JobRunner:
                         maintain(now)
                     except Exception as exc:
                         return finish({'status': 'failed', 'reason': str(exc)[:500]})
-                state = reconcile(load_state(path), now)
-                save_state(path, state)
+                state = load_state(path)
                 pending = state['pending']
-                if not pending:
-                    return finish({'status': 'idle', 'completed_period': state['completed_period']})
-                failure = pending.get('generation_failure')
-                if failure is not None and not failure['retryable']:
-                    return finish({'status': 'blocked', 'reason': str(GenerationError(failure['code'])),
-                                   'failure_code': failure['code'], 'retryable': False, 'period': pending['period']})
-                retry = pending['next_attempt_at']
-                if retry and datetime.fromisoformat(retry) > now:
-                    return finish({'status': 'waiting', 'retry_at': retry})
-                ready, reason = self._resources()
-                if not ready:
-                    return finish({'status': 'deferred', 'reason': reason, 'period': pending['period']})
-                try:
-                    self._work(state)
-                except Exception as exc:
-                    # 공개 작업이 실패 전에 큐 체크포인트를 갱신했을 수 있으므로 JobRunner가 저장된 큐 상태를 다시 읽습니다.
-                    failed_at = now + timedelta(seconds=clock() - started)
-                    typed = isinstance(exc, GenerationError)
-                    state = failed(load_state(path), exc if typed else str(exc)[:500], failed_at)
-                    save_state(path, state)
-                    result = {'status': 'failed', 'reason': str(exc)[:500], 'period': state['pending']['period']}
-                    if typed:
-                        failure = state['pending']['generation_failure']
-                        result.update(status='failed' if failure['retryable'] else 'blocked',
-                                      reason=state['pending']['last_error'], failure_code=failure['code'],
-                                      retryable=failure['retryable'])
-                    return finish(result)
-                state = completed(load_state(path))
+                if (not self._source_needs_model_resources and pending is not None
+                        and pending['phase'] == 'collect' and 'generation_failure' in pending):
+                    adopt = getattr(self._work, 'adopt_translation_failure', None)
+                    if not callable(adopt):
+                        raise ValueError('Source-only work must preserve legacy translation failure')
+                    adopt(copy.deepcopy(pending), now)
+                    pending.pop('generation_failure')
+                    pending.update(next_attempt_at=None, last_error=None)
+                state = reconcile(state, now)
                 save_state(path, state)
-                return finish({'status': 'completed', 'period': state['completed_period']})
+                result = self._collect(path, state, now, lambda: now + timedelta(seconds=clock() - started))
+                # 상태·유지보수 검사를 통과한 경로에서만 수집 뒤의 번역 작업을 실행합니다.
+                if self._translation_work is not None:
+                    try:
+                        result['translations'] = self._translation_work(
+                            now + timedelta(seconds=clock() - started), resources=self._resources,
+                            source_state=load_state(path))
+                    except GenerationError as error:
+                        result['translations'] = {'status': 'failed' if error.retryable else 'blocked',
+                                                  'failure_code': error.code, 'reason': str(error)}
+                    except Exception:
+                        result['translations'] = {'status': 'failed', 'reason': 'Translation work could not run'}
+                return finish(result)
         except BusyError:
             return {'status': 'busy', 'reason': 'Another refresh worker holds the queue lock'}
+
+    def _collect(self, path, state, now, failed_at):
+        pending = state['pending']
+        if not pending:
+            return {'status': 'idle', 'completed_period': state['completed_period']}
+        failure = pending.get('generation_failure')
+        if failure is not None and not failure['retryable']:
+            return {'status': 'blocked', 'reason': str(GenerationError(failure['code'])),
+                    'failure_code': failure['code'], 'retryable': False, 'period': pending['period']}
+        retry = pending['next_attempt_at']
+        if retry and datetime.fromisoformat(retry) > now:
+            return {'status': 'waiting', 'retry_at': retry}
+        if self._source_needs_model_resources:
+            ready, reason = self._resources()
+            if not ready:
+                return {'status': 'deferred', 'reason': reason, 'period': pending['period']}
+        try:
+            self._work(state)
+        except Exception as error:
+            typed = isinstance(error, GenerationError)
+            state = failed(load_state(path), error if typed else str(error)[:500], failed_at())
+            save_state(path, state)
+            result = {'status': 'failed', 'reason': str(error)[:500], 'period': state['pending']['period']}
+            if typed:
+                failure = state['pending']['generation_failure']
+                result.update(status='failed' if failure['retryable'] else 'blocked',
+                              reason=state['pending']['last_error'], failure_code=failure['code'],
+                              retryable=failure['retryable'])
+            return result
+        state = completed(load_state(path))
+        save_state(path, state)
+        return {'status': 'completed', 'period': state['completed_period']}

@@ -28,6 +28,9 @@ FETCH_TIMEOUT = 20
 FETCH_ATTEMPTS = 3
 MAX_SOURCE_BYTES = 5_000_000
 VOID_TAGS = frozenset("area base br col embed hr img input link meta param source track wbr".split())
+BLOCK_TEXT_TAGS = frozenset("address article aside blockquote dd div dl dt fieldset figcaption figure "
+                            "footer form h1 h2 h3 h4 h5 h6 header hr li main nav ol p pre section "
+                            "table tbody td tfoot th thead tr ul".split())
 TRACKED_CLASSES = frozenset(("meal", "open-feedback", "counter", "component-item",
                              "component-name", "component-notices", "meal-notices", "notices"))
 PRICE_MARKER = re.compile(r"\bPreise\s*:", re.IGNORECASE)
@@ -130,6 +133,7 @@ class _RawInventory(HTMLParser):
     구조 클래스와 메타데이터는 문서 전체에서 세고, 가격 표시는 판매대 또는 메뉴 요소
     안에서만 셉니다. 구성품 이름 안의 가격 문구는 설명으로 보존하므로 가격 표시·그룹
     집계에서 제외합니다. 구성품 밖의 잘못 옮긴 가격표는 계속 발견합니다.
+    인라인 태그로 나뉜 문구는 합치고 문단·블록·구성품 경계에서는 끊어서 셉니다.
     추출 루프가 읽지 못한 요소도 집계하여 종류별 누락을 드러냅니다.
     텍스트 전체의 일치나 모든 종류의 HTML 변경을 판별하는 검사는 아닙니다.
     """
@@ -138,10 +142,19 @@ class _RawInventory(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.counts = Counter()
         self.stack = []
+        self.price_text = []
+
+    def _flush_prices(self):
+        data = "".join(self.price_text)
+        self.counts["price-markers"] += len(PRICE_MARKER.findall(data))
+        self.counts["price-groups"] += len(GROUP_MARKER.findall(data))
+        self.price_text.clear()
 
     def handle_starttag(self, tag, attrs):
         attrs = {key: value if value is not None else "" for key, value in attrs}
         classes = set(attrs.get("class", "").split())
+        if tag in BLOCK_TEXT_TAGS or "component-name" in classes:
+            self._flush_prices()
         self.counts.update(classes & TRACKED_CLASSES)
         if any(key in attrs for key in ("data-date", "data-counter", "data-meal")):
             self.counts["metadata"] += 1
@@ -156,6 +169,8 @@ class _RawInventory(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_endtag(self, tag):
+        if tag in BLOCK_TEXT_TAGS:
+            self._flush_prices()
         for index in range(len(self.stack) - 1, -1, -1):
             if self.stack[index][0] == tag:
                 del self.stack[index:]
@@ -163,8 +178,13 @@ class _RawInventory(HTMLParser):
 
     def handle_data(self, data):
         if self.stack and self.stack[-1][1] and not self.stack[-1][2]:
-            self.counts["price-markers"] += len(PRICE_MARKER.findall(data))
-            self.counts["price-groups"] += len(GROUP_MARKER.findall(data))
+            self.price_text.append(data)
+        else:
+            self._flush_prices()
+
+    def close(self):
+        super().close()
+        self._flush_prices()
 
 
 def _nearest(node, predicate):
@@ -197,7 +217,7 @@ def parse_menu(html, fetched_at=None):
     fetched_at으로 수집 시간을 전달할 수 있으며, 값이 없으면 현재 UTC 시간을 기록합니다.
     반환값에는 원본 문자열의 SHA256과 추출 날짜 범위가 포함됩니다. Information 항목은
     구조 검사에 포함하지만 식사 목록에서 제외합니다. 파일이나 네트워크에 접근하지 않으며,
-    빈 날짜·판매대는 빈 식단으로 반환하며, 이전 날짜·가격 연결 검사는 호출자가
+    빈 날짜·판매대는 빈 식단으로 반환하며, 이전 날짜 연결 검사는 호출자가
     validate_menu에 previous를 전달하여 수행합니다.
     """
     _require(isinstance(html, str) and html.strip(), "Empty HTML source")
@@ -304,7 +324,7 @@ def _parse_menu(html, fetched_at):
                     consume(notice)
                     notices.extend(_notices(notice))
 
-                price_nodes = [node for node in source_meal.all() if node.tag == "strong"
+                price_nodes = [node for node in source_meal.all() if node.tag == "p"
                                and "component-name" not in node.classes
                                and _nearest(node, lambda n: "component-name" in n.classes) is None
                                and PRICE_MARKER.search(_text(node.text()))]
@@ -314,14 +334,13 @@ def _parse_menu(html, fetched_at):
                 # 가격 표시가 없으면 미확인 상태를 보존합니다. 표시가 있으면 S/M/G 전체를
                 # _prices가 검증하므로 일부 금액만 채우거나 누락 가격을 추측하지 않습니다.
                 if price_nodes:
-                    label = price_nodes[0]
-                    block = label.parent
-                    _require(_text(label.text()).lower() == "preise:" and block.tag == "p" and block.closed,
-                             "Malformed price marker")
+                    block = price_nodes[0]
+                    _require(block.closed, "Unclosed price paragraph")
                     _require(_nearest(block, lambda n: "meal" in n.classes) is source_meal, "Orphan price block")
                     block_text = _text(block.text())
-                    _require(block_text.lower().startswith("preise:"), "Price marker is not block prefix")
-                    raw = block_text[len("Preise:"):].strip()
+                    marker = PRICE_MARKER.match(block_text)
+                    _require(marker is not None, "Price marker is not block prefix")
+                    raw = block_text[marker.end():].strip()
                     prices = _prices(raw)
                     extracted_counts["price-markers"] += 1
                     extracted_counts["price-groups"] += 3

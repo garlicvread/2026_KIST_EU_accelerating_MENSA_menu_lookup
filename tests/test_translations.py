@@ -92,7 +92,7 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(len(calls), 1)
         self.assertEqual(old, before)
 
-    def test_unknown_notice_model_error_propagates_and_keeps_inputs_unchanged(self):
+    def test_notice_connection_failure_propagates_but_invalid_response_is_omitted(self):
         old = build_translations(self.menu, {}, self.phrases, None)
         label = "Kann Spuren von Krebstieren enthalten"
         self.meal["components"][0]["notices"] = [label]
@@ -102,8 +102,12 @@ class TranslationTests(unittest.TestCase):
         for failure in (GenerationError("timeout"), {"en": {"name": "Unknown", "components": []}}):
             with self.subTest(failure=failure):
                 generate = unittest.mock.Mock(side_effect=failure) if isinstance(failure, Exception) else unittest.mock.Mock(return_value=failure)
-                with self.assertRaises(ValueError):
-                    build_translations(self.menu, old, {}, {"model": "fixture"}, translate=generate)
+                if isinstance(failure, Exception):
+                    with self.assertRaises(ValueError):
+                        build_translations(self.menu, old, {}, {"model": "fixture"}, translate=generate)
+                else:
+                    cache = build_translations(self.menu, old, {}, {"model": "fixture"}, translate=generate)
+                    self.assertNotIn(label, cache['notices'])
                 self.assertEqual(self.menu, before)
                 self.assertEqual(old, old_before)
 
@@ -161,13 +165,14 @@ class TranslationTests(unittest.TestCase):
         self.assertEqual(reused["entries"], cache["entries"])
         self.assertIn("generation_identity", reused["entries"][self.meal["translation_key"]])
 
-    def test_invalid_model_response_rejects_entire_candidate(self):
+    def test_invalid_model_response_leaves_source_fallback_and_preserves_healthy_cache(self):
         before = build_translations(self.menu, {}, self.phrases, None)
         untouched = copy.deepcopy(before)
         changed = sample_meal(name="New dish")
         with provider('{"en":{"name":"Dish","components":[]}}') as (config, _):
-            with self.assertRaises(ValueError):
-                build_translations({"days": [{"meals": [changed]}]}, before, {}, config)
+            cache = build_translations({"days": [{"meals": [changed]}]}, before, {}, config)
+        self.assertNotIn(changed['translation_key'], cache['entries'])
+        self.assertEqual(cache['entries'], before['entries'])
         self.assertEqual(before, untouched)
 
 
@@ -235,7 +240,7 @@ class GenerationIdentityTests(unittest.TestCase):
                 entry = cache["entries"][self.meal["translation_key"]]
                 self.assertEqual(entry["en"], self.generated["en"])
                 self.assertEqual(entry["ko"], self.generated["ko"])
-                self.assertEqual(cache["notices"], {"Weizen": glossary["Weizen"]})
+                self.assertEqual(cache["notices"], previous["notices"])
                 self.assertNotEqual(entry["generation_identity"]["glossary"], previous["entries"][self.meal["translation_key"]]["generation_identity"]["glossary"])
         self.assertEqual((previous, config, self.glossary), before)
 
@@ -257,13 +262,13 @@ class GenerationIdentityTests(unittest.TestCase):
         self.assertEqual(previous, before)
 
 
-    def test_malformed_cached_identity_is_rejected_without_input_mutation(self):
+    def test_malformed_cached_identity_is_regenerated_without_input_mutation(self):
         previous = self.legacy()
         previous["entries"][self.meal["translation_key"]]["generation_identity"] = {
             "schema_version": 1, "policy": "a" * 64, "glossary": "b" * 64}
         before = copy.deepcopy(previous)
-        with self.assertRaises(ValueError):
-            self.build(previous, self.config, self.generated)
+        repaired = self.build(previous, self.config, self.generated)
+        self.assertEqual(repaired['entries'][self.meal['translation_key']]['en'], self.generated['en'])
         self.assertEqual(previous, before)
 
 
@@ -284,7 +289,7 @@ class TranslationCheckpointTests(unittest.TestCase):
                                       translate=translate, **kwargs)
 
 
-    def test_invalid_schema_or_semantic_rejection_does_not_checkpoint_rejected_entry(self):
+    def test_invalid_schema_is_omitted_but_a_different_valid_title_is_checkpointed(self):
         invalid_schema = copy.deepcopy(self.result)
         invalid_schema["ko"]["components"] = []
         invalid_policy = copy.deepcopy(self.result)
@@ -296,12 +301,12 @@ class TranslationCheckpointTests(unittest.TestCase):
                 def generate(source, config):
                     return copy.deepcopy(self.result if source == source_for(self.a) else rejected)
 
-                with self.assertRaises(ValueError):
-                    self.build(self.menu, {}, {}, self.config, generate,
-                               checkpoint=snapshots.append)
-                self.assertEqual(len(snapshots), 1)
-                validate_cache(snapshots[0])
+                cache = self.build(self.menu, {}, {}, self.config, generate,
+                                   checkpoint=snapshots.append)
+                self.assertEqual(len(snapshots), 1 if rejected is invalid_schema else 2)
+                validate_cache(cache)
                 self.assertEqual(set(snapshots[0]["entries"]), {self.a["translation_key"]})
+                self.assertEqual(self.b['translation_key'] in cache['entries'], rejected is invalid_policy)
 
 
 class SemanticNamePolicyTests(unittest.TestCase):
@@ -316,7 +321,7 @@ class SemanticNamePolicyTests(unittest.TestCase):
             "ko": {"name": ko_name, "components": ["기존 곁들임"] * len(meal["components"])},
             "origin": origin, "model": "original-generator", "prompt_version": "menu-v3"}}}
 
-    def test_cached_reviewed_dishes_migrate_without_model_or_component_changes(self):
+    def test_cached_wording_is_not_rewritten_by_literal_name_defaults(self):
         for source_name, old_en, old_ko, new_en, new_ko in (
             ("Wikingertopf", "Wikingertopf (stew)", "Wikingertopf (스튜)", "Meatball stew", "고기완자 스튜"),
             ("Köttbullar", "Köttbullar (Swedish meatballs)", "Köttbullar (스웨덴식 미트볼)",
@@ -340,14 +345,12 @@ class SemanticNamePolicyTests(unittest.TestCase):
                 cache = build_translations(menu, previous, {}, None,
                                            translate=lambda *args: self.fail("Migration must not call a model"))
                 expected = copy.deepcopy(previous["entries"][meal["translation_key"]])
-                expected["en"]["name"], expected["ko"]["name"] = new_en, new_ko
-                expected["name_policy_version"] = "semantic-names-v1"
                 self.assertEqual(cache["entries"][meal["translation_key"]], expected)
                 self.assertEqual(menu, original_menu)
                 self.assertEqual(previous, original_cache)
                 validate_cache(cache)
 
-    def test_reviewed_component_migrates_cached_source_without_retranslating_other_foods(self):
+    def test_cached_components_are_not_rewritten_by_literal_component_defaults(self):
         meal = sample_meal("Salatbuffet", sides=("Gurken", "Peperoni", "Pepperoni-Salami"))
         meal["components"][1]["notices"] = ["Senf"]
         menu = {"days": [{"meals": [meal]}]}
@@ -359,9 +362,6 @@ class SemanticNamePolicyTests(unittest.TestCase):
         cache = build_translations(menu, previous, {}, None,
                                    translate=lambda *args: self.fail("Review must not run inference"))
         expected = copy.deepcopy(entry)
-        expected["en"]["components"][1] = "Chili peppers"
-        expected["ko"]["components"][1] = "고추"
-        expected["component_policy_version"] = "semantic-components-v1"
         self.assertEqual(cache["entries"][meal["translation_key"]], expected)
         self.assertEqual(menu, original_menu)
         self.assertEqual(previous, original_cache)
@@ -369,18 +369,18 @@ class SemanticNamePolicyTests(unittest.TestCase):
         validate_cache(cache)
 
 
-    def test_cached_brand_chains_are_removed_while_food_and_dietary_terms_survive(self):
+    def test_reviewed_cached_title_is_preserved_without_reapplying_authoring_defaults(self):
         meal = sample_meal("KlimaTeller: Vegan: Curry")
         previous = self.legacy_cache(meal, "  MeNsAvItAl: KlimaTeller: Vegan curry",
                                      "KLIMATELLER: mensavital: 비건 커리", origin="reviewed-draft")
         cache = build_translations({"days": [{"meals": [meal]}]}, previous, {}, None)
         entry = cache["entries"][meal["translation_key"]]
-        self.assertEqual(entry["en"]["name"], "Vegan curry")
-        self.assertEqual(entry["ko"]["name"], "비건 커리")
+        self.assertEqual(entry["en"], previous['entries'][meal['translation_key']]['en'])
+        self.assertEqual(entry["ko"], previous['entries'][meal['translation_key']]['ko'])
         self.assertEqual(entry["source"], source_for(meal))
         self.assertEqual(entry["origin"], "reviewed-draft")
         self.assertEqual(entry["prompt_version"], "menu-v3")
-        self.assertEqual(entry["name_policy_version"], "semantic-names-v1")
+        self.assertNotIn('name_policy_version', entry)
 
 
     def test_configured_editorial_correction_replaces_migrated_v3_components_and_applies_policies(self):
@@ -438,13 +438,12 @@ class SemanticNamePolicyTests(unittest.TestCase):
     def test_unreviewed_source_variants_do_not_lose_dietary_or_food_identity(self):
         meal = sample_meal("Vegan Wikingertopf")
         previous = self.legacy_cache(meal, "Vegan Wikingertopf stew", "비건 Wikingertopf 스튜")
-        with self.assertRaisesRegex(ValueError, "[Nn]ame|[Tt]itle"):
-            build_translations({"days": [{"meals": [meal]}]}, previous, {}, None)
+        cache = build_translations({"days": [{"meals": [meal]}]}, previous, {}, None)
+        self.assertEqual(cache['entries'][meal['translation_key']], previous['entries'][meal['translation_key']])
 
-    def test_strict_cache_validation_rejects_bypassing_the_title_policy(self):
+    def test_cache_validation_accepts_alternative_valid_title(self):
         cache = self.legacy_cache(sample_meal("Wikingertopf"), "Wikingertopf (stew)", "Wikingertopf (스튜)")
-        with self.assertRaisesRegex(ValueError, "[Nn]ame|[Tt]itle"):
-            validate_cache(cache)
+        validate_cache(cache)
 
 
 if __name__ == "__main__":

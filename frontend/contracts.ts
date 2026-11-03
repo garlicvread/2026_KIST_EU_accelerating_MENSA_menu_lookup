@@ -128,16 +128,23 @@ function meal(value: unknown, day: string, ids: Set<string>): Meal {
   if (item.price_status !== 'verified') return invalid('price status');
   const prices = fields(item.prices, ['student', 'staff', 'guest'], 'prices');
   const raw = text(provenance.raw, 'raw price');
-  const matched = /^S:\s*(\d+)[,.](\d{2})\s*\|\s*M:\s*(\d+)[,.](\d{2})\s*\|\s*G:\s*(\d+)[,.](\d{2})$/u.exec(raw);
-  if (!matched || matched[0] !== raw) return invalid('raw price');
-  function cents(group: PriceGroup, index: number): number {
+  const entries = raw.split('|');
+  if (entries.length !== 3) return invalid('raw price');
+  const expected: Partial<Record<PriceGroup, number>> = {};
+  for (const entry of entries) {
+    const matched = /^\s*([SMG])\s*:\s*([0-9]+)[,.]([0-9]{2})\s*€?\s*$/u.exec(entry);
+    if (!matched || matched[0] !== entry) return invalid('raw price');
+    const group = matched[1] === 'S' ? 'student' : matched[1] === 'M' ? 'staff' : 'guest';
+    if (Object.hasOwn(expected, group)) return invalid('duplicate price label');
+    expected[group] = Number(matched[2]) * 100 + Number(matched[3]);
+  }
+  function cents(group: PriceGroup): number {
     const value = prices[group];
-    const expected = Number(matched?.[index]) * 100 + Number(matched?.[index + 1]);
-    if (typeof value !== 'number' || !Number.isSafeInteger(value) || value <= 0 || value > 100_000 || value !== expected) return invalid('integer source price');
+    if (typeof value !== 'number' || !Number.isSafeInteger(value) || value <= 0 || value > 100_000 || value !== expected[group]) return invalid('integer source price');
     return value;
   }
   return { ...common, price_status: 'verified',
-    prices: { student: cents('student', 1), staff: cents('staff', 3), guest: cents('guest', 5) },
+    prices: { student: cents('student'), staff: cents('staff'), guest: cents('guest') },
     price_source: { ...priceSource, raw } };
 }
 
@@ -185,11 +192,16 @@ function translationSource(value: unknown): TranslationSource {
   const source = fields(value, ['name_de', 'components'], 'translation source');
   return { name_de: text(source.name_de, 'translation source name', true), components: array(source.components, 'source components').map(value => text(value, 'source component', true)) };
 }
+function translatedString(value: unknown, label: string, multiline = false): string {
+  const result = text(value, label, multiline);
+  if (/<0x[0-9a-f]{2}>/iu.test(result)) return invalid('undecoded translation byte tokens');
+  return result;
+}
 function translationText(value: unknown, count: number): TranslationText {
   const item = fields(value, ['name', 'components'], 'translation text');
-  const components = array(item.components, 'translated components').map(value => text(value, 'translated component', true));
+  const components = array(item.components, 'translated components').map(value => translatedString(value, 'translated component', true));
   if (components.length !== count) return invalid('translation component count');
-  return { name: text(item.name, 'translated name', true), components };
+  return { name: translatedString(item.name, 'translated name', true), components };
 }
 function translationEntry(value: unknown): TranslationEntry {
   const item = record(value, 'translation entry');
@@ -197,24 +209,34 @@ function translationEntry(value: unknown): TranslationEntry {
   const source = translationSource(item.source);
   return { source, en: translationText(item.en, source.components.length), ko: translationText(item.ko, source.components.length) };
 }
-function dictionary<T>(value: unknown, parse: (value: unknown) => T, keys: (key: string) => void): Record<string, T> {
-  return Object.fromEntries(Object.entries(record(value, 'dictionary')).map(([key, entry]): [string, T] => {
-    keys(key);
-    return [key, parse(entry)];
-  }));
+function dictionary<T>(value: unknown, parse: (value: unknown) => T, keys: (key: string) => void, recover: boolean): Record<string, T> {
+  const result: [string, T][] = [];
+  for (const [key, entry] of Object.entries(record(value, 'dictionary'))) {
+    try {
+      keys(key);
+      result.push([key, parse(entry)]);
+    } catch (error) {
+      if (!recover) throw error;
+    }
+  }
+  return Object.fromEntries(result);
 }
 function noticeTranslation(value: unknown): NoticeTranslation {
   const item = fields(value, ['en', 'ko'], 'notice translation');
-  return { en: text(item.en, 'English notice'), ko: text(item.ko, 'Korean notice') };
+  return { en: translatedString(item.en, 'English notice'), ko: translatedString(item.ko, 'Korean notice') };
 }
-export function validateTranslations(input: unknown): TranslationCache {
+function parseTranslations(input: unknown, recover: boolean): TranslationCache {
   const item = record(input, 'translation cache');
   if (!Object.hasOwn(item, 'schema_version') || item.schema_version !== 1 || !Object.hasOwn(item, 'entries')) return invalid('translation schema');
+  if (Object.keys(item).some(key => !['schema_version', 'entries', 'notices'].includes(key))) return invalid('translation cache fields');
   return { schema_version: 1,
-    entries: dictionary(item.entries, translationEntry, key => { digest(key, 'translation key'); }),
-    notices: Object.hasOwn(item, 'notices') ? dictionary(item.notices, noticeTranslation, key => { text(key, 'notice key'); }) : {},
+    entries: dictionary(item.entries, translationEntry, key => { digest(key, 'translation key'); }, recover),
+    notices: Object.hasOwn(item, 'notices') ? dictionary(item.notices, noticeTranslation, key => { text(key, 'notice key'); }, recover) : {},
   };
 }
+export function validateTranslations(input: unknown): TranslationCache { return parseTranslations(input, false); }
+/** recoverTranslations는 컨테이너를 검사한 뒤 손상된 번역·안내 항목만 제외하여 독일어 대체 표시를 허용합니다. */
+export function recoverTranslations(input: unknown): TranslationCache { return parseTranslations(input, true); }
 export function validateReleaseManifest(input: unknown): ReleaseManifest {
   const item = fields(input, ['schema_version', 'release_id'], 'release manifest');
   if (item.schema_version !== 1) return invalid('release schema');

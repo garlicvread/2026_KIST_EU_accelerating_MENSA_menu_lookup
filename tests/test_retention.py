@@ -104,13 +104,21 @@ class RetentionTests(unittest.TestCase):
         result['entries'][key]['en']['name'] = 'changed'
         self.assertEqual(cache, original)
 
-    def test_public_cache_fails_for_missing_referenced_translation_or_notice(self):
+    def test_public_cache_omits_missing_referenced_translations_and_notices(self):
         key, value = entry('Required dish')
         menu = {'days': [{'meals': [{'translation_key': key, 'notices': ['Required notice'], 'components': []}]}]}
         for cache in ({'schema_version': 1, 'entries': {}},
                       {'schema_version': 1, 'entries': {key: value}}):
+            with self.subTest(cache=cache):
+                self.assertEqual(retention.public_translations(menu, cache),
+                                 {**cache, 'notices': {}})
+
+    def test_pruning_still_rejects_missing_required_references(self):
+        key, value = entry('Required dish')
+        for cache in ({'schema_version': 1, 'entries': {}},
+                      {'schema_version': 1, 'entries': {key: value}}):
             with self.subTest(cache=cache), self.assertRaisesRegex(ValueError, 'Missing|required'):
-                retention.public_translations(menu, cache)
+                self.prune(cache, required_keys={key}, required_notices={'Required notice'})
 
     def test_ttl_is_inclusive_and_observed_source_alone_touches_last_used(self):
         cache = cache_for('Expired', 'Boundary', 'Required history', 'Fresh source')

@@ -167,11 +167,8 @@ class DrivePublisherTests(unittest.TestCase):
         copy_index = next(index for index, argv in enumerate(self.command.commands) if argv[1] == 'copyto')
         self.assertIn('cat', [argv[1] for argv in self.command.commands[copy_index + 1:]])
 
-    def test_invalid_or_partial_pair_is_refused_before_remote_access(self):
+    def test_invalid_pair_is_refused_before_remote_access(self):
         cases = []
-        incomplete = copy.deepcopy(self.cache)
-        incomplete['entries'].clear()
-        cases.append((self.menu, incomplete, {}))
         invalid_cache = copy.deepcopy(self.cache)
         del invalid_cache['entries'][self.key]['ko']
         cases.append((self.menu, invalid_cache, {}))
@@ -185,18 +182,20 @@ class DrivePublisherTests(unittest.TestCase):
                     self.publisher().publish(menu, cache, **options)
                 self.assertEqual(self.command.commands, [])
 
-    def test_previous_menu_contract_is_checked_without_mutating_previous(self):
+    def test_current_source_pending_price_can_replace_previous_price_without_mutating_it(self):
         previous = copy.deepcopy(self.menu)
         original = copy.deepcopy(previous)
+        self.command.add(envelope(previous, self.cache))
         pending = copy.deepcopy(self.menu)
         record = pending['days'][0]['meals'][0]
         record['prices'] = None
         record['price_status'] = 'source_pending'
         record['price_source']['raw'] = None
-        with self.assertRaises(ValueError):
-            self.publisher().publish(pending, self.cache, previous=previous)
+        publisher = self.publisher(file_id=FILE_ID)
+        publisher.publish(pending, self.cache, previous=previous)
         self.assertEqual(previous, original)
-        self.assert_no_upload()
+        self.assertEqual(publisher.load_current(), (pending, self.cache))
+        self.assertEqual(len(self.command.uploads), 1)
 
     def test_private_cache_fields_are_refused_in_inputs_and_existing_remote_bundles(self):
         for location in ('cache', 'entry'):

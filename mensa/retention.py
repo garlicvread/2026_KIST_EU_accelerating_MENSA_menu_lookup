@@ -5,7 +5,7 @@ from datetime import date, timedelta
 
 from mensa.notice_contract import source_notices
 from mensa.releases import _json_bytes, _release_id
-from mensa.translation_contract import validate_cache
+from mensa.translation_contract import validate_cache, recover_cache
 
 
 _ENTRY_FIELDS = frozenset({
@@ -52,17 +52,20 @@ def retain_menu(menu, today, policy):
 
 
 def public_translations(menu, cache):
-    """public_translations가 메뉴가 실제 참조하는 번역·안내만 공개 스키마로 복사하며 누락된 참조를 거부합니다."""
+    """public_translations가 사용할 수 있는 참조 번역만 복사하고 손상된 항목은 원문 표시로 남깁니다."""
+    cache = recover_cache(cache)
     keys = {meal['translation_key'] for day in menu['days'] for meal in day['meals']}
     labels = source_notices(menu)
-    _require_references(cache, keys, labels)
+    keys &= cache['entries'].keys()
+    available_notices = cache.get('notices', {})
     result = {
         'schema_version': cache['schema_version'],
         'entries': {key: {field: deepcopy(value) for field, value in cache['entries'][key].items()
                           if field in _ENTRY_FIELDS} for key in sorted(keys)},
     }
     if 'notices' in cache or labels:
-        result['notices'] = {label: deepcopy(cache['notices'][label]) for label in sorted(labels)}
+        result['notices'] = {label: deepcopy(available_notices[label])
+                             for label in sorted(labels & available_notices.keys())}
     return result
 
 

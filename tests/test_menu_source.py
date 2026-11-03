@@ -1,6 +1,7 @@
-"""이 테스트 모듈은 원본 식단의 가격·메뉴·날짜를 수집하고, 정보가 누락되면 게시를 중단하는지 확인합니다."""
+"""이 테스트 모듈은 원본 식단의 가격·메뉴·날짜를 보존하고, 잘못된 구조·가격 출처를 거부하는지 확인합니다."""
 
 import copy
+from itertools import permutations
 import unittest
 from unittest.mock import patch
 
@@ -48,6 +49,55 @@ class MenuSourceTests(unittest.TestCase):
             "date": "2026-09-21", "category": "Wahlessen", "name": record["name_de"],
             "raw": "S: 3,50 | M: 4,65 | G: 5,35"})
         self.assertEqual(result["coverage"], {"start": "2026-09-21", "end": "2026-09-21"})
+
+    def test_labeled_price_formats_preserve_amounts_and_raw_source(self):
+        entries = ("S : 3,50 €", "M: 4.65€", "G: 5,35")
+        variants = [" | ".join(order) for order in permutations(entries)]
+        variants += ["S: 3,50 € | M: 4,65 € | G: 5,35 €",
+                     "S:\t3.50\u00a0| M: 4.65 | G: 5.35"]
+        baseline = self.first(self.parse())
+        for raw in variants:
+            with self.subTest(raw=raw):
+                record = self.first(self.parse(page(meal(prices=f"<p><strong>Preise:</strong> {raw}</p>"))))
+                expected = copy.deepcopy(baseline)
+                expected["price_source"]["raw"] = " ".join(raw.split())
+                self.assertEqual(record, expected)
+
+    def test_price_paragraph_does_not_depend_on_inline_bolding(self):
+        for label in ("<b>Preise:</b>", "<span>Preise:</span>",
+                      "<strong><span>Preise:</span></strong>", "Preise:", "<b>Preise :</b>"):
+            with self.subTest(label=label):
+                prices = f"<p>{label} S: 3,50 | M: 4,65 | G: 5,35</p>"
+                self.assertEqual(self.first(self.parse(page(meal(prices=prices)))), self.first(self.parse()))
+
+    def test_inline_elements_can_split_price_marker_and_group_labels(self):
+        prices = "<p><b>Preise</b>: <span>S</span>: 3,50 | M<span>:</span> 4,65 | G: 5,35</p>"
+        self.assertEqual(self.first(self.parse(page(meal(prices=prices)))), self.first(self.parse()))
+
+    def test_unconsumed_price_labels_split_across_inline_elements_are_rejected(self):
+        orphan = "<div><span>S</span>: 9,00 | <b>M</b>: 9,00 | G<span>:</span> 9,00</div>"
+        with self.assertRaisesRegex(ValueError, "Source inventory mismatch"):
+            self.parse(page(meal(prices="") + orphan))
+
+    def test_price_contract_rejects_ambiguous_or_invalid_labeled_amounts(self):
+        invalid = (
+            "S: 3,50 | S: 4,65 | G: 5,35",
+            "S: 3,50 | G: 5,35",
+            "S: 3,50 | M: 4,65 | X: 5,35",
+            "S: 3,50 | M: 4,65 | G: 5,35 | G: 5,35",
+            "S: 3,5 | M: 4,65 | G: 5,35",
+            "S: -3,50 | M: 4,65 | G: 5,35",
+            "S: 0,00 | M: 4,65 | G: 5,35",
+            "S: 1000,01 | M: 4,65 | G: 5,35",
+            "S: 3,50 EUR | M: 4,65 | G: 5,35",
+            "S: 3,50 | M: 4,65 | G: 5,35 extra",
+            "S: ٣,٥٠ | M: 4,65 | G: 5,35",
+        )
+        for raw in invalid:
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                result = self.parse()
+                self.first(result)["price_source"]["raw"] = raw
+                collector.validate_menu(result)
 
     def test_preserves_every_component_and_notice(self):
         record = self.first(self.parse())
@@ -143,9 +193,10 @@ class MenuSourceTests(unittest.TestCase):
             self.parse(page(meal(prices=PRICES.replace(" | G: 5,35", ""))))
 
 
-    def test_price_marker_moved_or_lost_by_selector_fails(self):
+    def test_price_block_requires_closed_paragraph_and_prefix(self):
         for prices in (PRICES.replace("<p>", "<section>").replace("</p>", "</section>"),
-                       PRICES.replace("<strong>", "<b>").replace("</strong>", "</b>")):
+                       PRICES.replace("</p>", ""),
+                       PRICES.replace("<p>", "<p>Alternative "), PRICES + PRICES):
             with self.subTest(prices=prices), self.assertRaises(ValueError):
                 self.parse(page(meal(prices=prices)))
 
@@ -254,11 +305,17 @@ class MenuSourceTests(unittest.TestCase):
         previous = self.parse(page(meal() + meal(prices="")))
         collector.validate_menu(copy.deepcopy(previous), previous)
 
-    def test_all_remaining_same_meal_prices_missing_is_rejected(self):
+    def test_current_source_missing_prices_replace_previous_prices_without_guessing(self):
         previous = self.parse(page(meal() * 3))
+        original = copy.deepcopy(previous)
         current = self.parse(page(meal(prices="") * 3))
-        with self.assertRaisesRegex(ValueError, "Previously published same-meal prices disappeared"):
-            collector.validate_menu(current, previous)
+        collector.validate_menu(current, previous)
+        self.assertEqual(previous, original)
+        self.assertEqual(len(current["days"][0]["meals"]), 3)
+        for record in current["days"][0]["meals"]:
+            self.assertIsNone(record["prices"])
+            self.assertEqual(record["price_status"], "source_pending")
+            self.assertIsNone(record["price_source"]["raw"])
 
 
     def test_fetch_has_bounded_retries_and_timeout(self):

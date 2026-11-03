@@ -238,13 +238,13 @@ class BuildSiteTests(unittest.TestCase):
                          {(graph / name).as_posix() for name in ['main.js', 'nested/view.js', 'data.js']})
 
     def test_invalid_data_or_reachable_graph_stops_before_output_creation(self):
-        cases = ['incomplete-cache', "import './missing.js';", "import('./data.js');", "import './private.js';"]
+        cases = ['invalid-cache', "import './missing.js';", "import('./data.js');", "import './private.js';"]
         for index, case in enumerate(cases):
             with self.subTest(case=case):
                 folder = self.root / f'bad-{index}'
                 source, compiled, glossary = self.fixture(folder)
-                if case == 'incomplete-cache':
-                    (source / 'data/translations.json').write_text('{"schema_version":1,"entries":{},"notices":{}}')
+                if case == 'invalid-cache':
+                    (source / 'data/translations.json').write_text('{"schema_version":1,"entries":[],"notices":{}}')
                 else:
                     if case == "import './private.js';":
                         (compiled / 'private.js').write_text('PRIVATE_SENTINEL')

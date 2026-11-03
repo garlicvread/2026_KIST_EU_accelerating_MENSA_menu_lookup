@@ -1,5 +1,6 @@
 """번역 검증 함수가 원본·캐시·생성 식별 정보를 검사하고, 명명 함수가 검토된 의미 기반 요리·구성 요소 이름을 일관되게 적용합니다."""
 
+import copy
 import hashlib
 import json
 import re
@@ -7,7 +8,7 @@ import re
 from mensa.notice_contract import validate_notice_translations
 
 PROMPT_VERSION = "menu-v4"
-# PROMPT_VERSION은 v4의 제목 지침을 지정하며, 명명 함수는 v3 캐시 제목도 현재 정책에 맞게 보정합니다.
+# PROMPT_VERSION은 새 생성의 제목 지침이며 기존 정상 번역의 문장을 정답과 대조하지 않습니다.
 SUPPORTED_PROMPT_VERSIONS = frozenset({"menu-v3", PROMPT_VERSION})
 NAME_POLICY_VERSION = "semantic-names-v1"
 COMPONENT_POLICY_VERSION = "semantic-components-v1"
@@ -43,7 +44,9 @@ def source_key(source):
 
 
 def _text(value):
-    return isinstance(value, str) and 0 < len(value.strip()) <= 1000 and not any(ord(c) < 32 and c not in "\n\t" for c in value)
+    return (isinstance(value, str) and 0 < len(value.strip()) <= 1000
+            and not any((ord(c) < 32 and c not in "\n\t") or 0xD800 <= ord(c) <= 0xDFFF
+                        for c in value))
 
 
 def validate_result(result, source):
@@ -65,10 +68,8 @@ def _semantic_name(name, source, lang):
     reviewed = REVIEWED_DISH_NAMES.get(source["name_de"])
     if reviewed:
         return reviewed[lang]
-    name = _CAMPAIGN_PREFIX.sub("", name.strip())
-    if not _text(name) or _OPAQUE_TITLE_LABEL.search(name):
-        raise ValueError("Translation title needs a reviewed descriptive name")
-    return name
+    stripped = _CAMPAIGN_PREFIX.sub("", name.strip())
+    return stripped if _text(stripped) else name
 
 
 def _apply_name_policy(entry):
@@ -154,17 +155,25 @@ def validate_generation_identity(value):
 
 def reusable_translation(entry, model=None, *, identity=None):
     """reusable_translation이 검증된 번역 항목의 프롬프트·모델·생성 식별 정보를 대조하여 재사용 가능 여부를 반환합니다. identity가 없으면 기존 호환성 동작을 유지합니다."""
-    if not entry or entry["prompt_version"] not in SUPPORTED_PROMPT_VERSIONS:
+    if not entry:
         return False
     if entry["origin"] != "model":
         return True
+    if entry["prompt_version"] not in SUPPORTED_PROMPT_VERSIONS:
+        return False
     if model is not None and entry["model"] != model:
         return False
     return identity is None or entry.get("generation_identity") == identity
 
 
 def validate_cache(cache, *, allow_legacy_names=False):
-    if not isinstance(cache, dict) or cache.get("schema_version") != 1 or not isinstance(cache.get("entries"), dict):
+    """번역 구조와 원문 연결을 검사하며 특정 번역 문장과의 동일성을 요구하지 않습니다.
+
+    allow_legacy_names는 기존 호출자와의 호환을 위해 받습니다. 명명·편집 정책은
+    번역을 작성할 때 적용하는 입력이며 캐시의 유효성을 정하는 정답지가 아닙니다.
+    """
+    if (not isinstance(cache, dict) or type(cache.get("schema_version")) is not int
+            or cache["schema_version"] != 1 or not isinstance(cache.get("entries"), dict)):
         raise ValueError("Unsupported translation cache")
     if "notices" in cache:
         validate_notice_translations(cache["notices"])
@@ -179,16 +188,39 @@ def validate_cache(cache, *, allow_legacy_names=False):
         if source_key(source) != key:
             raise ValueError("Translation cache key does not match its source")
         validate_result({lang: entry.get(lang) for lang in ("en", "ko")}, source)
-        if not allow_legacy_names:
-            for lang in ("en", "ko"):
-                if entry[lang]["name"] != _semantic_name(entry[lang]["name"], source, lang):
-                    raise ValueError("Translation title does not follow the reviewed name policy")
-                for source_name, name in zip(source["components"], entry[lang]["components"]):
-                    if name != _semantic_component(name, source_name, lang):
-                        raise ValueError("Translation component does not follow the reviewed name policy")
         if entry.get("origin") not in ("editorial-draft", "reviewed-draft", "model"):
             raise ValueError("Translation provenance is missing")
         if not _text(entry.get("model")) or not _text(entry.get("prompt_version")):
             raise ValueError("Translation model/prompt provenance is missing")
         if "generation_identity" in entry:
             validate_generation_identity(entry["generation_identity"])
+
+
+def recover_cache(cache):
+    """기존 파생 캐시에서 재사용 불가능한 항목만 제거한 독립 복사본을 반환합니다.
+
+    잘못 연결된 항목을 다른 키로 옮기거나 번역을 추정하지 않습니다. 호출자는 빠진
+    항목을 현재 원문으로 재생성하거나 원문으로 표시합니다. 파일·컨테이너 자체의
+    손상은 개별 번역 오류와 구분하여 전달합니다.
+    """
+    if (not isinstance(cache, dict) or type(cache.get('schema_version')) is not int
+            or cache['schema_version'] != 1 or not isinstance(cache.get('entries'), dict)
+            or ('notices' in cache and not isinstance(cache['notices'], dict))):
+        raise ValueError('Unsupported translation cache')
+    recovered = {name: copy.deepcopy(value) for name, value in cache.items()
+                 if name not in ('entries', 'notices')}
+    for kind in ('entries', 'notices'):
+        if kind not in cache:
+            continue
+        recovered[kind] = {}
+        for key, value in cache[kind].items():
+            candidate = {'schema_version': 1, 'entries': {}}
+            candidate[kind] = {key: value}
+            try:
+                validate_cache(candidate)
+                json.dumps(candidate, ensure_ascii=False, allow_nan=False).encode('utf-8')
+                recovered[kind][key] = copy.deepcopy(value)
+            except (ValueError, TypeError, KeyError, IndexError, AttributeError,
+                    OverflowError, RecursionError, UnicodeError):
+                continue
+    return recovered

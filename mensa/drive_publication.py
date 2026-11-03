@@ -62,14 +62,18 @@ def _read_json(payload):
         raise ValueError('Invalid JSON in Drive publication data') from error
 
 
-def _checked_pair(menu, cache, *, previous=None, today=None):
+def _checked_pair(menu, cache, *, previous=None, today=None, recover_translations=False):
     if not isinstance(cache, dict):
         raise ValueError('Invalid published translation cache')
-    validate_publication(menu, cache, notice_glossary=cache.get('notices', {}),
-                         previous=previous, today=today)
-    if type(cache['schema_version']) is not int or set(cache) - _CACHE_FIELDS:
+    if type(cache.get('schema_version')) is not int or set(cache) - _CACHE_FIELDS:
         raise ValueError('Unrecognized public translation cache fields')
-    for entry in cache['entries'].values():
+    checked = cache
+    if recover_translations:
+        from mensa.translation_contract import recover_cache
+        checked = recover_cache(cache)
+    validate_publication(menu, checked, notice_glossary=checked.get('notices', {}),
+                         previous=previous, today=today)
+    for entry in checked['entries'].values():
         if set(entry) - _ENTRY_FIELDS:
             raise ValueError('Unrecognized public translation entry fields')
         for name in ('name_policy_version', 'component_policy_version'):
@@ -78,8 +82,14 @@ def _checked_pair(menu, cache, *, previous=None, today=None):
     return _json_bytes(menu), _json_bytes(cache)
 
 
-def read_publication(payload):
-    """Drive 묶음의 필드·메뉴·번역·내용 ID를 검사하고 같은 게시본의 두 분기를 반환합니다."""
+def read_publication(payload, *, recover_translations=False):
+    """Drive 묶음의 원래 내용 ID를 먼저 검사하고 같은 게시본의 두 분기를 반환합니다.
+
+    복구 읽기는 격리한 번역 사본으로 메뉴를 검사하지만 원래 쌍을 반환합니다.
+    호출자는 반환한 캐시를 별도로 복구하여 새 ID의 게시본을 준비할 수 있습니다.
+    """
+    if type(recover_translations) is not bool:
+        raise ValueError('recover_translations must be a boolean')
     value = _read_json(payload)
     if (not isinstance(value, dict) or
             set(value) != {'schema_version', 'release_id', 'menu', 'translations'} or
@@ -87,14 +97,15 @@ def read_publication(payload):
             not isinstance(value['release_id'], str) or _RELEASE_ID.fullmatch(value['release_id']) is None):
         raise ValueError('Unrecognized Drive current.json publication envelope')
     menu, cache = value['menu'], value['translations']
-    if _release_id(*_checked_pair(menu, cache)) != value['release_id']:
+    if _release_id(_json_bytes(menu), _json_bytes(cache)) != value['release_id']:
         raise ValueError('Drive publication pair differs from its release identity')
+    _checked_pair(menu, cache, recover_translations=recover_translations)
     return menu, cache
 
 
 class DrivePublisher:
     def __init__(self, remote: str, folder_id: str, *, file_id: str | None = None,
-                 command=None):
+                 command=None, recover_translations=False):
         if not isinstance(remote, str) or _REMOTE.fullmatch(remote) is None:
             raise ValueError('An explicit rclone remote name ending in a colon is required')
         if not isinstance(folder_id, str) or _DRIVE_ID.fullmatch(folder_id) is None:
@@ -103,10 +114,13 @@ class DrivePublisher:
             raise ValueError('Invalid expected Drive file ID')
         if command is not None and not callable(command):
             raise ValueError('command must be a callable argv port')
+        if type(recover_translations) is not bool:
+            raise ValueError('recover_translations must be a boolean')
         self._remote = remote
         self._folder_id = folder_id
         self._file_id = file_id
         self._command = _subprocess_command if command is None else command
+        self._recover_translations = recover_translations
 
     def _run(self, operation, *arguments):
         argv = ['rclone', operation, *arguments, '--drive-root-folder-id', self._folder_id]
@@ -156,7 +170,7 @@ class DrivePublisher:
         raw = payload.encode('utf-8')
         if len(raw) != size or hashlib.md5(raw).hexdigest() != md5:
             raise ValueError('Drive current.json differs from its listed content hash')
-        menu, cache = read_publication(payload)
+        menu, cache = read_publication(payload, recover_translations=self._recover_translations)
         release_id = _release_id(_json_bytes(menu), _json_bytes(cache))
         return DrivePublication(release_id, file_id), (menu, cache)
 

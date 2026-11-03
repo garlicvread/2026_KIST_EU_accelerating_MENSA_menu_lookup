@@ -21,6 +21,8 @@ from mensa import jobs as jobs
 from mensa.errors import GenerationError
 from mensa.config import InferenceSettings
 from mensa.translation_contract import source_for, source_key
+from mensa.translation_work import (load_translation_state, save_translation_state,
+                                    translation_failed)
 
 NOW = datetime(2026, 9, 21, 10, tzinfo=timezone.utc)
 SHA = 'a' * 40
@@ -306,6 +308,47 @@ class LocalRefreshTests(unittest.TestCase):
 
 
 class RefreshCompositionTests(unittest.TestCase):
+
+    def test_drive_base_and_config_use_the_same_declared_resource_and_translation_policy(self):
+        from types import SimpleNamespace
+        for platform in ('macos', 'linux'):
+            with self.subTest(platform=platform), TemporaryDirectory() as folder:
+                base = Path(folder).resolve()
+                (base/'worker.toml').touch()
+                config = SimpleNamespace(
+                    paths=SimpleNamespace(state_dir=base, checkout_dir=base/'checkout'),
+                    resources=SimpleNamespace(platform=platform, min_available_bytes=32 * 1024 ** 3,
+                                              max_load_per_cpu=0.6),
+                    inference=SimpleNamespace(mode='managed', provider='ollama', model=worker.MODEL,
+                        revision='fixture-revision', binary=base/'runtime/ollama',
+                        models_dir=base/'models', log_dir=base/'logs'),
+                    publication=SimpleNamespace(mode='drive'))
+                jobs = []
+                def run(directory, now, resources, work):
+                    self.assertEqual(directory, config.paths.state_dir)
+                    self.assertEqual(resources(), (False, 'configured model busy'))
+                    self.assertEqual(drive.call_args.args, (config,))
+                    self.assertNotIn('translation_builder', drive.call_args.kwargs)
+                    self.assertNotIn('runtime', drive.call_args.kwargs)
+                    jobs.append(work)
+                    return {'status': 'completed'}
+                with (patch.object(worker, 'load_worker_config', return_value=config),
+                      patch('mensa.ollama_revision.installed_ollama_revision',
+                            side_effect=AssertionError('CLI must not probe model manifests')) as revision,
+                      patch.object(worker, 'configured_resource_status',
+                                   return_value=(False, 'configured model busy')) as resources,
+                      patch.object(worker, 'resource_status', side_effect=AssertionError('Legacy resource policy')),
+                      patch.object(worker, 'DriveRefreshJob') as drive,
+                      patch.object(worker.RefreshJob, 'translate', side_effect=AssertionError('Legacy translation')),
+                      patch.object(worker, 'process_queue', side_effect=run),
+                      redirect_stdout(io.StringIO())):
+                    worker.main(['--base', str(base)])
+                    worker.main(['--config', str(base/'worker.toml')])
+                self.assertEqual(len(jobs), 2)
+                self.assertEqual(drive.call_count, 2)
+                self.assertEqual(resources.call_args_list, [((config.resources,),), ((config.resources,),)])
+                revision.assert_not_called()
+
     def setUp(self):
         self.menu = parse_menu(page(), '2026-09-21T10:00:00Z')
         self.cache = {'schema_version': 1, 'entries': {}}
@@ -377,6 +420,40 @@ class RefreshCompositionTests(unittest.TestCase):
         self.assertEqual(checkpoints, [result])
         self.assertEqual(generate.call_args.args[0],
                          {'kind': 'notice', 'name_de': 'Neuer Hinweis', 'components': []})
+
+    def test_native_bad_notice_does_not_stop_later_notice_or_meal(self):
+        from mensa.errors import GenerationError
+        record = self.menu['days'][0]['meals'][0]
+        record['notices'].extend(['A unreviewed notice', 'Z unreviewed notice'])
+        glossary = {label: {'en': 'Fixture', 'ko': '테스트'} for label in
+                    ['vegan', 'Weizen', 'Sellerie', 'Milch und Laktose']}
+        settings = InferenceSettings('managed', 'ollama', worker.MODEL, 'a' * 64, None,
+                                     Path('/fixture/ollama'), Path('/fixture/models'), Path('/fixture/logs'))
+        @contextmanager
+        def runtime(_):
+            yield {'provider': 'ollama', 'model': worker.MODEL, 'backend_revision': settings.revision,
+                   'url': 'http://fixture.invalid/api/chat', 'key': ''}
+        for bad in ({'en': {'name': 'unfinished', 'components': []}}, GenerationError('invalid_json')):
+            calls = []
+            def generate(source, config):
+                calls.append(source['name_de'])
+                if source['name_de'] == 'A unreviewed notice':
+                    if isinstance(bad, Exception):
+                        raise bad
+                    return copy.deepcopy(bad)
+                if source.get('kind') == 'notice':
+                    return {lang: {'name': 'Fixture notice', 'components': []} for lang in ('en', 'ko')}
+                return {lang: self.candidate['entries'][record['translation_key']][lang] for lang in ('en', 'ko')}
+            with self.subTest(bad=type(bad).__name__), TemporaryDirectory() as folder, \
+                    patch.object(worker, 'model_session', side_effect=runtime), \
+                    patch('scripts.translations.load_glossary', return_value=glossary), \
+                    patch.object(worker, 'request_translation', side_effect=generate), \
+                    patch('scripts.translations.request_translation', side_effect=generate):
+                result = RefreshJob(folder, inference=settings).translate(self.menu, self.cache, {})
+            self.assertNotIn('A unreviewed notice', result['notices'])
+            self.assertIn('Z unreviewed notice', result['notices'])
+            self.assertIn(record['translation_key'], result['entries'])
+            self.assertIn(record['name_de'], calls)
 
 
     def test_translate_offline_first_uses_real_builder_and_forwards_checkpoint(self):
@@ -643,6 +720,11 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
     def test_directory_cli_publishes_declared_output_and_status_remains_read_only(self):
         (self.checkout/'data/editorial-translations.json').write_text(json.dumps({'phrases': {}}))
         from mensa.releases import DirectoryPublisher
+        publications = []
+        publish = DirectoryPublisher.publish
+        def record_publish(publisher, menu, cache, **kwargs):
+            publications.append((copy.deepcopy(cache), copy.deepcopy(self.events)))
+            return publish(publisher, menu, cache, **kwargs)
         self.config_path.write_text(self.config_path.read_text().split('[publication]')[0] +
                                     '[publication]\nmode = "directory"\n')
         with (patch.object(worker, 'configured_resource_status', return_value=(True, 'fixture ready')),
@@ -651,16 +733,23 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
               patch.object(worker, 'datetime', wraps=datetime) as clock,
               patch.object(worker, 'model_session', side_effect=self.runtime),
               patch.object(worker, 'request_translation', side_effect=self.generation),
+              patch.object(DirectoryPublisher, 'publish', record_publish),
               patch.object(worker, 'command', side_effect=AssertionError('Directory must not execute commands')),
               patch.object(worker, 'local_model', side_effect=AssertionError('Directory must not use legacy model'))):
             clock.now.return_value = NOW
             completed = self.main_report('--config', str(self.config_path))
         self.assertEqual(completed['status'], 'completed')
+        self.assertEqual(completed['translations']['status'], 'completed')
         published = DirectoryPublisher(self.public, notice_glossary=self.glossary).load_current()
         entry = next(iter(published[1]['entries'].values()))
         self.assertEqual({lang: entry[lang] for lang in ('en', 'ko')}, self.generated)
         self.assertEqual(published[1]['notices'], self.glossary)
-        self.assertEqual(json.loads((self.state/'translation-checkpoint.json').read_text()), published[1])
+        self.assertEqual(json.loads((self.state/'translation-state.json').read_text())['cache'], published[1])
+        self.assertEqual(len(publications), 2)
+        self.assertEqual(publications[0][0]['entries'], {})
+        self.assertEqual(publications[0][1], [])
+        self.assertEqual(publications[1][0], published[1])
+        self.assertEqual(publications[1][1][-1], ('exit',))
         files = {path: path.read_bytes() for directory in (self.state, self.public)
                  for path in directory.rglob('*') if path.is_file()}
         with (patch.object(worker, 'configured_resource_status', side_effect=AssertionError('Status resource probe')),
@@ -715,8 +804,59 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
             report = self.main_report('--config', str(self.config_path), '--status')
         self.assertIsNone(report['queue']['pending'])
         self.assertIsNone(report['last_result'])
+        self.assertEqual(report['translation_work']['attempts'], 0)
         self.assertFalse(self.state.exists())
         self.assertFalse(self.public.exists())
+
+    def test_translation_status_reports_block_without_runtime_or_file_changes(self):
+        self.state.mkdir(mode=0o700)
+        path = self.state/'translation-work.json'
+        state = translation_failed(load_translation_state(path), GenerationError('authentication'), NOW)
+        save_translation_state(path, state)
+        before = {item: item.read_bytes() for item in self.state.iterdir()}
+        with (patch.object(worker, 'configured_resource_status', side_effect=AssertionError('Status resources')),
+              patch.object(worker, 'process_queue', side_effect=AssertionError('Status worker')),
+              patch('mensa.ollama_revision.installed_ollama_revision', side_effect=AssertionError('Status model'))):
+            report = self.main_report('--config', str(self.config_path), '--status')
+        self.assertEqual(report['translation_work'], state)
+        self.assertEqual({item: item.read_bytes() for item in self.state.iterdir()}, before)
+
+    def test_retry_translations_unblocks_only_translation_state_without_running_work(self):
+        self.state.mkdir(mode=0o700)
+        path = self.state/'translation-work.json'
+        state = translation_failed(load_translation_state(path), GenerationError('authentication'), NOW)
+        save_translation_state(path, state)
+        save_state(self.state/'queue.json', reconcile({'schema_version': 1, 'completed_period': None,
+                                                      'pending': None}, NOW))
+        queue_before = (self.state/'queue.json').read_bytes()
+        with (patch.object(worker, 'configured_resource_status', side_effect=AssertionError('Retry resources')),
+              patch.object(worker, 'process_queue', side_effect=AssertionError('Retry worker')),
+              patch('mensa.ollama_revision.installed_ollama_revision', side_effect=AssertionError('Retry model'))):
+            report = self.main_report('--config', str(self.config_path), '--retry-translations')
+        self.assertEqual(report['status'], 'retry_requested')
+        self.assertEqual(report['translation_work']['attempts'], 1)
+        self.assertIsNone(report['translation_work']['generation_failure'])
+        self.assertIsNone(report['translation_work']['last_error'])
+        self.assertIsNone(report['translation_work']['next_attempt_at'])
+        self.assertEqual((self.state/'queue.json').read_bytes(), queue_before)
+        self.assertEqual(load_translation_state(path), report['translation_work'])
+
+    def test_retry_translations_returns_busy_and_preserves_state_under_worker_lock(self):
+        self.state.mkdir(mode=0o700)
+        path = self.state/'translation-work.json'
+        save_translation_state(path, translation_failed(load_translation_state(path),
+                                                        GenerationError('authentication'), NOW))
+        before = path.read_bytes()
+        with exclusive_lock(self.state/'worker.lock'):
+            report = self.main_report('--config', str(self.config_path), '--retry-translations')
+        self.assertEqual(report['status'], 'busy')
+        self.assertEqual(path.read_bytes(), before)
+
+    def test_status_and_retry_translations_are_mutually_exclusive(self):
+        with redirect_stdout(io.StringIO()), patch('sys.stderr', io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                worker.main(['--config', str(self.config_path), '--status', '--retry-translations'])
+        self.assertEqual(raised.exception.code, 2)
 
 
 class SnapshotRecoveryTests(unittest.TestCase):
