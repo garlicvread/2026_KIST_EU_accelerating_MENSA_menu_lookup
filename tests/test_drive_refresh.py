@@ -227,12 +227,26 @@ class DriveTranslationLaneTests(unittest.TestCase):
         with directory_fixture.DirectoryRefreshTests().fixture() as f:
             self.setup_drive(f)
             self.assertEqual(f.run()['status'], 'completed')
-            f.remote.load_current = Mock(side_effect=OSError('Read interrupted'))
+            f.remote.load_current = Mock(side_effect=[OSError('Read interrupted'), copy.deepcopy(f.remote_pair)])
             result = f.run()
             self.assertEqual((result['status'], result['translations']['status']), ('idle', 'failed'))
-            state = json.loads((f.state/'translation-work.json').read_text())
+            path = f.state/'translation-work.json'
+            before = path.read_bytes()
+            state = json.loads(before)
             self.assertEqual(state['attempts'], 1)
             self.assertIsNotNone(state['next_attempt_at'])
+            f.now += timedelta(seconds=1)
+            waiting = f.run()
+            self.assertEqual(waiting['translations'], {'status': 'waiting', 'retry_at': state['next_attempt_at']})
+            self.assertEqual(f.remote.load_current.call_count, 1)
+            self.assertEqual(path.read_bytes(), before)
+            from datetime import datetime
+            f.now = datetime.fromisoformat(state['next_attempt_at'])
+            self.assertEqual(f.run()['translations']['status'], 'idle')
+            self.assertEqual(f.remote.load_current.call_count, 2)
+            final = json.loads(path.read_text())
+            self.assertEqual(final['attempts'], 1)
+            self.assertIsNone(final['next_attempt_at'])
 
     def test_injected_native_builder_keeps_legacy_same_model_reuse_without_resource_probe(self):
         with directory_fixture.DirectoryRefreshTests().fixture() as f:
@@ -271,13 +285,27 @@ class DriveTranslationLaneTests(unittest.TestCase):
             self.assertEqual(result['status'], 'completed')
             self.assertEqual(result['translations']['status'], 'failed')
             prepared = copy.deepcopy(f.uploads[-1])
+            path = f.state/'translation-work.json'
+            before = path.read_bytes()
+            state = json.loads(before)
             f.remote.publish = actual
             f.fail_upload = False
+            actual_read = f.remote.load_current
+            f.remote.load_current = Mock(side_effect=actual_read)
+            f.now += timedelta(seconds=1)
+            result = f.run()
+            self.assertEqual(result['translations'], {'status': 'waiting', 'retry_at': state['next_attempt_at']})
+            self.assertEqual(path.read_bytes(), before)
+            f.remote.load_current.assert_not_called()
+            self.assertEqual(len(f.uploads), 2)
+            from datetime import datetime
+            f.now = datetime.fromisoformat(state['next_attempt_at'])
             result = f.run()
             self.assertEqual(result['status'], 'idle')
-            self.assertIn(result['translations']['status'], ('completed', 'idle'))
+            self.assertEqual(result['translations']['status'], 'completed')
             self.assertEqual((f.source_calls, f.translation_calls), (1, 1))
             self.assertEqual(f.uploads[-1], prepared)
+            self.assertEqual(len(f.uploads), 2)
             state = json.loads((f.state/'translation-work.json').read_text())
             self.assertIsNone(state['prepared_release_id'])
 

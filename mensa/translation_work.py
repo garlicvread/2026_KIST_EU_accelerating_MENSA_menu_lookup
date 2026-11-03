@@ -208,6 +208,21 @@ def run_translation_work(config, now, *, resources, current, load_prepared, publ
     state = load_translation_state(path)
     if source_pending:
         return {'status': 'deferred', 'reason': 'Source publication is unresolved'}
+
+    def paused():
+        failure = state['generation_failure']
+        if failure is not None and not failure['retryable']:
+            return {'status': 'blocked', 'failure_code': failure['code'],
+                    'retryable': False, 'reason': state['last_error']}
+        retry = state['next_attempt_at']
+        if retry is not None and datetime.fromisoformat(retry.replace('Z', '+00:00')) > now:
+            return {'status': 'waiting', 'retry_at': retry}
+        return None
+
+    waiting = paused()
+    if waiting is not None:
+        return waiting
+
     def fail(error):
         nonlocal state
         state = translation_failed(state, error, now)
@@ -236,16 +251,6 @@ def run_translation_work(config, now, *, resources, current, load_prepared, publ
         state.update(target_release_id=release_id, next_attempt_at=None,
                      last_error=None, generation_failure=None)
         save_translation_state(path, state)
-
-    def paused():
-        failure = state['generation_failure']
-        if failure is not None and not failure['retryable']:
-            return {'status': 'blocked', 'failure_code': failure['code'],
-                    'retryable': False, 'reason': state['last_error']}
-        retry = state['next_attempt_at']
-        if retry is not None and datetime.fromisoformat(retry.replace('Z', '+00:00')) > now:
-            return {'status': 'waiting', 'retry_at': retry}
-        return None
 
     try:
         if state['prepared_release_id'] is not None:
