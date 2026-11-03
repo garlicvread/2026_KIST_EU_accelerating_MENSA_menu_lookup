@@ -309,44 +309,45 @@ class LocalRefreshTests(unittest.TestCase):
 
 class RefreshCompositionTests(unittest.TestCase):
 
-    def test_native_drive_revision_check_runs_only_in_translation_callback(self):
+    def test_drive_base_and_config_use_the_same_declared_resource_and_translation_policy(self):
         from types import SimpleNamespace
-        for installed_revision in ('fixture-revision', 'changed-revision'):
-            with self.subTest(installed_revision=installed_revision), TemporaryDirectory() as folder:
+        for platform in ('macos', 'linux'):
+            with self.subTest(platform=platform), TemporaryDirectory() as folder:
                 base = Path(folder).resolve()
                 (base/'worker.toml').touch()
                 config = SimpleNamespace(
                     paths=SimpleNamespace(state_dir=base, checkout_dir=base/'checkout'),
-                    resources=SimpleNamespace(platform='macos', min_available_bytes=32 * 1024 ** 3,
+                    resources=SimpleNamespace(platform=platform, min_available_bytes=32 * 1024 ** 3,
                                               max_load_per_cpu=0.6),
                     inference=SimpleNamespace(mode='managed', provider='ollama', model=worker.MODEL,
                         revision='fixture-revision', binary=base/'runtime/ollama',
                         models_dir=base/'models', log_dir=base/'logs'),
                     publication=SimpleNamespace(mode='drive'))
-                translations = Mock(return_value={'schema_version': 1, 'entries': {}})
+                jobs = []
                 def run(directory, now, resources, work):
-                    revision.assert_not_called()
-                    callback = drive.call_args.kwargs['translation_builder']
-                    self.assertEqual(callback({}, {}, {}, checkpoint=None), translations.return_value)
-                    revision.assert_called_once_with(config.inference.models_dir, worker.MODEL)
+                    self.assertEqual(directory, config.paths.state_dir)
+                    self.assertEqual(resources(), (False, 'configured model busy'))
+                    self.assertEqual(drive.call_args.args, (config,))
+                    self.assertNotIn('translation_builder', drive.call_args.kwargs)
+                    self.assertNotIn('runtime', drive.call_args.kwargs)
+                    jobs.append(work)
                     return {'status': 'completed'}
                 with (patch.object(worker, 'load_worker_config', return_value=config),
-                      patch.object(worker, 'installed_ollama_revision', return_value=installed_revision) as revision,
+                      patch('mensa.ollama_revision.installed_ollama_revision',
+                            side_effect=AssertionError('CLI must not probe model manifests')) as revision,
+                      patch.object(worker, 'configured_resource_status',
+                                   return_value=(False, 'configured model busy')) as resources,
+                      patch.object(worker, 'resource_status', side_effect=AssertionError('Legacy resource policy')),
                       patch.object(worker, 'DriveRefreshJob') as drive,
-                      patch.object(worker.RefreshJob, 'translate', translations),
-                      patch.object(worker, 'resume_configured_translations',
-                                   return_value=translations.return_value) as configured,
+                      patch.object(worker.RefreshJob, 'translate', side_effect=AssertionError('Legacy translation')),
                       patch.object(worker, 'process_queue', side_effect=run),
                       redirect_stdout(io.StringIO())):
                     worker.main(['--base', str(base)])
-                if installed_revision == config.inference.revision:
-                    translations.assert_called_once_with({}, {}, {}, checkpoint=None)
-                    configured.assert_not_called()
-                else:
-                    translations.assert_not_called()
-                    configured.assert_called_once()
-                    self.assertEqual(configured.call_args.args, ({}, {}, {}, config.inference))
-                    self.assertIsNone(configured.call_args.kwargs['checkpoint'])
+                    worker.main(['--config', str(base/'worker.toml')])
+                self.assertEqual(len(jobs), 2)
+                self.assertEqual(drive.call_count, 2)
+                self.assertEqual(resources.call_args_list, [((config.resources,),), ((config.resources,),)])
+                revision.assert_not_called()
 
     def setUp(self):
         self.menu = parse_menu(page(), '2026-09-21T10:00:00Z')
@@ -815,7 +816,7 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
         before = {item: item.read_bytes() for item in self.state.iterdir()}
         with (patch.object(worker, 'configured_resource_status', side_effect=AssertionError('Status resources')),
               patch.object(worker, 'process_queue', side_effect=AssertionError('Status worker')),
-              patch.object(worker, 'installed_ollama_revision', side_effect=AssertionError('Status model'))):
+              patch('mensa.ollama_revision.installed_ollama_revision', side_effect=AssertionError('Status model'))):
             report = self.main_report('--config', str(self.config_path), '--status')
         self.assertEqual(report['translation_work'], state)
         self.assertEqual({item: item.read_bytes() for item in self.state.iterdir()}, before)
@@ -830,7 +831,7 @@ remote = {json.dumps(str(self.root / 'remote.git'))}
         queue_before = (self.state/'queue.json').read_bytes()
         with (patch.object(worker, 'configured_resource_status', side_effect=AssertionError('Retry resources')),
               patch.object(worker, 'process_queue', side_effect=AssertionError('Retry worker')),
-              patch.object(worker, 'installed_ollama_revision', side_effect=AssertionError('Retry model'))):
+              patch('mensa.ollama_revision.installed_ollama_revision', side_effect=AssertionError('Retry model'))):
             report = self.main_report('--config', str(self.config_path), '--retry-translations')
         self.assertEqual(report['status'], 'retry_requested')
         self.assertEqual(report['translation_work']['attempts'], 1)

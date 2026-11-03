@@ -1,7 +1,7 @@
 """큐에 저장된 식단 갱신 작업 하나를 수집·번역·공개하는 명령 진입점입니다.
 
---base 경로는 worker.toml의 Drive 설정과 기존 macOS 모델을 사용하고, --config 경로는
-명시한 TOML의 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 디렉터리 준비, 큐 잠금,
+--base 경로는 해당 디렉터리의 worker.toml을 읽고, --config 경로는 명시한 TOML을 읽습니다.
+두 실행은 같은 자원·모델·공개 설정을 사용합니다. JobRunner가 상태 디렉터리 준비, 큐 잠금,
 완료·실패·재시도 기록과 last-result.json 저장을 담당합니다. 이 모듈의 작업 객체는
 수집과 공개 진행을 수행하며, 재개에 필요한 큐 체크포인트를 잠금 안에서 저장합니다.
 """
@@ -28,7 +28,6 @@ from mensa.drive_refresh import DriveRefreshJob
 from mensa.config import load_worker_config
 from mensa.generation import request_translation
 from mensa.model_runtime import model_session
-from mensa.ollama_revision import installed_ollama_revision
 from mensa.resources import resource_status as configured_resource_status
 from mensa.translation_runtime import resume_configured_translations
 from mensa.translation_work import load_translation_state, retry_translations
@@ -624,44 +623,8 @@ def main(argv=None):
                 runtime=lambda settings, *, key: model_session(settings, key=key),
             )
         elif config.publication.mode == 'drive':
-            ports = {}
-            if args.base is not None:
-                base = args.base.expanduser().resolve()
-                native = (config.resources.platform == 'macos'
-                          and config.resources.min_available_bytes == 32 * 1024 ** 3
-                          and config.resources.max_load_per_cpu == 0.6
-                          and config.paths.state_dir == base
-                          and config.paths.checkout_dir == (base / 'checkout').resolve()
-                          and config.inference.mode == 'managed'
-                          and config.inference.provider == 'ollama'
-                          and config.inference.model == MODEL
-                          and config.inference.binary == (base / 'runtime/ollama').resolve()
-                          and config.inference.models_dir == (base / 'models').resolve()
-                          and config.inference.log_dir == (base / 'logs').resolve())
-                if native:
-                    # 기존 Mac의 검증된 번역 캐시·모델 실행은 유지하고 Git 게시 메서드는 호출하지 않습니다.
-                    # 모델 파일 검사는 원본 게시를 마친 뒤 번역 콜백에서 수행합니다.
-                    resources = resource_status
-                    def translate_native(menu, cache, phrases, *, checkpoint=None):
-                        try:
-                            matches = config.inference.revision == installed_ollama_revision(
-                                config.inference.models_dir, config.inference.model)
-                        except ValueError:
-                            matches = False
-                        if matches:
-                            return RefreshJob(base, inference=config.inference).translate(
-                                menu, cache, phrases, checkpoint=checkpoint)
-                        return resume_configured_translations(
-                            menu, cache, phrases, config.inference, state_dir=config.paths.state_dir,
-                            glossary_provider=lambda: load_glossary(
-                                config.paths.checkout_dir / 'data/notice-translations.json'),
-                            translate=lambda source, settings: request_translation(source, settings),
-                            runtime=lambda settings, *, key: model_session(settings, key=key),
-                            checkpoint=checkpoint,
-                        )
-                    ports['translation_builder'] = translate_native
             work = DriveRefreshJob(config, source=lambda: parse_menu(fetch_html()),
-                                   clock=lambda: datetime.now(timezone.utc), **ports)
+                                   clock=lambda: datetime.now(timezone.utc))
         else:
             work = ConfiguredRefreshJob(config)
         result = process_queue(directory, datetime.now(timezone.utc), resources, work)
