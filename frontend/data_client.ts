@@ -1,4 +1,4 @@
-import { validateMenu, validateReleaseManifest, validateTranslations } from './contracts.js';
+import { validateMenu, validateReleaseManifest, recoverTranslations } from './contracts.js';
 import type { MenuSnapshot, ReleaseManifest, TranslationCache } from './contracts.js';
 
 export interface JsonResponse { readonly ok: boolean; readonly status?: number; json(): Promise<unknown> }
@@ -26,6 +26,6 @@ export function createDataClient(fetchPort: FetchPort): DataClient {
   return {
     async loadManifest() { return validateReleaseManifest(await read('data/current.json')); },
     async loadMenu(releaseId) { return validateMenu(await read(releasePath(releaseId, 'menu.json'), true)); },
-    async loadTranslations(releaseId) { return validateTranslations(await read(releasePath(releaseId, 'translations.json'), true)); },
+    async loadTranslations(releaseId) { return recoverTranslations(await read(releasePath(releaseId, 'translations.json'), true)); },
   };
 }

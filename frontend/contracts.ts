@@ -192,11 +192,16 @@ function translationSource(value: unknown): TranslationSource {
   const source = fields(value, ['name_de', 'components'], 'translation source');
   return { name_de: text(source.name_de, 'translation source name', true), components: array(source.components, 'source components').map(value => text(value, 'source component', true)) };
 }
+function translatedString(value: unknown, label: string, multiline = false): string {
+  const result = text(value, label, multiline);
+  if (/<0x[0-9a-f]{2}>/iu.test(result)) return invalid('undecoded translation byte tokens');
+  return result;
+}
 function translationText(value: unknown, count: number): TranslationText {
   const item = fields(value, ['name', 'components'], 'translation text');
-  const components = array(item.components, 'translated components').map(value => text(value, 'translated component', true));
+  const components = array(item.components, 'translated components').map(value => translatedString(value, 'translated component', true));
   if (components.length !== count) return invalid('translation component count');
-  return { name: text(item.name, 'translated name', true), components };
+  return { name: translatedString(item.name, 'translated name', true), components };
 }
 function translationEntry(value: unknown): TranslationEntry {
   const item = record(value, 'translation entry');
@@ -204,24 +209,34 @@ function translationEntry(value: unknown): TranslationEntry {
   const source = translationSource(item.source);
   return { source, en: translationText(item.en, source.components.length), ko: translationText(item.ko, source.components.length) };
 }
-function dictionary<T>(value: unknown, parse: (value: unknown) => T, keys: (key: string) => void): Record<string, T> {
-  return Object.fromEntries(Object.entries(record(value, 'dictionary')).map(([key, entry]): [string, T] => {
-    keys(key);
-    return [key, parse(entry)];
-  }));
+function dictionary<T>(value: unknown, parse: (value: unknown) => T, keys: (key: string) => void, recover: boolean): Record<string, T> {
+  const result: [string, T][] = [];
+  for (const [key, entry] of Object.entries(record(value, 'dictionary'))) {
+    try {
+      keys(key);
+      result.push([key, parse(entry)]);
+    } catch (error) {
+      if (!recover) throw error;
+    }
+  }
+  return Object.fromEntries(result);
 }
 function noticeTranslation(value: unknown): NoticeTranslation {
   const item = fields(value, ['en', 'ko'], 'notice translation');
-  return { en: text(item.en, 'English notice'), ko: text(item.ko, 'Korean notice') };
+  return { en: translatedString(item.en, 'English notice'), ko: translatedString(item.ko, 'Korean notice') };
 }
-export function validateTranslations(input: unknown): TranslationCache {
+function parseTranslations(input: unknown, recover: boolean): TranslationCache {
   const item = record(input, 'translation cache');
   if (!Object.hasOwn(item, 'schema_version') || item.schema_version !== 1 || !Object.hasOwn(item, 'entries')) return invalid('translation schema');
+  if (Object.keys(item).some(key => !['schema_version', 'entries', 'notices'].includes(key))) return invalid('translation cache fields');
   return { schema_version: 1,
-    entries: dictionary(item.entries, translationEntry, key => { digest(key, 'translation key'); }),
-    notices: Object.hasOwn(item, 'notices') ? dictionary(item.notices, noticeTranslation, key => { text(key, 'notice key'); }) : {},
+    entries: dictionary(item.entries, translationEntry, key => { digest(key, 'translation key'); }, recover),
+    notices: Object.hasOwn(item, 'notices') ? dictionary(item.notices, noticeTranslation, key => { text(key, 'notice key'); }, recover) : {},
   };
 }
+export function validateTranslations(input: unknown): TranslationCache { return parseTranslations(input, false); }
+/** recoverTranslations는 컨테이너를 검사한 뒤 손상된 번역·안내 항목만 제외하여 독일어 대체 표시를 허용합니다. */
+export function recoverTranslations(input: unknown): TranslationCache { return parseTranslations(input, true); }
 export function validateReleaseManifest(input: unknown): ReleaseManifest {
   const item = fields(input, ['schema_version', 'release_id'], 'release manifest');
   if (item.schema_version !== 1) return invalid('release schema');

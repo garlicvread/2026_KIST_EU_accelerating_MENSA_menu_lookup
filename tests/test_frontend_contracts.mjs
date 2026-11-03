@@ -122,7 +122,7 @@ test('shared counter prices retain the source owner and reject cross-counter ass
   ]);
 });
 
-test('translations validate display source, bilingual components and exact notice mappings', () => {
+test('translations validate display source, bilingual components and notice field structure', () => {
   rejected(contracts.validateTranslations, cache, [
     ['missing Korean', c => { delete c.entries[digest].ko; }],
     ['component count', c => { c.entries[digest].ko.components = []; }],
