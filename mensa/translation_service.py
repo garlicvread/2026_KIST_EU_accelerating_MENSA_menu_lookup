@@ -32,17 +32,14 @@ class TranslationService:
             raise TypeError("checkpoint must be callable")
         previous = previous or {"schema_version": 1, "entries": {}}
         cache = recover_cache(previous)
-        # build는 중단된 스냅샷 갱신에서 여전히 필요할 수 있으므로 보존된 항목에도 현재 이름 정책을 적용합니다.
-        for entry in cache["entries"].values():
-            _apply_name_policy(entry)
-            _apply_component_policy(entry)
-        # 검토된 사전 값을 우선하고, 새 문구는 캐시 또는 모델로 번역합니다.
+        # 기존의 정상 번역·교정은 보존하고 사전 값은 없는 번역만 채웁니다.
         # 모델을 쓰지 않는 사전 구성 단계에서는 미완성 캐시를 반환할 수 있으나,
         # 빠진 안내는 원문으로 표시하고 별도 번역 작업에서 재시도합니다.
         glossary = self._glossary_provider()
         labels = source_notices(menu)
         notices = cache.setdefault("notices", {})
-        notices.update(translate_notice_labels(labels, glossary))
+        for label, translated in translate_notice_labels(labels, glossary).items():
+            notices.setdefault(label, translated)
         for label in sorted(labels - notices.keys()):
             if config is None:
                 continue
@@ -66,14 +63,14 @@ class TranslationService:
                 key = source_key(source)
                 if meal["translation_key"] != key:
                     raise ValueError("Menu translation key mismatch")
+                if reusable_translation(
+                    cache["entries"].get(key), config["model"] if config else None, identity=identity
+                ):
+                    continue
                 texts = [source["name_de"], *source["components"]]
                 if all(text in phrases and isinstance(phrases[text], dict) and all(_text(phrases[text].get(lang)) for lang in ("en", "ko")) for text in texts):
                     result = {lang: {"name": phrases[texts[0]][lang], "components": [phrases[t][lang] for t in texts[1:]]} for lang in ("en", "ko")}
                     origin, model = "editorial-draft", "assistant-draft"
-                elif reusable_translation(
-                    cache["entries"].get(key), config["model"] if config else None, identity=identity
-                ):
-                    continue
                 elif config:
                     result = self._generate(source, config)
                     if result is None:

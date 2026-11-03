@@ -78,7 +78,7 @@ class TranslationRunnerTests(unittest.TestCase):
         self.assertEqual(final["entries"][source_key(history)]["en"]["name"], "Public history")
         self.assertEqual(final["notices"]["Alt"], public["notices"]["Alt"])
         self.assertEqual(final["notices"]["Privat"], private["notices"]["Privat"])
-        self.assertEqual(final["notices"]["Weizen"], self.glossary["Weizen"])
+        self.assertEqual(final["notices"]["Weizen"], public['notices']['Weizen'])
         self.assertEqual(self.generated, ["Suppe B"])
 
 

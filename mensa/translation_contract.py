@@ -155,10 +155,12 @@ def validate_generation_identity(value):
 
 def reusable_translation(entry, model=None, *, identity=None):
     """reusable_translation이 검증된 번역 항목의 프롬프트·모델·생성 식별 정보를 대조하여 재사용 가능 여부를 반환합니다. identity가 없으면 기존 호환성 동작을 유지합니다."""
-    if not entry or entry["prompt_version"] not in SUPPORTED_PROMPT_VERSIONS:
+    if not entry:
         return False
     if entry["origin"] != "model":
         return True
+    if entry["prompt_version"] not in SUPPORTED_PROMPT_VERSIONS:
+        return False
     if model is not None and entry["model"] != model:
         return False
     return identity is None or entry.get("generation_identity") == identity

@@ -183,3 +183,23 @@ class TranslationRecoveryTests(unittest.TestCase):
         repaired = self.build(cache)
         self.assertNotIn('bad-history', repaired['entries'])
         self.assertEqual(len(repaired['entries']), 2)
+
+    def test_healthy_reviewed_wording_survives_authoring_defaults(self):
+        source = {'name_de': 'Wikingertopf', 'components': ['Peperoni']}
+        key = source_key(source)
+        previous = entry('Wikingertopf')
+        previous['source'] = source
+        previous['en'] = {'name': 'Stew with meatballs', 'components': ['Hot peppers']}
+        previous['ko'] = {'name': '미트볼을 넣은 스튜', 'components': ['매운 고추']}
+        cache = {'schema_version': 1, 'entries': {key: previous},
+                 'notices': {'Weizen': {'en': 'Contains wheat', 'ko': '밀이 들어 있음'}}}
+        menu = {'days': [{'meals': [{'translation_key': key, 'name_de': 'Wikingertopf',
+                 'components': [{'name_de': 'Peperoni'}], 'notices': ['Weizen']}]}]}
+        defaults = {'Wikingertopf': {'en': 'Default stew', 'ko': '기본 스튜'},
+                    'Peperoni': {'en': 'Default pepper', 'ko': '기본 고추'}}
+        service = TranslationService(glossary_provider=lambda: {
+            'Weizen': {'en': 'Wheat', 'ko': '밀'}}, translate=self.generate)
+        before = copy.deepcopy(cache)
+        recovered = service.build(menu, cache, defaults, None)
+        self.assertEqual(recovered, before)
+        self.assertEqual(cache, before)

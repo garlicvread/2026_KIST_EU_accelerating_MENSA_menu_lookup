@@ -240,7 +240,7 @@ class GenerationIdentityTests(unittest.TestCase):
                 entry = cache["entries"][self.meal["translation_key"]]
                 self.assertEqual(entry["en"], self.generated["en"])
                 self.assertEqual(entry["ko"], self.generated["ko"])
-                self.assertEqual(cache["notices"], {"Weizen": glossary["Weizen"]})
+                self.assertEqual(cache["notices"], previous["notices"])
                 self.assertNotEqual(entry["generation_identity"]["glossary"], previous["entries"][self.meal["translation_key"]]["generation_identity"]["glossary"])
         self.assertEqual((previous, config, self.glossary), before)
 
@@ -321,7 +321,7 @@ class SemanticNamePolicyTests(unittest.TestCase):
             "ko": {"name": ko_name, "components": ["기존 곁들임"] * len(meal["components"])},
             "origin": origin, "model": "original-generator", "prompt_version": "menu-v3"}}}
 
-    def test_cached_reviewed_dishes_migrate_without_model_or_component_changes(self):
+    def test_cached_wording_is_not_rewritten_by_literal_name_defaults(self):
         for source_name, old_en, old_ko, new_en, new_ko in (
             ("Wikingertopf", "Wikingertopf (stew)", "Wikingertopf (스튜)", "Meatball stew", "고기완자 스튜"),
             ("Köttbullar", "Köttbullar (Swedish meatballs)", "Köttbullar (스웨덴식 미트볼)",
@@ -345,14 +345,12 @@ class SemanticNamePolicyTests(unittest.TestCase):
                 cache = build_translations(menu, previous, {}, None,
                                            translate=lambda *args: self.fail("Migration must not call a model"))
                 expected = copy.deepcopy(previous["entries"][meal["translation_key"]])
-                expected["en"]["name"], expected["ko"]["name"] = new_en, new_ko
-                expected["name_policy_version"] = "semantic-names-v1"
                 self.assertEqual(cache["entries"][meal["translation_key"]], expected)
                 self.assertEqual(menu, original_menu)
                 self.assertEqual(previous, original_cache)
                 validate_cache(cache)
 
-    def test_reviewed_component_migrates_cached_source_without_retranslating_other_foods(self):
+    def test_cached_components_are_not_rewritten_by_literal_component_defaults(self):
         meal = sample_meal("Salatbuffet", sides=("Gurken", "Peperoni", "Pepperoni-Salami"))
         meal["components"][1]["notices"] = ["Senf"]
         menu = {"days": [{"meals": [meal]}]}
@@ -364,9 +362,6 @@ class SemanticNamePolicyTests(unittest.TestCase):
         cache = build_translations(menu, previous, {}, None,
                                    translate=lambda *args: self.fail("Review must not run inference"))
         expected = copy.deepcopy(entry)
-        expected["en"]["components"][1] = "Chili peppers"
-        expected["ko"]["components"][1] = "고추"
-        expected["component_policy_version"] = "semantic-components-v1"
         self.assertEqual(cache["entries"][meal["translation_key"]], expected)
         self.assertEqual(menu, original_menu)
         self.assertEqual(previous, original_cache)
@@ -374,18 +369,18 @@ class SemanticNamePolicyTests(unittest.TestCase):
         validate_cache(cache)
 
 
-    def test_cached_brand_chains_are_removed_while_food_and_dietary_terms_survive(self):
+    def test_reviewed_cached_title_is_preserved_without_reapplying_authoring_defaults(self):
         meal = sample_meal("KlimaTeller: Vegan: Curry")
         previous = self.legacy_cache(meal, "  MeNsAvItAl: KlimaTeller: Vegan curry",
                                      "KLIMATELLER: mensavital: 비건 커리", origin="reviewed-draft")
         cache = build_translations({"days": [{"meals": [meal]}]}, previous, {}, None)
         entry = cache["entries"][meal["translation_key"]]
-        self.assertEqual(entry["en"]["name"], "Vegan curry")
-        self.assertEqual(entry["ko"]["name"], "비건 커리")
+        self.assertEqual(entry["en"], previous['entries'][meal['translation_key']]['en'])
+        self.assertEqual(entry["ko"], previous['entries'][meal['translation_key']]['ko'])
         self.assertEqual(entry["source"], source_for(meal))
         self.assertEqual(entry["origin"], "reviewed-draft")
         self.assertEqual(entry["prompt_version"], "menu-v3")
-        self.assertEqual(entry["name_policy_version"], "semantic-names-v1")
+        self.assertNotIn('name_policy_version', entry)
 
 
     def test_configured_editorial_correction_replaces_migrated_v3_components_and_applies_policies(self):
