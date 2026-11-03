@@ -40,6 +40,6 @@ npm run build -- --data-dir tests/fixtures/menu-data --output .tmp/build-example
 
 ## 실패한 작업을 이어갈 때
 
-`--status`로 큐·마지막 결과를 먼저 읽고 실제 Drive 릴리스·수집 시각과 대조합니다. 운영용 Mac의 `translation-state.json`은 미완성 번역·재사용 캐시·사용 기록이고 `drive-publication.json`은 준비한 묶음의 재시도 입력입니다. 기존 `translation-checkpoint.json`은 최초 이관에만 읽습니다. 공개 메뉴는 지난30일과 원본의 미래 날짜, 공개 번역은 그 메뉴의 참조만 담습니다. 캐시180일·복구10개 등 [운영 보관 한도](operations.md#데이터-보관-한도와-정리)를 확인하며 큐·설정을 지워 재시작하지 않습니다.
+`--status`로 수집 큐·번역 작업·마지막 결과를 먼저 읽고 실제 Drive 릴리스·수집 시각과 대조합니다. 운영용 컴퓨터의 `translation-state.json`은 미완성 번역·재사용 캐시·사용 기록이고 `translation-work.json`은 별도 번역 시도·대기 상태입니다. `drive-publication.json`은 수집 준비 묶음의 재시도 입력입니다. 번역이 빠지거나 손상된 항목은 독일어로 표시하며 새 메뉴·가격을 게시합니다. 기존 `translation-checkpoint.json`은 최초 이관에만 읽습니다. 공개 메뉴는 지난30일과 원본의 미래 날짜, 공개 번역은 그 메뉴의 정상 참조 항목만 담습니다. 캐시180일·복구10개 등 [운영 보관 한도](operations.md#데이터-보관-한도와-정리)를 확인하며 큐·설정을 지워 재시작하지 않습니다.
 
 상태 파일 수정·백업·운영 코드 반영 전에는 자동/수동 작업을 멈추고 같은 `worker.lock`을 확보합니다. 인증·모델·자원·원문·번역의 실제 원인을 고친 뒤 [잠금 아래 재시도 절차](operations.md#실패-확인과-재시도)를 사용합니다. 일일 업로드 실패를 해결하려고 Git 데이터 커밋이나 Pages 배포를 만들지 않습니다.

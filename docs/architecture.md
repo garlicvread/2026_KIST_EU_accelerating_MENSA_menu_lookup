@@ -6,6 +6,8 @@
 
 진입점 [`scripts/local_refresh.py`](../scripts/local_refresh.py)는 `--config PATH` 또는 `--base BASE`를 받습니다. `--base`도 `BASE/worker.toml`을 읽으며, 설정 누락을 이전 자동 Git 게시로 처리하지 않습니다. [`mensa/config.py`](../mensa/config.py)의 `load_worker_config`는 경로·모델·자원·게시 방식을 검사합니다. 설정을 읽는 것만으로 워커를 시작하거나 모델·Drive 연결을 확인하지 않습니다.
 
+Drive의 두 진입 옵션은 같은 수집·번역 구현을 사용합니다. 운영체제나 특정 모델·메모리·설치 경로 값의 조합으로 번역 판단을 바꾸지 않습니다. LaunchAgent/systemd 등록, 자원 측정과 설치 경로는 운영체제·설정의 차이로 처리합니다. 명시적 이전 Git 설치의 호환 코드는 평소 Drive 실행에서 선택하지 않습니다.
+
 현재 Mac은 `~/mensa`의 코드를 사용하고, `~/Library/Application Support/Mensa`에 큐·체크포인트·모델·로그를 보관합니다. 기존 LaunchAgent는 같은 로그인 사용자로 `--base`를 호출합니다. Drive 준비 폴더는 예를 들어 `~/Library/Application Support/Mensa Data`처럼 코드·비공개 상태와 겹치지 않는 별도 경로입니다. 실제 전환 완료 여부는 [배포 확인](deployment.md)으로 판단합니다.
 
 `--status`는 수집 큐·번역 작업 상태·마지막 결과만 읽으며 모델이나 Drive에 연결하지 않습니다. 실행 시 [`JobRunner`](../mensa/jobs.py)는 비공개 상태 폴더의 `worker.lock`에 OS 파일 잠금을 걸고 수집 후 별도 번역 작업을 처리합니다. 다른 실행이 잠금을 갖고 있으면 큐와 결과를 바꾸지 않고 `busy`를 반환합니다. 성공한 수집 시각만 `queue.json`의 `completed_period`로 기록합니다. 번역의 대기·실패는 `translation-work.json`과 결과의 `translations`에서 구분하며 수집 완료를 되돌리지 않습니다.

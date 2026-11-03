@@ -58,7 +58,7 @@ cd "$HOME/mensa"
 /opt/homebrew/opt/python@3.14/bin/python3.14 -m scripts.local_refresh --base "$HOME/Library/Application Support/Mensa" --status
 ```
 
-`--status`는 큐와 마지막 결과를 읽습니다. 이를 뺀 실행은 기존 일정·재시도 대기·자원 기준에 따라 대기 작업을 처리합니다. 수동 실행도 강제 갱신은 아닙니다. 수집 일정은 `Europe/Berlin` 기준 매일 09:00·10:00·11:00입니다. 화면을 잠가도 로그인과 깨어 있는 상태가 유지되면 실행할 수 있지만 로그아웃·시스템 잠자기 동안에는 실행되지 않습니다.
+`--status`는 수집 큐·번역 작업 상태·마지막 결과를 읽습니다. 이를 뺀 실행은 기존 일정·재시도 대기에 따라 수집을 처리하고 필요한 번역에만 모델 자원 기준을 적용합니다. 수동 실행도 강제 갱신은 아닙니다. 수집 일정은 `Europe/Berlin` 기준 매일 09:00·10:00·11:00입니다. 화면을 잠가도 로그인과 깨어 있는 상태가 유지되면 실행할 수 있지만 로그아웃·시스템 잠자기 동안에는 실행되지 않습니다.
 
 새 설치와 후임자는 [Drive 설정 예제](config/worker.drive.example.toml)를 자신의 계정·경로·모델·rclone remote·폴더 ID·파일 ID에 맞춥니다. `local_refresh --config /path/to/worker.toml`도 지원합니다. `paths.public_dir`는 코드와 비공개 상태에서 분리한 로컬 준비 폴더이며, Drive 모드에서 정적 웹사이트 루트를 뜻하지 않습니다. 현재 Mac의 예는 `~/Library/Application Support/Mensa Data`입니다.
 

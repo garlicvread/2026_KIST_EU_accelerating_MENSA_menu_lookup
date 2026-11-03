@@ -54,7 +54,9 @@ Drive 전체 예제는 [`config/worker.drive.example.toml`](../config/worker.dri
 
 `publication.mode = "drive"`에는 rclone `remote`, `folder_id`, `file_id`가 모두 필요합니다. OAuth token/client secret은 rclone의 비공개 설정에만 두고 코드·TOML·사이트에 넣지 않습니다. 파일 ID를 바꾸면 Pages의 `MENSA_DRIVE_FILE_ID`도 설치 변경으로 한 번 갱신합니다. 평소 업로드는 이 변수를 바꾸지 않습니다. 인증 인계와 공용 OAuth client 종료 공지는 [운영 문서](operations.md#drive-연결과-후임자-인계)를 참고해 주세요.
 
-managed 모델은 준비된 실행 파일·모델·로그 경로를 사용하고 자신이 시작한 프로세스 그룹만 종료합니다. external 모델은 해당 운영자가 가동·인증을 책임집니다. 설정 CLI에는 API key 필드가 없으므로 인증 endpoint를 추가하려면 실제 key 전달 경로를 검토합니다. 기존 Mac `--base`의 Drive 전환은 설치된 `gemma4:31b`와 네이티브 캐시 재사용 정책을 유지하며 모델을 다시 받지 않습니다.
+managed 모델은 준비된 실행 파일·모델·로그 경로를 사용하고 자신이 시작한 프로세스 그룹만 종료합니다. external 모델은 해당 운영자가 가동·인증을 책임집니다. 설정 CLI에는 API key 필드가 없으므로 인증 endpoint를 추가하려면 실제 key 전달 경로를 검토합니다. 기존 Mac `--base`의 Drive 전환은 설치된 모델·설정·캐시 파일을 보존하며 모델을 다시 받지 않습니다.
+
+Drive 실행에서는 `--base`·`--config`가 같은 번역·캐시 복구 경로를 사용해야 합니다. Mac의 기본 경로·모델명·메모리 값이 특정 값과 같다는 이유로 별도 번역기를 선택하지 않습니다. 기존 캐시 파일과 설정은 보존하며, 생성 조건이 현재 설정과 호환되지 않는 모델 번역은 별도 번역 작업에서 갱신합니다.
 
 ## 실패와 복구 코드를 바꿀 때
 
