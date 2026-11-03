@@ -128,7 +128,9 @@ class _RawInventory(HTMLParser):
     """DOM 조회와 별도로 구조 클래스·메타데이터·가격 표시의 등장 횟수를 셉니다.
 
     구조 클래스와 메타데이터는 문서 전체에서 세고, 가격 표시는 판매대 또는 메뉴 요소
-    안에서만 셉니다. 추출 루프가 읽지 못한 요소도 집계하여 종류별 누락을 드러냅니다.
+    안에서만 셉니다. 구성품 이름 안의 가격 문구는 설명으로 보존하므로 가격 표시·그룹
+    집계에서 제외합니다. 구성품 밖의 잘못 옮긴 가격표는 계속 발견합니다.
+    추출 루프가 읽지 못한 요소도 집계하여 종류별 누락을 드러냅니다.
     텍스트 전체의 일치나 모든 종류의 HTML 변경을 판별하는 검사는 아닙니다.
     """
 
@@ -144,8 +146,9 @@ class _RawInventory(HTMLParser):
         if any(key in attrs for key in ("data-date", "data-counter", "data-meal")):
             self.counts["metadata"] += 1
         active = bool(self.stack and self.stack[-1][1]) or "counter" in classes or "meal" in classes
+        component_text = bool(self.stack and self.stack[-1][2]) or "component-name" in classes
         if tag not in VOID_TAGS:
-            self.stack.append((tag, active))
+            self.stack.append((tag, active, component_text))
 
     def handle_startendtag(self, tag, attrs):
         self.handle_starttag(tag, attrs)
@@ -159,7 +162,7 @@ class _RawInventory(HTMLParser):
                 break
 
     def handle_data(self, data):
-        if self.stack and self.stack[-1][1]:
+        if self.stack and self.stack[-1][1] and not self.stack[-1][2]:
             self.counts["price-markers"] += len(PRICE_MARKER.findall(data))
             self.counts["price-groups"] += len(GROUP_MARKER.findall(data))
 
@@ -302,6 +305,8 @@ def _parse_menu(html, fetched_at):
                     notices.extend(_notices(notice))
 
                 price_nodes = [node for node in source_meal.all() if node.tag == "strong"
+                               and "component-name" not in node.classes
+                               and _nearest(node, lambda n: "component-name" in n.classes) is None
                                and PRICE_MARKER.search(_text(node.text()))]
                 _require(len(price_nodes) <= 1, "Duplicate price block")
                 raw = None
