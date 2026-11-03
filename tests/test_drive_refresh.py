@@ -265,6 +265,30 @@ if __name__ == '__main__':
 class DriveTranslationLaneTests(unittest.TestCase):
     setup_drive = DriveRefreshTests.setup_drive
 
+    def test_long_translation_failure_schedules_backoff_from_failure_time(self):
+        from mensa.errors import GenerationError
+        from unittest.mock import patch
+        cases = ((OSError('Translation interrupted'), 35),
+                 (GenerationError('http_retryable', retry_after=3600), 80))
+        for error, retry_minutes in cases:
+            with self.subTest(error=type(error).__name__), directory_fixture.DirectoryRefreshTests().fixture() as f:
+                self.setup_drive(f)
+                result = JobRunner(f.state, resources=lambda: (False, 'busy'), work=f.job).run(f.now)
+                self.assertEqual(result['status'], 'completed')
+                elapsed = [0]
+                def generate(menu, cache, phrases, *, checkpoint):
+                    elapsed[0] = 1200
+                    raise error
+                f.job._translation_builder = generate
+                with patch('time.monotonic', side_effect=lambda: elapsed[0]):
+                    result = f.job.translation_work(f.now, resources=lambda: (True, 'ready'),
+                                                     source_state=load_state(f.queue))
+                self.assertEqual(result['status'], 'failed')
+                state = json.loads((f.state/'translation-work.json').read_text())
+                self.assertEqual(state['attempts'], 1)
+                expected = (f.now + timedelta(minutes=retry_minutes)).isoformat().replace('+00:00', 'Z')
+                self.assertEqual(state['next_attempt_at'], expected)
+
     def test_malformed_identity_refresh_preserves_valid_fallback_and_backs_off(self):
         from contextlib import contextmanager
         from mensa.translation_contract import generation_identity

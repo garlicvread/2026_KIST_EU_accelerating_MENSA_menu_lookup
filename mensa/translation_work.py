@@ -1,13 +1,14 @@
 """수집 큐와 분리된 유한 번역 상태·재시도·게시 복구를 제공합니다."""
 
 import copy
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import os
 from pathlib import Path
 import re
 import stat
 import tempfile
+import time
 
 from mensa.errors import GenerationError
 from mensa.queue import exclusive_lock, failed, reconcile
@@ -201,6 +202,7 @@ def _needs_generation(menu, cache, settings, glossary, *, strict_identity):
 def run_translation_work(config, now, *, resources, current, load_prepared, publish,
                          confirm, generate, glossary, phrases, source_pending=False, strict_identity=True):
     """최신 공개 메뉴의 번역만 재개하고 별도 게시 준비본을 최신 공개 ID에 결합합니다."""
+    started = time.monotonic()
     from mensa.publication import validate_publication
     from mensa.retention import public_translations, retain_menu
     from mensa.schedule import BERLIN
@@ -225,7 +227,8 @@ def run_translation_work(config, now, *, resources, current, load_prepared, publ
 
     def fail(error):
         nonlocal state
-        state = translation_failed(state, error, now)
+        failed_at = now + timedelta(seconds=time.monotonic() - started)
+        state = translation_failed(state, error, failed_at)
         save_translation_state(path, state)
         failure = state['generation_failure']
         result = {'status': 'blocked' if failure is not None and not failure['retryable'] else 'failed',
