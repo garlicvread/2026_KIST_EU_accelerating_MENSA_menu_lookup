@@ -48,7 +48,7 @@ file_id="snapshot_1234567890"'''))
             self.assertEqual(drive.call_args.args[0].publication.mode, 'drive')
             git.assert_not_called()
 
-    def test_native_reuse_requires_the_complete_original_preset(self):
+    def test_declared_settings_never_select_an_implicit_legacy_translation_path(self):
         for changed in ('none', 'symlink-checkout', 'resources', 'logs', 'revision',
                         'checkout', 'binary', 'models', 'provider', 'mode', 'missing-manifest'):
             with self.subTest(changed=changed), directory_fixture.DirectoryRefreshTests().fixture() as f:
@@ -95,17 +95,14 @@ file_id="snapshot_1234567890"'''))
                         patch.object(worker, 'DriveRefreshJob') as drive, \
                         patch.object(worker, 'RefreshJob') as legacy, \
                         patch.object(worker, 'resource_status', return_value=(True, 'native')), \
-                        patch.object(worker, 'configured_resource_status', return_value=(False, 'configured')), \
+                        patch.object(worker, 'configured_resource_status', return_value=(False, 'configured')) as resources, \
                         patch.object(worker, 'process_queue', side_effect=run), redirect_stdout(io.StringIO()):
                     worker.main(['--base', str(base)])
-                if changed in ('none', 'symlink-checkout'):
-                    self.assertEqual(observed, [(True, 'native')])
-                    self.assertIn('translation_builder', drive.call_args.kwargs)
-                    legacy.assert_called_once_with(base, inference=config.inference)
-                else:
-                    self.assertEqual(observed, [(False, 'configured')])
-                    self.assertNotIn('translation_builder', drive.call_args.kwargs)
-                    legacy.assert_not_called()
+                self.assertEqual(observed, [(False, 'configured')])
+                resources.assert_called_once_with(config.resources)
+                self.assertIs(drive.call_args.args[0], config)
+                self.assertNotIn('translation_builder', drive.call_args.kwargs)
+                legacy.assert_not_called()
 
 
 if __name__ == '__main__':
