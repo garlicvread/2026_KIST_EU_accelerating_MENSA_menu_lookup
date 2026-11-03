@@ -128,16 +128,23 @@ function meal(value: unknown, day: string, ids: Set<string>): Meal {
   if (item.price_status !== 'verified') return invalid('price status');
   const prices = fields(item.prices, ['student', 'staff', 'guest'], 'prices');
   const raw = text(provenance.raw, 'raw price');
-  const matched = /^S:\s*(\d+)[,.](\d{2})\s*\|\s*M:\s*(\d+)[,.](\d{2})\s*\|\s*G:\s*(\d+)[,.](\d{2})$/u.exec(raw);
-  if (!matched || matched[0] !== raw) return invalid('raw price');
-  function cents(group: PriceGroup, index: number): number {
+  const entries = raw.split('|');
+  if (entries.length !== 3) return invalid('raw price');
+  const expected: Partial<Record<PriceGroup, number>> = {};
+  for (const entry of entries) {
+    const matched = /^\s*([SMG])\s*:\s*([0-9]+)[,.]([0-9]{2})\s*€?\s*$/u.exec(entry);
+    if (!matched || matched[0] !== entry) return invalid('raw price');
+    const group = matched[1] === 'S' ? 'student' : matched[1] === 'M' ? 'staff' : 'guest';
+    if (Object.hasOwn(expected, group)) return invalid('duplicate price label');
+    expected[group] = Number(matched[2]) * 100 + Number(matched[3]);
+  }
+  function cents(group: PriceGroup): number {
     const value = prices[group];
-    const expected = Number(matched?.[index]) * 100 + Number(matched?.[index + 1]);
-    if (typeof value !== 'number' || !Number.isSafeInteger(value) || value <= 0 || value > 100_000 || value !== expected) return invalid('integer source price');
+    if (typeof value !== 'number' || !Number.isSafeInteger(value) || value <= 0 || value > 100_000 || value !== expected[group]) return invalid('integer source price');
     return value;
   }
   return { ...common, price_status: 'verified',
-    prices: { student: cents('student', 1), staff: cents('staff', 3), guest: cents('guest', 5) },
+    prices: { student: cents('student'), staff: cents('staff'), guest: cents('guest') },
     price_source: { ...priceSource, raw } };
 }
 

@@ -1,4 +1,4 @@
-"""메뉴 검증 함수가 메뉴 JSON의 스키마·원본 출처·항목 식별 정보와 이전 공개 스냅샷의 날짜·가격 연결을 검사합니다."""
+"""메뉴 검증 함수가 메뉴 JSON의 스키마·원본 출처·항목 식별 정보와 이전 공개 스냅샷의 날짜 연결을 검사합니다."""
 
 from collections import Counter
 from copy import deepcopy
@@ -9,7 +9,8 @@ import re
 
 
 SOURCE_URL = "https://www.stw-saarland.de/gastro/mensa-saarbruecken/"
-PRICE_PATTERN = re.compile(r"S:\s*(\d+)[,.](\d{2})\s*\|\s*M:\s*(\d+)[,.](\d{2})\s*\|\s*G:\s*(\d+)[,.](\d{2})")
+_PRICE_ENTRY = r"\s*([SMG])\s*:\s*([0-9]+)[,.]([0-9]{2})\s*€?\s*"
+PRICE_PATTERN = re.compile(r"\|".join([_PRICE_ENTRY] * 3))
 
 
 def _require(condition, message):
@@ -52,9 +53,14 @@ def _prices(raw):
     matched = PRICE_PATTERN.fullmatch(raw)
     _require(matched is not None, "Malformed, partial, or duplicate S/M/G price block")
     groups = matched.groups()
-    amounts = [int(groups[i]) * 100 + int(groups[i + 1]) for i in range(0, 6, 2)]
-    _require(all(0 < value <= 100_000 for value in amounts), "Price outside valid range")
-    return dict(zip(("student", "staff", "guest"), amounts))
+    amounts = {}
+    for index in range(0, 9, 3):
+        label, euros, cents = groups[index:index + 3]
+        _require(label not in amounts, "Malformed, partial, or duplicate S/M/G price block")
+        amount = int(euros) * 100 + int(cents)
+        _require(0 < amount <= 100_000, "Price outside valid range")
+        amounts[label] = amount
+    return {"student": amounts["S"], "staff": amounts["M"], "guest": amounts["G"]}
 
 
 def _fields(value, required, label):
@@ -72,7 +78,7 @@ def _notice_list(value):
 
 
 def validate_menu(menu, previous=None):
-    """validate_menu가 메뉴 JSON의 구조·가격 출처·항목 식별 정보를 검증하고, previous가 있으면 날짜 연결과 계속 존재하는 메뉴의 가격 소실을 검사합니다."""
+    """validate_menu가 메뉴 JSON의 구조·가격 출처·항목 식별 정보를 검증하고, previous가 있으면 날짜 연결을 검사합니다."""
     try:
         _validate_schema(menu)
         if previous is not None:
@@ -175,18 +181,9 @@ def _validate_schema(menu):
 
 
 def _validate_previous(menu, previous):
-    current_days = {day["date"]: day["meals"] for day in menu["days"]}
+    # 가격 미기재는 현재 원본의 상태이며, 과거 가격으로 덮어쓰거나 게시를 막지 않습니다.
+    current_days = {day["date"] for day in menu["days"]}
     for old_day in previous["days"]:
         if old_day["date"] not in current_days:
             _require(not (menu["coverage"]["start"] <= old_day["date"] <= menu["coverage"]["end"]),
                      "Previously covered day disappeared inside current range")
-            continue
-        old_meals = old_day["meals"]
-        current = current_days[old_day["date"]]
-        current_identities = {(meal["category"], meal["name_de"]) for meal in current}
-        current_priced = {(meal["category"], meal["name_de"]) for meal in current if meal["prices"] is not None}
-        old_priced = {(meal["category"], meal["name_de"]) for meal in old_meals if meal["prices"] is not None}
-        # 같은 메뉴의 중복 발생 수는 원본의 운영 변경에 따라 달라질 수 있습니다.
-        # 계속 존재하는 메뉴에 가격이 전혀 남아 있지 않은 경우만 가격 소실로 판단합니다.
-        for identity in old_priced & current_identities:
-            _require(identity in current_priced, "Previously published same-meal prices disappeared")

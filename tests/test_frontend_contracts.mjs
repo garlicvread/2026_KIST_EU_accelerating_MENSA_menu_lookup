@@ -67,6 +67,39 @@ test('menu enforces ordered coverage and correlated price provenance', () => {
   assert.deepEqual(contracts.validateMenu(value), value);
 });
 
+test('labeled price formats map by label and preserve raw provenance', () => {
+  const entries = ['S : 1,00 €', 'M: 2.00€', 'G: 3,00'];
+  const orders = [[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]];
+  const variants = orders.map(order => order.map(index => entries[index]).join(' | '));
+  variants.push('S: 1,00 € | M: 2,00 € | G: 3,00 €', 'S:\u00a01.00 | M: 2.00 | G: 3.00');
+  for (const raw of variants) {
+    const value = menu(); value.days[0].meals[0].price_source.raw = raw;
+    assert.deepEqual(contracts.validateMenu(value), value, raw);
+  }
+});
+
+test('price provenance rejects ambiguous or invalid labeled amounts', () => {
+  for (const raw of [
+    'S: 1,00 | S: 2,00 | G: 3,00',
+    'S: 1,00 | G: 3,00',
+    'S: 1,00 | M: 2,00 | X: 3,00',
+    'S: 1,00 | M: 2,00 | G: 3,00 | G: 3,00',
+    'S: 1,0 | M: 2,00 | G: 3,00',
+    'S: -1,00 | M: 2,00 | G: 3,00',
+    'S: 0,00 | M: 2,00 | G: 3,00',
+    'S: 1000,01 | M: 2,00 | G: 3,00',
+    'S: 1,00 EUR | M: 2,00 | G: 3,00',
+    'S: 1,00 | M: 2,00 | G: 3,00 extra',
+    'S: ١,٠٠ | M: 2,00 | G: 3,00',
+  ]) {
+    const value = menu(); value.days[0].meals[0].price_source.raw = raw;
+    assert.throws(() => contracts.validateMenu(value), Error, raw);
+  }
+  const wrongAmounts = menu();
+  wrongAmounts.days[0].meals[0].price_source.raw = 'G: 1,00 € | S: 3,00 | M: 2,00';
+  assert.throws(() => contracts.validateMenu(wrongAmounts), Error, 'amounts must follow labels');
+});
+
 test('shared counter prices retain the source owner and reject cross-counter associations', () => {
   function sharedMenu() {
     const value = menu();

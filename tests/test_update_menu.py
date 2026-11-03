@@ -125,16 +125,31 @@ class SnapshotTests(unittest.TestCase):
             main()
 
 
-    def test_price_loss_during_refresh_preserves_published_snapshot(self):
+    def test_source_price_omission_during_refresh_publishes_pending_price(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             directory = root / "site" / "data"
-            previous = parse_menu(page())
+            previous = parse_menu(page(date="21.09.2099"))
             cache = complete_cache(previous)
             write_snapshot(directory, previous, cache)
+            update(root, html=page(meal(date="21.09.2099", prices=""), date="21.09.2099"))
+            stored = json.loads((directory / "menu.json").read_text())
+            record = stored["days"][0]["meals"][0]
+            self.assertIsNone(record["prices"])
+            self.assertEqual(record["price_status"], "source_pending")
+            self.assertIsNone(record["price_source"]["raw"])
+            self.assertEqual(json.loads((directory / "translations.json").read_text()), cache)
+
+    def test_malformed_source_price_during_refresh_preserves_published_snapshot(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            directory = root / "site" / "data"
+            previous = parse_menu(page(date="21.09.2099"))
+            write_snapshot(directory, previous, complete_cache(previous))
             before = {p.name: p.read_bytes() for p in directory.iterdir()}
+            html = page(meal(date="21.09.2099"), date="21.09.2099").replace(" | G: 5,35", "")
             with self.assertRaisesRegex(ValueError, "price|Price"):
-                update(root, html=page(meal(prices="")))
+                update(root, html=html)
             self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
 
     def test_second_replace_failure_restores_both_snapshot_files(self):
