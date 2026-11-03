@@ -12,7 +12,7 @@ def resume_translations(menu, published, phrases, config, *, glossary_provider,
 
     공개된 편집 번역 이력을 우선합니다. 충돌하는 비공개 모델 항목은 현재 설정된
     생성 식별 정보와 호환될 때만 호환되지 않는 공개 모델 항목을 대체할 수 있습니다.
-    TranslationService는 보존된 번역의 정책 보정과 현재 편집 정책 적용을 담당합니다.
+    TranslationService는 정상 번역의 재사용과 빠진 항목의 작성을 담당합니다.
     실패는 그대로 전달하며, 확정되지 않은 병합을 저장하거나 이력을 지우지 않습니다.
     """
     if published is None or (isinstance(published, dict) and not published):

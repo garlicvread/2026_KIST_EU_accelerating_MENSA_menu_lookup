@@ -1,4 +1,4 @@
-"""DirectoryRefreshJob이 한 큐 작업의 식단을 번역하고 완성된 메뉴·번역 JSON 쌍을 공개 디렉터리에 게시합니다.
+"""DirectoryRefreshJob이 원본 메뉴·가격과 사용 가능한 번역을 게시하고 별도 번역 작업을 제공합니다.
 
 JobRunner는 비공개 상태 디렉터리 준비, 큐 잠금 및 완료 기록을 담당합니다. 완료 기록이
 실패하면 DirectoryRefreshJob은 원본을 다시 수집하면서 비공개 번역 이력을 재사용할 수

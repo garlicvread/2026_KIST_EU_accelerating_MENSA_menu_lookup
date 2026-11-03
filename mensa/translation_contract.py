@@ -8,7 +8,7 @@ import re
 from mensa.notice_contract import validate_notice_translations
 
 PROMPT_VERSION = "menu-v4"
-# PROMPT_VERSION은 v4의 제목 지침을 지정하며, 명명 함수는 v3 캐시 제목도 현재 정책에 맞게 보정합니다.
+# PROMPT_VERSION은 새 생성의 제목 지침이며 기존 정상 번역의 문장을 정답과 대조하지 않습니다.
 SUPPORTED_PROMPT_VERSIONS = frozenset({"menu-v3", PROMPT_VERSION})
 NAME_POLICY_VERSION = "semantic-names-v1"
 COMPONENT_POLICY_VERSION = "semantic-components-v1"

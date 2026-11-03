@@ -29,8 +29,8 @@ class RefreshService:
         menu = self._source()
         validate_menu(menu, previous=previous)
         self._coverage_guard(menu)
-        # 새 원본의 검사에 통과한 뒤 지난 공개 날짜를 보존합니다. 보존한 날짜도 번역과
-        # 게시 검사에 포함하여 메뉴만 남고 해당 번역이 빠지는 일을 막습니다.
+        # 새 원본의 검사에 통과한 뒤 지난 공개 날짜를 보존합니다.
+        # 번역이 없는 보존 항목도 원문으로 표시할 수 있습니다.
         menu = retain_published_days(menu, previous)
         if self._menu_transform is not None:
             menu = self._menu_transform(menu)

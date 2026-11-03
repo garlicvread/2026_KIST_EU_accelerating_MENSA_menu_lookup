@@ -140,11 +140,11 @@ data/
 
 ## 사람이 검토하는 이름과 주의 표시
 
-유지보수자는 [`data/editorial-translations.json`](../data/editorial-translations.json)에 검토한 구문을, [`data/notice-translations.json`](../data/notice-translations.json)에 정확한 독일어 주의 표시와 영어/한국어 문구를 적습니다. 두 번째 대응표를 코드에서 glossary라고 부릅니다. 번역 코드는 이 표를 우선 사용하고, 미등록 주의 표시는 기존 캐시 또는 LLM으로 번역합니다. 안내 전용 요청은 원문을 `name_de`, 빈 `components`, `kind:notice`로 전달합니다. 결과의 두 언어 `name`을 `notices[독일어 원문]`의 `en`·`ko`로 저장하며, 요리 번역 항목과 섞지 않습니다.
+유지보수자는 [`data/editorial-translations.json`](../data/editorial-translations.json)에 검토한 구문을, [`data/notice-translations.json`](../data/notice-translations.json)에 정확한 독일어 주의 표시와 영어/한국어 문구를 적습니다. 두 번째 대응표를 코드에서 glossary라고 부릅니다. 기존 정상 번역과 공개본의 교정은 보존하고, 없는 번역에 이 작성 입력이나 LLM을 사용합니다. 사전 변경만으로 기존 공개 번역을 자동으로 덮어쓰지 않습니다. 안내 전용 요청은 원문을 `name_de`, 빈 `components`, `kind:notice`로 전달합니다. 결과의 두 언어 `name`을 `notices[독일어 원문]`의 `en`·`ko`로 저장하며, 요리 번역 항목과 섞지 않습니다.
 
 번역 검사 코드는 오래된 schema 1 파일에서 top-level notices가 생략되면 빈 표로 읽을 수 있습니다. 현재 메뉴의 번역이 빠져도 게시할 수 있습니다. 존재하는 번역은 두 언어·필드·원문 연결·구성품 수·표시 가능한 문자열을 검사하며, 특정 요리명이나 사전 문장과 정확히 같을 것을 요구하지 않습니다. 사전은 번역을 작성하는 입력이며 LLM의 의미 정확성을 판정하는 정답지가 아닙니다. 브라우저도 손상된 개별 번역을 제외하고 해당 항목의 독일어 이름·구성품·주의 표시를 보존합니다. 원문 주의 표시를 삭제하거나 임의의 알레르기를 추가하지 않습니다.
 
-이름 표현을 정리하는 [`mensa/translation_contract.py`](../mensa/translation_contract.py)는 mensaVital/KlimaTeller를 독일어 원문에 남기고 번역 제목을 설명형으로 정리합니다. 정확한 Wikingertopf는 “Meatball stew”/“고기완자 스튜”, Köttbullar는 “Swedish meatballs”/“스웨덴식 미트볼”, 구성품 Peperoni는 “Chili peppers”/“고추”입니다. 코드와 유지보수자는 vegan 등 식단 의미와 구성품 순서를 보존하고 원문에 없는 재료를 더하지 않습니다.
+새 번역을 작성할 때 [`mensa/translation_contract.py`](../mensa/translation_contract.py)는 mensaVital/KlimaTeller를 독일어 원문에 남기고 새 제목을 설명형으로 정리합니다. Wikingertopf의 “Meatball stew”/“고기완자 스튜”, Köttbullar의 “Swedish meatballs”/“스웨덴식 미트볼”, 구성품 Peperoni의 “Chili peppers”/“고추”는 새 항목의 작성 기본값입니다. 기존 정상 캐시에는 다시 적용하지 않으며 다른 표현의 게시를 막지 않습니다. 코드와 유지보수자는 vegan 등 식단 의미와 구성품 순서를 보존하고 원문에 없는 재료를 더하지 않습니다.
 
 이름 표현을 정리하는 코드는 이름을 바꾼 항목에 name_policy_version:"semantic-names-v1", 구성품을 바꾼 항목에 component_policy_version:"semantic-components-v1"을 기록합니다. 번역 요청 함수는 모델이 가격·주의 표시를 생성하지 못하게 결과 필드를 제한합니다. Ollama를 선택한 요청은 loopback /api/chat을 사용하고 thinking을 끄며 JSON schema로 결과를 제한합니다. 요청 함수는 정상 완료와 구성품 수를 다시 확인합니다.
 
