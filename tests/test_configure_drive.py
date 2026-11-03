@@ -364,10 +364,10 @@ class ConfigureDriveTests(unittest.TestCase):
         self.assertEqual(self.state_files(), before)
         self.assertFalse(self.staging.exists())
 
-    def test_invalid_incomplete_stale_or_wrong_glossary_pair_fails_before_upload(self):
+    def test_invalid_stale_or_wrong_glossary_pair_fails_before_upload(self):
         cases = []
         missing = copy.deepcopy(self.cache)
-        missing['entries'].clear()
+        del next(iter(missing['entries'].values()))['ko']
         cases.append((self.menu, missing))
         wrong_notice = copy.deepcopy(self.cache)
         wrong_notice['notices']['Weizen']['en'] = 'Unreviewed wheat'

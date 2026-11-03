@@ -167,11 +167,8 @@ class DrivePublisherTests(unittest.TestCase):
         copy_index = next(index for index, argv in enumerate(self.command.commands) if argv[1] == 'copyto')
         self.assertIn('cat', [argv[1] for argv in self.command.commands[copy_index + 1:]])
 
-    def test_invalid_or_partial_pair_is_refused_before_remote_access(self):
+    def test_invalid_pair_is_refused_before_remote_access(self):
         cases = []
-        incomplete = copy.deepcopy(self.cache)
-        incomplete['entries'].clear()
-        cases.append((self.menu, incomplete, {}))
         invalid_cache = copy.deepcopy(self.cache)
         del invalid_cache['entries'][self.key]['ko']
         cases.append((self.menu, invalid_cache, {}))

@@ -114,10 +114,10 @@ class DirectoryPublisherTests(unittest.TestCase):
                 self.assertEqual(publisher.load_current(), changed)
                 self.assertEqual({path.name for path in (root / 'data/releases').iterdir()}, {first, accepted})
 
-    def test_incomplete_or_stale_input_fails_before_output_creation(self):
+    def test_malformed_or_stale_input_fails_before_output_creation(self):
         with TemporaryDirectory() as folder:
             root = Path(folder) / 'public'; publisher = self.publisher(root)
-            incomplete = copy.deepcopy(self.cache); incomplete['entries'].clear()
+            incomplete = copy.deepcopy(self.cache); del incomplete['entries'][self.key]['ko']
             with self.assertRaises(ValueError): publisher.publish(self.menu, incomplete)
             self.assertFalse(root.exists())
             with self.assertRaises(ValueError): publisher.publish(self.menu, self.cache, today='2026-09-22')

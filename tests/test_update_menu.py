@@ -66,34 +66,33 @@ class SnapshotTests(unittest.TestCase):
                 self.assertEqual(stored['days'][0], previous['days'][0])
                 self.assertEqual(report['days'], len(expected_dates))
 
-    def test_validate_only_rejects_missing_second_current_meal_translation(self):
+    def test_validate_only_accepts_missing_second_current_meal_translation(self):
         menu = parse_menu(page(meal() + meal(name="Second dish")))
         cache = complete_cache(menu)
         second = menu["days"][0]["meals"][1]
         del cache["entries"][second["translation_key"]]
         with patch("scripts.update_menu.read_json", side_effect=[menu, cache]), \
                 patch("sys.argv", ["update_menu", "--validate-only"]), redirect_stdout(io.StringIO()):
-            with self.assertRaisesRegex(SystemExit, "Missing meal translation.*Second dish"):
-                main()
+            main()
 
-    def test_incomplete_meal_cache_preserves_both_files_without_staging(self):
+    def test_malformed_meal_cache_preserves_both_files_without_staging(self):
         menu = parse_menu(page())
         cache = complete_cache(menu)
-        cache["entries"].clear()
+        del next(iter(cache["entries"].values()))['ko']
         with tempfile.TemporaryDirectory() as folder:
             directory = Path(folder)
             (directory / "menu.json").write_text('{"old": "menu"}')
             (directory / "translations.json").write_text('{"old": "translations"}')
             before = {p.name: p.read_bytes() for p in directory.iterdir()}
-            with self.assertRaisesRegex(ValueError, "Missing meal translation"):
+            with self.assertRaisesRegex(ValueError, "translation cache"):
                 write_snapshot(directory, menu, cache)
             self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
             absent = directory / "uncreated"
-            with self.assertRaisesRegex(ValueError, "Missing meal translation"):
+            with self.assertRaisesRegex(ValueError, "translation cache"):
                 write_snapshot(absent, menu, cache)
             self.assertFalse(absent.exists())
 
-    def test_unknown_notice_during_update_requires_model_translation(self):
+    def test_unknown_notice_during_update_preserves_raw_label_until_model_translation(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             directory = root / "site" / "data"
@@ -103,10 +102,12 @@ class SnapshotTests(unittest.TestCase):
             changed = page(date="21.09.2099").replace("Weizen", "New unreviewed source label")
             generated = {'en': {'name': 'New notice', 'components': []},
                          'ko': {'name': '새 안내', 'components': []}}
-            before = {p.name: p.read_bytes() for p in directory.iterdir()}
-            with self.assertRaisesRegex(ValueError, 'Missing notice translation'):
+            with patch('scripts.update_menu.model_config', return_value=None):
                 update(root, html=changed)
-            self.assertEqual(before, {p.name: p.read_bytes() for p in directory.iterdir()})
+            untranslated = json.loads((directory / 'translations.json').read_text())
+            self.assertNotIn('New unreviewed source label', untranslated['notices'])
+            self.assertIn('New unreviewed source label',
+                          json.loads((directory / 'menu.json').read_text())['days'][0]['meals'][0]['notices'])
             with patch('scripts.update_menu.model_config', return_value={'model': 'fixture'}), \
                     patch('scripts.translations.request_translation', return_value=generated) as translate:
                 update(root, html=changed)
@@ -115,14 +116,13 @@ class SnapshotTests(unittest.TestCase):
             self.assertIn("New unreviewed source label", menu['days'][0]['meals'][0]['notices'])
             self.assertEqual(json.loads((directory / "translations.json").read_text())["notices"]["New unreviewed source label"]["ko"], '새 안내')
 
-    def test_validate_only_requires_current_notice_coverage(self):
+    def test_validate_only_accepts_absent_current_notice_translation(self):
         menu = parse_menu(page())
         cache = complete_cache(menu)
         cache["notices"].pop("Weizen")
         with patch("scripts.update_menu.read_json", side_effect=[menu, cache]), \
-                patch("sys.argv", ["update_menu", "--validate-only"]):
-            with self.assertRaisesRegex(SystemExit, "[Nn]otice.*[Ww]eizen|[Nn]otice.*[Ss]ellerie"):
-                main()
+                patch("sys.argv", ["update_menu", "--validate-only"]), redirect_stdout(io.StringIO()):
+            main()
 
 
     def test_price_loss_during_refresh_preserves_published_snapshot(self):

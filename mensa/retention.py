@@ -52,17 +52,20 @@ def retain_menu(menu, today, policy):
 
 
 def public_translations(menu, cache):
-    """public_translations가 메뉴가 실제 참조하는 번역·안내만 공개 스키마로 복사하며 누락된 참조를 거부합니다."""
+    """public_translations가 전체 캐시를 검증하고 메뉴가 참조하는 기존 번역·안내만 공개 스키마로 복사합니다."""
+    validate_cache(cache)
     keys = {meal['translation_key'] for day in menu['days'] for meal in day['meals']}
     labels = source_notices(menu)
-    _require_references(cache, keys, labels)
+    keys &= cache['entries'].keys()
+    available_notices = cache.get('notices', {})
     result = {
         'schema_version': cache['schema_version'],
         'entries': {key: {field: deepcopy(value) for field, value in cache['entries'][key].items()
                           if field in _ENTRY_FIELDS} for key in sorted(keys)},
     }
     if 'notices' in cache or labels:
-        result['notices'] = {label: deepcopy(cache['notices'][label]) for label in sorted(labels)}
+        result['notices'] = {label: deepcopy(available_notices[label])
+                             for label in sorted(labels & available_notices.keys())}
     return result
 
 

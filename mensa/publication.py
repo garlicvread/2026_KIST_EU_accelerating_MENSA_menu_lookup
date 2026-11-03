@@ -31,11 +31,13 @@ def _supplied_date(today):
 
 
 def validate_publication(menu, cache, *, notice_glossary, previous=None, today=None):
-    """validate_publication이 메뉴의 모든 번역과 안내 문구를 검사하고, 선택적으로 전달된 날짜를 기준으로 메뉴 유효 기간을 확인합니다.
+    """validate_publication이 메뉴와 존재하는 번역을 검사하고, 선택적으로 전달된 날짜를 기준으로 메뉴 유효 기간을 확인합니다.
 
     과거 캐시 항목도 허용하지만 함께 검증합니다. notice_glossary는 독일어 안내 문구를
-    en/ko로 연결하는 명시적인 매핑입니다. today를 생략하면 날짜 최신성은 검사하지
-    않습니다. 이 함수는 현재 시각을 조회하거나 누락된 번역을 생성하지 않습니다.
+    en/ko로 연결하는 명시적인 매핑입니다. 없는 요리·안내 번역은 독일어 원문으로
+    표시할 수 있지만, 존재하는 번역은 두 언어와 원문 연결이 유효해야 합니다.
+    today를 생략하면 날짜 최신성은 검사하지 않습니다. 이 함수는 현재 시각을
+    조회하거나 누락된 번역을 생성하지 않습니다.
     """
     _checked("menu", validate_menu, menu, previous=previous)
     _checked("translation cache", validate_cache, cache)
@@ -47,14 +49,12 @@ def validate_publication(menu, cache, *, notice_glossary, previous=None, today=N
             entry = cache["entries"].get(key)
             context = f"{key} ({day['date']}, {meal['name_de']})"
             if entry is None:
-                raise ValueError(f"Missing meal translation: {context}")
+                continue
             if entry["source"] != source_for(meal):
                 raise ValueError(f"Meal translation source mismatch: {context}")
 
     notices = cache.get("notices", {})
-    for label in sorted(source_notices(menu)):
-        if label not in notices:
-            raise ValueError(f"Missing notice translation: {label!r}")
+    for label in sorted(source_notices(menu) & notices.keys()):
         if label in notice_glossary and notices[label] != notice_glossary[label]:
             raise ValueError(f"Notice translation differs from reviewed glossary: {label!r}")
 
@@ -63,3 +63,17 @@ def validate_publication(menu, cache, *, notice_glossary, previous=None, today=N
         end = menu["coverage"]["end"]
         if date.fromisoformat(end) < supplied_today:
             raise ValueError(f"Stale menu: coverage ends {end}, before today {supplied_today}")
+
+
+def translation_gaps(menu, cache):
+    """translation_gaps가 검증된 메뉴에서 빠진 요리 키·안내 라벨을 중복 없이 정렬하여 반환합니다.
+
+    캐시의 손상된 항목을 누락으로 간주하지 않도록 전체 캐시를 검사합니다.
+    이 함수는 입력을 바꾸거나 원본·모델·현재 시각에 접근하지 않습니다.
+    """
+    _checked("translation cache", validate_cache, cache)
+    keys = {meal['translation_key'] for day in menu['days'] for meal in day['meals']}
+    return {
+        'entries': tuple(sorted(keys - cache['entries'].keys())),
+        'notices': tuple(sorted(source_notices(menu) - cache.get('notices', {}).keys())),
+    }
