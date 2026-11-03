@@ -5,21 +5,29 @@ JobRunner는 비공개 상태 디렉터리 준비, 큐 잠금 및 완료 기록�
 있습니다. 이 모듈은 Git 공개 진행 상태를 관리하거나 Git 명령을 실행하거나 체크아웃에 쓰지 않습니다.
 """
 
-from datetime import datetime, timezone
+import copy
+from datetime import date, datetime, timezone
 from zoneinfo import ZoneInfo
 
 from mensa.config import WorkerConfig
 from mensa.generation import request_translation
 from mensa.model_runtime import model_session
+from mensa.maintenance import (ensure_capacity, record_prepared_release, record_successful_release,
+                               plan_maintenance, apply_maintenance, maintain_logs)
 from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from mensa.releases import DirectoryPublisher
 from mensa.translation_runtime import resume_configured_translations
+from mensa.translation_work import (adopt_legacy_failure, available_translations,
+                                     load_translation_state, run_translation_work)
+from mensa.retention import retain_menu, public_translations, check_bundle_size
 from scripts.notices import load_glossary
 from scripts.update_menu import read_json, require_current_coverage
 
 
 class DirectoryRefreshJob:
+    source_needs_model_resources = False
+
     def __init__(self, config, *, source, clock=None, translate=None, runtime=None, key=''):
         if not isinstance(config, WorkerConfig) or getattr(config.publication, 'mode', None) != 'directory':
             raise ValueError('Directory refresh requires WorkerConfig with directory publication')
@@ -50,7 +58,7 @@ class DirectoryRefreshJob:
         snapshot = tuple((label, tuple(text.items())) for label, text in reviewed.items())
         def glossary():
             return {label: dict(text) for label, text in snapshot}
-        publisher = DirectoryPublisher(paths.public_dir, notice_glossary=glossary())
+        publisher = DirectoryPublisher(paths.public_dir, notice_glossary=glossary(), recover_translations=True)
         current = publisher.load_current()
         if current is None:
             previous = read_json(paths.checkout_dir / 'site/data/menu.json')
@@ -58,17 +66,68 @@ class DirectoryRefreshJob:
         else:
             previous, cache = current
         phrases = read_json(paths.checkout_dir / 'data/editorial-translations.json')['phrases']
+        observed = {}
+        def source():
+            menu = self._source()
+            observed['menu'] = copy.deepcopy(menu)
+            return menu
+        def translate(menu, published, phrases, *, checkpoint=None):
+            _, candidate = available_translations(self._config, menu, published, phrases, glossary(),
+                previous=previous, observed=observed['menu'], today=today)
+            return public_translations(menu, candidate)
         service = RefreshService(
-            source=self._source,
+            source=source,
             coverage_guard=lambda menu: require_current_coverage(menu, today=today),
-            translate=lambda menu, published, phrases, *, checkpoint=None: resume_configured_translations(
-                menu, published, phrases, self._config.inference,
-                state_dir=paths.state_dir, glossary_provider=glossary,
-                translate=request_translation if self._translate is None else self._translate,
-                runtime=model_session if self._runtime is None else self._runtime,
-                key=self._key, checkpoint=checkpoint,
-            ),
+            translate=translate,
             validator=lambda menu, candidate: validate_publication(menu, candidate, notice_glossary=glossary()),
-            publisher=lambda menu, candidate, *, previous: publisher.publish(menu, candidate, previous=previous, today=today),
+            publisher=lambda menu, candidate, *, previous: self._publish(
+                publisher, menu, candidate, today, previous),
+            menu_transform=lambda menu: retain_menu(menu, today, self._config.retention),
         )
         return service.refresh(previous, cache, phrases)
+
+    def _publish(self, publisher, menu, candidate, today, previous):
+        size = check_bundle_size(menu, candidate, self._config.retention)
+        ensure_capacity(self._config, additional_bytes=size + 4096)
+        release_id = publisher.publish(menu, candidate, previous=previous, today=today)
+        record_prepared_release(self._config, release_id, today=date.fromisoformat(today))
+        self._confirm(release_id, today)
+        return release_id
+
+    def _confirm(self, release_id, today):
+        record_successful_release(self._config, release_id, today=date.fromisoformat(today))
+        apply_maintenance(self._config, plan_maintenance(self._config,
+            today=date.fromisoformat(today), pinned=(release_id,)))
+
+    def maintain(self, now):
+        load_translation_state(self._config.paths.state_dir / 'translation-work.json')
+        maintain_logs(self._config, today=now.astimezone(ZoneInfo('Europe/Berlin')).date())
+        ensure_capacity(self._config)
+
+    def adopt_translation_failure(self, pending, now):
+        adopt_legacy_failure(self._config.paths.state_dir, pending)
+
+    def translation_work(self, now, *, resources, source_state):
+        paths = self._config.paths
+        glossary = load_glossary(paths.checkout_dir / 'data/notice-translations.json')
+        publisher = DirectoryPublisher(paths.public_dir, notice_glossary=glossary, recover_translations=True)
+        def generate(menu, history, phrases, store, reviewed):
+            return resume_configured_translations(menu, history, phrases, self._config.inference,
+                state_dir=paths.state_dir, glossary_provider=lambda: copy.deepcopy(reviewed),
+                translate=request_translation if self._translate is None else self._translate,
+                runtime=model_session if self._runtime is None else self._runtime,
+                key=self._key, checkpoint_store=store)
+        def publish(pair, release_id, previous_id, today):
+            from mensa.translation_work import _identity
+            if _identity(publisher.load_current()) not in (previous_id, release_id):
+                raise ValueError('Published data changed during translation work')
+            actual = self._publish(publisher, *pair, today, pair[0])
+            if actual != release_id:
+                raise ValueError('Prepared translation identity changed')
+        pending = source_state['pending']
+        return run_translation_work(self._config, now, resources=resources,
+            current=publisher.load_current, load_prepared=publisher.load_release,
+            publish=publish, confirm=lambda pair, release_id, previous_id, today: self._confirm(release_id, today),
+            generate=generate, glossary=glossary,
+            phrases=read_json(paths.checkout_dir / 'data/editorial-translations.json')['phrases'],
+            source_pending=pending is not None and pending['phase'] != 'collect')

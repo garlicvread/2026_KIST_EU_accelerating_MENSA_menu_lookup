@@ -20,6 +20,7 @@ import time
 import urllib.request
 
 from mensa.jobs import JobRunner, record_result
+from mensa.errors import GenerationError
 from mensa.git_repository import SnapshotRepository
 from mensa.github_publication import GitHubPublication
 from mensa.directory_refresh import DirectoryRefreshJob
@@ -37,7 +38,7 @@ from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from scripts.menu_source import fetch_html, parse_menu, validate_menu
 from scripts.notices import load_glossary
-from mensa.notice_contract import source_notices
+from mensa.notice_contract import source_notices, validate_notice_translations
 from mensa.translation_contract import validate_result, validate_cache
 from scripts.translations import build_translations, reusable_translation
 from scripts.update_menu import read_json, require_current_coverage, write_snapshot, summarize
@@ -303,13 +304,28 @@ class RefreshJob:
                 with model_session(self.inference) as config:
                     for label in sorted(source_notices(menu) - candidate.get('notices', {}).keys()):
                         source = {'kind': 'notice', 'name_de': label, 'components': []}
-                        result = request_translation(source, config)
-                        validate_result(result, source)
-                        candidate.setdefault('notices', {})[label] = {
-                            language: result[language]['name'] for language in ('en', 'ko')}
+                        try:
+                            result = request_translation(source, config)
+                        except GenerationError as error:
+                            if error.code in {'invalid_json', 'invalid_envelope', 'incomplete_generation',
+                                              'invalid_result', 'response_too_large'}:
+                                continue
+                            raise
+                        try:
+                            validate_result(result, source)
+                            translated = {language: result[language]['name'] for language in ('en', 'ko')}
+                            validate_notice_translations({label: translated})
+                        except ValueError:
+                            continue
+                        candidate.setdefault('notices', {})[label] = translated
                         validate_cache(candidate)
                         if checkpoint is not None:
                             checkpoint(copy.deepcopy(candidate))
+                    # 안내별 실패는 같은 실행에서 다시 요청하지 않습니다.
+                    for day in remaining['days']:
+                        for meal in day['meals']:
+                            for record in (meal, *meal.get('components', [])):
+                                record['notices'] = []
                     candidate = build_translations(remaining, candidate, phrases, config, checkpoint=checkpoint)
         return candidate
 

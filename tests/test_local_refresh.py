@@ -420,6 +420,40 @@ class RefreshCompositionTests(unittest.TestCase):
         self.assertEqual(generate.call_args.args[0],
                          {'kind': 'notice', 'name_de': 'Neuer Hinweis', 'components': []})
 
+    def test_native_bad_notice_does_not_stop_later_notice_or_meal(self):
+        from mensa.errors import GenerationError
+        record = self.menu['days'][0]['meals'][0]
+        record['notices'].extend(['A unreviewed notice', 'Z unreviewed notice'])
+        glossary = {label: {'en': 'Fixture', 'ko': '테스트'} for label in
+                    ['vegan', 'Weizen', 'Sellerie', 'Milch und Laktose']}
+        settings = InferenceSettings('managed', 'ollama', worker.MODEL, 'a' * 64, None,
+                                     Path('/fixture/ollama'), Path('/fixture/models'), Path('/fixture/logs'))
+        @contextmanager
+        def runtime(_):
+            yield {'provider': 'ollama', 'model': worker.MODEL, 'backend_revision': settings.revision,
+                   'url': 'http://fixture.invalid/api/chat', 'key': ''}
+        for bad in ({'en': {'name': 'unfinished', 'components': []}}, GenerationError('invalid_json')):
+            calls = []
+            def generate(source, config):
+                calls.append(source['name_de'])
+                if source['name_de'] == 'A unreviewed notice':
+                    if isinstance(bad, Exception):
+                        raise bad
+                    return copy.deepcopy(bad)
+                if source.get('kind') == 'notice':
+                    return {lang: {'name': 'Fixture notice', 'components': []} for lang in ('en', 'ko')}
+                return {lang: self.candidate['entries'][record['translation_key']][lang] for lang in ('en', 'ko')}
+            with self.subTest(bad=type(bad).__name__), TemporaryDirectory() as folder, \
+                    patch.object(worker, 'model_session', side_effect=runtime), \
+                    patch('scripts.translations.load_glossary', return_value=glossary), \
+                    patch.object(worker, 'request_translation', side_effect=generate), \
+                    patch('scripts.translations.request_translation', side_effect=generate):
+                result = RefreshJob(folder, inference=settings).translate(self.menu, self.cache, {})
+            self.assertNotIn('A unreviewed notice', result['notices'])
+            self.assertIn('Z unreviewed notice', result['notices'])
+            self.assertIn(record['translation_key'], result['entries'])
+            self.assertIn(record['name_de'], calls)
+
 
     def test_translate_offline_first_uses_real_builder_and_forwards_checkpoint(self):
         record = self.menu['days'][0]['meals'][0]

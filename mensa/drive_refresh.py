@@ -16,9 +16,10 @@ from mensa.publication import validate_publication
 from mensa.refresh_service import RefreshService
 from mensa.releases import DirectoryPublisher, _json_bytes, _release_id
 from mensa.retention import retain_menu, public_translations, check_bundle_size
-from mensa.retention_runtime import RetainedTranslationStore
 from mensa.schedule import BERLIN, validate_period
 from mensa.translation_runtime import resume_configured_translations
+from mensa.translation_work import (adopt_legacy_failure, available_translations,
+                                     load_translation_state, run_translation_work)
 from scripts.notices import load_glossary
 from scripts.update_menu import read_json, require_current_coverage
 
@@ -77,6 +78,8 @@ class _PublicationCheckpoint:
 class DriveRefreshJob:
     """DriveRefreshJob이 기존 큐·번역 정책을 사용하며 준비한 동일 묶음을 업로드 재시도에 재사용합니다."""
 
+    source_needs_model_resources = False
+
     def __init__(self, config, *, source, clock=None, translate=None, runtime=None,
                  key='', translation_builder=None, publisher=None):
         if not isinstance(config, WorkerConfig) or config.publication.mode != 'drive':
@@ -94,7 +97,8 @@ class DriveRefreshJob:
         if publisher is None:
             from mensa.drive_publication import DrivePublisher
             settings = config.publication
-            publisher = DrivePublisher(settings.remote, settings.folder_id, file_id=settings.file_id)
+            publisher = DrivePublisher(settings.remote, settings.folder_id, file_id=settings.file_id,
+                                       recover_translations=True)
         if not callable(getattr(publisher, 'publish', None)) or not callable(getattr(publisher, 'load_current', None)):
             raise TypeError('Drive publisher must provide publish and load_current')
         self._publisher = publisher
@@ -110,7 +114,7 @@ class DriveRefreshJob:
         today = now.astimezone(BERLIN).date().isoformat()
         paths, settings = self._config.paths, self._config.publication
         glossary = load_glossary(paths.checkout_dir / 'data/notice-translations.json')
-        staging = DirectoryPublisher(paths.public_dir, notice_glossary=glossary)
+        staging = DirectoryPublisher(paths.public_dir, notice_glossary=glossary, recover_translations=True)
         checkpoint = _PublicationCheckpoint(paths.state_dir)
         prepared = checkpoint.load()
         destination = {name: getattr(settings, name) for name in ('remote', 'folder_id', 'file_id')}
@@ -143,24 +147,9 @@ class DriveRefreshJob:
             return menu
 
         def translate(menu, published, phrases, *, checkpoint=None):
-            private_cache = RetainedTranslationStore(self._config, menu=menu,
-                observed=fresh['menu'], today=today)
-            history = private_cache.merge(published, published_menu=previous, glossary=glossary)
-            private_cache.save(history)
-            if self._translation_builder is not None:
-                candidate = self._translation_builder(menu, history, phrases, checkpoint=private_cache.save)
-            else:
-                ports = {}
-                if self._translate is not None:
-                    ports['translate'] = self._translate
-                if self._runtime is not None:
-                    ports['runtime'] = self._runtime
-                candidate = resume_configured_translations(
-                    menu, history, phrases, self._config.inference, state_dir=paths.state_dir,
-                    glossary_provider=lambda: copy.deepcopy(glossary), key=self._key,
-                    checkpoint_store=private_cache, **ports)
-            bounded = private_cache.save(candidate)
-            return public_translations(menu, bounded)
+            _, candidate = available_translations(self._config, menu, published, phrases, glossary,
+                previous=previous, observed=fresh['menu'], today=today)
+            return public_translations(menu, candidate)
 
         def prepare(menu, candidate, *, previous):
             size = check_bundle_size(menu, candidate, self._config.retention)
@@ -195,6 +184,9 @@ class DriveRefreshJob:
         result = self._publisher.publish(menu, cache, today=today)
         if result.release_id != release_id or result.file_id != self._config.publication.file_id:
             raise ValueError('Drive upload confirmation differs from prepared data or configured file')
+        return self._confirm(pair, release_id, previous_release_id, today)
+
+    def _confirm(self, pair, release_id, previous_release_id, today):
         record_successful_release(self._config, release_id, today=date.fromisoformat(today))
         pins = tuple(identifier for identifier in (release_id, previous_release_id) if identifier is not None)
         apply_maintenance(self._config, plan_maintenance(self._config,
@@ -203,5 +195,44 @@ class DriveRefreshJob:
 
     def maintain(self, now):
         """JobRunner가 잠금 안에서 유휴·실패 상태에도 로그 한도를 적용합니다."""
+        load_translation_state(self._config.paths.state_dir / 'translation-work.json')
         maintain_logs(self._config, today=now.astimezone(BERLIN).date())
         ensure_capacity(self._config)
+    def adopt_translation_failure(self, pending, now):
+        adopt_legacy_failure(self._config.paths.state_dir, pending)
+
+    def translation_work(self, now, *, resources, source_state):
+        paths = self._config.paths
+        glossary = load_glossary(paths.checkout_dir / 'data/notice-translations.json')
+        staging = DirectoryPublisher(paths.public_dir, notice_glossary=glossary, recover_translations=True)
+        prepared = _PublicationCheckpoint(paths.state_dir).load()
+        pending = source_state['pending']
+        unresolved = pending is not None and (pending['phase'] != 'collect'
+            or (prepared is not None and prepared['period'] == pending['period']))
+
+        def generate(menu, history, phrases, store, reviewed):
+            if self._translation_builder is not None:
+                return self._translation_builder(menu, history, phrases, checkpoint=store.save)
+            ports = {}
+            if self._translate is not None:
+                ports['translate'] = self._translate
+            if self._runtime is not None:
+                ports['runtime'] = self._runtime
+            return resume_configured_translations(menu, history, phrases, self._config.inference,
+                state_dir=paths.state_dir, glossary_provider=lambda: copy.deepcopy(reviewed),
+                key=self._key, checkpoint_store=store, **ports)
+
+        def publish(pair, release_id, previous_id, today):
+            size = check_bundle_size(*pair, self._config.retention)
+            ensure_capacity(self._config, additional_bytes=size + 4096)
+            actual = staging.publish(*pair, previous=pair[0], today=today)
+            if actual != release_id:
+                raise ValueError('Prepared translation identity changed')
+            record_prepared_release(self._config, release_id, today=date.fromisoformat(today))
+            return self._publish(pair, release_id, glossary, today, previous_id)
+
+        return run_translation_work(self._config, now, resources=resources,
+            current=self._publisher.load_current, load_prepared=staging.load_release,
+            publish=publish, confirm=self._confirm, generate=generate, glossary=glossary,
+            phrases=read_json(paths.checkout_dir / 'data/editorial-translations.json')['phrases'],
+            source_pending=unresolved, strict_identity=self._translation_builder is None)
