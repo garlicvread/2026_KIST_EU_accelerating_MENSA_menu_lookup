@@ -12,7 +12,7 @@ from mensa.maintenance import ensure_capacity
 from mensa.notice_contract import source_notices
 from mensa.releases import _json_bytes
 from mensa.retention import prune_cache
-from mensa.translation_contract import generation_identity, reusable_translation, validate_cache
+from mensa.translation_contract import generation_identity, reusable_translation, recover_cache
 
 
 class RetainedTranslationStore:
@@ -42,7 +42,7 @@ class RetainedTranslationStore:
         return True
 
     def _prune(self, cache):
-        validate_cache(cache, allow_legacy_names=True)
+        cache = recover_cache(cache)
         cache, self.usage = prune_cache(
             cache, self.usage, required_keys=self.required & cache['entries'].keys(),
             required_notices=self.notices & cache.get('notices', {}).keys(),
@@ -64,7 +64,7 @@ class RetainedTranslationStore:
     def merge(self, published, *, published_menu=None, glossary):
         established = self._exists()
         private = self.load()
-        history = copy.deepcopy(published or {'schema_version': 1, 'entries': {}})
+        history = recover_cache(published or {'schema_version': 1, 'entries': {}})
         if established:
             # 미사용 공개 이력을 반복해서 가져오면 이미 만료한 번역이 새 항목처럼 되살아납니다.
             cutoff = (self.today - timedelta(days=self.config.retention.history_days)).isoformat()

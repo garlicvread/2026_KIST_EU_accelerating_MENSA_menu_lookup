@@ -2,11 +2,12 @@
 
 import copy
 
+from mensa.errors import GenerationError
 from mensa.notice_contract import source_notices, translate_notice_labels, validate_notice_translations
 from mensa.translation_contract import (
     PROMPT_VERSION, source_for, source_key, _text, validate_result,
     _apply_name_policy, _apply_component_policy, reusable_translation,
-    validate_cache, generation_identity,
+    validate_cache, generation_identity, recover_cache,
 )
 
 
@@ -30,15 +31,14 @@ class TranslationService:
         if checkpoint is not None and not callable(checkpoint):
             raise TypeError("checkpoint must be callable")
         previous = previous or {"schema_version": 1, "entries": {}}
-        validate_cache(previous, allow_legacy_names=True)
-        cache = copy.deepcopy(previous)
+        cache = recover_cache(previous)
         # build는 중단된 스냅샷 갱신에서 여전히 필요할 수 있으므로 보존된 항목에도 현재 이름 정책을 적용합니다.
         for entry in cache["entries"].values():
             _apply_name_policy(entry)
             _apply_component_policy(entry)
         # 검토된 사전 값을 우선하고, 새 문구는 캐시 또는 모델로 번역합니다.
         # 모델을 쓰지 않는 사전 구성 단계에서는 미완성 캐시를 반환할 수 있으나,
-        # 새 게시 전에 모든 안내 문구의 번역이 완성되어야 합니다.
+        # 빠진 안내는 원문으로 표시하고 별도 번역 작업에서 재시도합니다.
         glossary = self._glossary_provider()
         labels = source_notices(menu)
         notices = cache.setdefault("notices", {})
@@ -47,8 +47,9 @@ class TranslationService:
             if config is None:
                 continue
             source = {"kind": "notice", "name_de": label, "components": []}
-            result = self._translate(source, config)
-            validate_result(result, source)
+            result = self._generate(source, config)
+            if result is None:
+                continue
             translated = {language: result[language]["name"] for language in ("en", "ko")}
             validate_notice_translations({label: translated})
             notices[label] = translated
@@ -71,7 +72,9 @@ class TranslationService:
                 ):
                     continue
                 elif config:
-                    result = copy.deepcopy(self._translate(source, config))
+                    result = self._generate(source, config)
+                    if result is None:
+                        continue
                     origin, model = "model", config["model"]
                 else:
                     continue
@@ -86,3 +89,18 @@ class TranslationService:
                     checkpoint(copy.deepcopy(cache))
         validate_cache(cache)
         return cache
+
+    def _generate(self, source, config):
+        """개별 응답 손상은 누락으로 남기고 설정·접속·저장 오류는 호출자에게 전달합니다."""
+        try:
+            result = copy.deepcopy(self._translate(source, config))
+        except GenerationError as error:
+            if error.code in {'invalid_json', 'invalid_envelope', 'incomplete_generation',
+                              'invalid_result', 'response_too_large'}:
+                return None
+            raise
+        try:
+            validate_result(result, source)
+        except ValueError:
+            return None
+        return result

@@ -2,7 +2,7 @@
 
 import copy
 
-from mensa.translation_contract import generation_identity, reusable_translation, validate_cache
+from mensa.translation_contract import generation_identity, reusable_translation, recover_cache
 from mensa.translation_service import TranslationService
 
 
@@ -17,7 +17,7 @@ def resume_translations(menu, published, phrases, config, *, glossary_provider,
     """
     if published is None or (isinstance(published, dict) and not published):
         published = {"schema_version": 1, "entries": {}}
-    validate_cache(published, allow_legacy_names=True)
+    published = recover_cache(published)
     for name, port in (("glossary_provider", glossary_provider), ("translate", translate),
                        ("load_checkpoint", load_checkpoint), ("save_checkpoint", save_checkpoint)):
         if not callable(port):
@@ -25,8 +25,7 @@ def resume_translations(menu, published, phrases, config, *, glossary_provider,
 
     private = load_checkpoint()
     if private is not None:
-        validate_cache(private, allow_legacy_names=True)
-        private = copy.deepcopy(private)
+        private = recover_cache(private)
     history = copy.deepcopy(published)
     glossary = copy.deepcopy(glossary_provider())
     identity = generation_identity(config, notice_glossary=glossary) if config is not None else None
