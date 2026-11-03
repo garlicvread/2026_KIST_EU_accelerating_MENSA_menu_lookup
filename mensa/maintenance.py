@@ -16,6 +16,7 @@ import secrets
 import stat
 
 from mensa.publication import validate_publication
+from mensa.translation_contract import recover_cache
 from mensa.releases import PAIR_FILES, _json_bytes, _release_id
 from mensa.schedule import BERLIN
 
@@ -181,7 +182,8 @@ def _pair(config, identifier):
     menu, cache = (_json(payload) for payload in payloads)
     if not isinstance(cache, dict):
         raise ValueError('Invalid release cache')
-    validate_publication(menu, cache, notice_glossary=cache.get('notices', {}))
+    usable = recover_cache(cache)
+    validate_publication(menu, usable, notice_glossary=usable.get('notices', {}))
     if tuple(_json_bytes(value) for value in (menu, cache)) != payloads:
         raise ValueError('Release pair is not canonical JSON')
     return {'directory': directory_identity,

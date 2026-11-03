@@ -51,7 +51,10 @@ class TranslationService:
             if result is None:
                 continue
             translated = {language: result[language]["name"] for language in ("en", "ko")}
-            validate_notice_translations({label: translated})
+            try:
+                validate_notice_translations({label: translated})
+            except ValueError:
+                continue
             notices[label] = translated
             if checkpoint is not None:
                 validate_cache(cache)

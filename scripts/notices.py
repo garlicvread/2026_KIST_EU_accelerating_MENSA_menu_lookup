@@ -36,7 +36,7 @@ def translated_notices(menu, *, glossary=None):
 
     glossary를 제공하면 그 매핑을 사용하고, 생략하면 기본 파일을 읽습니다. 결과는
     용어집 항목의 복사본이며, 미등록 원본 문구의 번역은 포함하지 않습니다.
-    호출자는 모델로 누락된 번역을 준비하며, 게시 전에 전체 안내 번역을 검사합니다.
+    누락된 안내는 원문으로 표시하고 별도 번역 작업에서 모델로 보완할 수 있습니다.
     """
     labels = source_notices(menu)
     if glossary is None:
@@ -44,20 +44,3 @@ def translated_notices(menu, *, glossary=None):
     return translate_notice_labels(labels, glossary)
 
 
-def require_notice_coverage(menu, cache):
-    """캐시의 안내 매핑이 현재 메뉴에 필요한 검토 번역을 모두 포함하는지 검사합니다.
-
-    기본 용어집 파일을 읽어 필요한 번역과 비교하고, 누락이나 값의 차이를 발견하면
-    공개 전에 번역을 다시 구성하도록 ValueError를 발생시킵니다. 캐시에 남은 다른
-    메뉴의 안내 문구도 형식은 검사하지만, 현재 메뉴에 필요하지 않은 키는 허용합니다.
-    검사를 통과하면 반환값 없이 끝나며 메뉴나 캐시를 수정하지 않습니다.
-    """
-    expected = translated_notices(menu)
-    notices = cache.get("notices", {})
-    validate_notice_translations(notices)
-    missing = sorted(source_notices(menu) - notices.keys())
-    if missing:
-        raise ValueError("Notice translations missing for: " + ", ".join(missing)
-                         + "; rebuild translations before publication")
-    if any(notices[label] != translation for label, translation in expected.items()):
-        raise ValueError("Notice translations differ from the reviewed glossary; rebuild translations before publication")

@@ -57,13 +57,12 @@ class PublicationTests(unittest.TestCase):
             self.validate()
 
 
-    def test_reworded_cache_notice_is_contextual(self):
+    def test_reworded_notice_does_not_need_to_equal_glossary_wording(self):
         for language in ("en", "ko"):
             with self.subTest(language=language):
                 self.cache["notices"] = copy.deepcopy(self.glossary)
                 self.cache["notices"]["Sellerie"][language] += " changed"
-                with self.assertRaisesRegex(ValueError, "Sellerie"):
-                    self.validate()
+                self.validate()
 
 
     def test_rejects_missing_korean_translation(self):

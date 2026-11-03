@@ -1,9 +1,14 @@
 """독일어 원본 안내 문구와 en/ko 번역 형식을 검사하고 사전에서 알려진 번역을 선택합니다."""
 
+import re
+
+_BYTE_FALLBACK = re.compile(r'(?:<0x[0-9a-f]{2}>)+', re.IGNORECASE)
+
 
 def _label(value):
     return (isinstance(value, str) and 0 < len(value.strip()) <= 1000
-            and not any(ord(character) < 32 for character in value))
+            and not any(ord(character) < 32 or 0xD800 <= ord(character) <= 0xDFFF
+                        for character in value))
 
 
 def validate_notice_translations(notices):
@@ -14,6 +19,8 @@ def validate_notice_translations(notices):
             raise ValueError("Notice translation needs an exact German key and exactly en/ko text")
         if not all(_label(entry[language]) for language in ("en", "ko")):
             raise ValueError("Notice translations must contain nonempty en/ko text")
+        if any(_BYTE_FALLBACK.search(entry[language]) for language in ('en', 'ko')):
+            raise ValueError('Notice translation contains undecoded byte tokens')
 
 
 def source_notices(menu):

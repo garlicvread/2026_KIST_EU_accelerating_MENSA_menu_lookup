@@ -4,7 +4,7 @@ from datetime import date
 
 from mensa.menu_contract import validate_menu
 from mensa.notice_contract import source_notices, validate_notice_translations
-from mensa.translation_contract import source_for, validate_cache
+from mensa.translation_contract import source_for, validate_cache, recover_cache
 
 
 def _checked(label, validator, *args, **kwargs):
@@ -53,11 +53,6 @@ def validate_publication(menu, cache, *, notice_glossary, previous=None, today=N
             if entry["source"] != source_for(meal):
                 raise ValueError(f"Meal translation source mismatch: {context}")
 
-    notices = cache.get("notices", {})
-    for label in sorted(source_notices(menu) & notices.keys()):
-        if label in notice_glossary and notices[label] != notice_glossary[label]:
-            raise ValueError(f"Notice translation differs from reviewed glossary: {label!r}")
-
     if today is not None:
         supplied_today = _supplied_date(today)
         end = menu["coverage"]["end"]
@@ -68,10 +63,10 @@ def validate_publication(menu, cache, *, notice_glossary, previous=None, today=N
 def translation_gaps(menu, cache):
     """translation_gaps가 검증된 메뉴에서 빠진 요리 키·안내 라벨을 중복 없이 정렬하여 반환합니다.
 
-    캐시의 손상된 항목을 누락으로 간주하지 않도록 전체 캐시를 검사합니다.
+    손상된 개별 파생 번역도 재생성이 필요한 누락으로 간주합니다.
     이 함수는 입력을 바꾸거나 원본·모델·현재 시각에 접근하지 않습니다.
     """
-    _checked("translation cache", validate_cache, cache)
+    cache = _checked("translation cache", recover_cache, cache)
     keys = {meal['translation_key'] for day in menu['days'] for meal in day['meals']}
     return {
         'entries': tuple(sorted(keys - cache['entries'].keys())),

@@ -18,7 +18,7 @@ try:
 except ImportError:
     maintenance = None
 
-from mensa.releases import DirectoryPublisher
+from mensa.releases import DirectoryPublisher, _json_bytes, _release_id
 from mensa.translation_contract import source_for
 from scripts.menu_source import parse_menu
 from test_menu_source import page
@@ -93,6 +93,20 @@ class MaintenanceTests(unittest.TestCase):
                          {identifiers[0], identifiers[1], identifiers[4], identifiers[5]})
         with self.assertRaisesRegex(ValueError, 'pin'):
             self.plan(pinned=identifiers[:3])
+
+    def test_unusable_derived_translation_does_not_block_release_accounting(self):
+        self.release(0)
+        broken = copy.deepcopy(self.cache)
+        next(iter(broken['entries'].values())).pop('ko')
+        payloads = (_json_bytes(self.menu), _json_bytes(broken))
+        identifier = _release_id(*payloads)
+        directory = self.public / 'data/releases' / identifier
+        directory.mkdir()
+        for name, payload in zip(('menu.json', 'translations.json'), payloads):
+            (directory / name).write_bytes(payload)
+        maintenance.record_prepared_release(self.config, identifier, today=TODAY)
+        self.plan()
+        self.assertTrue(self.release_exists(identifier))
 
     def test_unconfirmed_preparation_does_not_displace_successes(self):
         successful = [self.release(i) for i in range(3)]

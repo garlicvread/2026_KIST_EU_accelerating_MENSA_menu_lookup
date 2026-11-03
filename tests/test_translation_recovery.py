@@ -8,6 +8,8 @@ import unittest
 
 from mensa.checkpoints import TranslationCheckpointStore
 from mensa.errors import GenerationError
+from mensa.publication import translation_gaps
+from mensa.retention import public_translations
 from mensa.translation_contract import source_key, validate_cache
 from mensa.translation_runner import resume_translations
 from mensa.translation_service import TranslationService
@@ -145,3 +147,29 @@ class TranslationRecoveryTests(unittest.TestCase):
         with self.assertRaises(GenerationError):
             self.build({'schema_version': 1, 'entries': {}}, config={'model': 'fixture'},
                 generate=lambda *_: (_ for _ in ()).throw(GenerationError('authentication')))
+
+    def test_projection_and_gap_detection_treat_unusable_records_as_missing(self):
+        key = self.meals[0]['translation_key']
+        self.cache['entries'][key].pop('ko')
+        self.cache['entries']['irrelevant-bad-history'] = None
+        self.meals[0]['notices'] = ['New notice']
+        self.cache['notices'] = {'New notice': {'en': 'Incomplete'}}
+        projected = public_translations(self.menu, self.cache)
+        self.assertEqual(set(projected['entries']), {self.meals[1]['translation_key']})
+        self.assertEqual(projected['notices'], {})
+        self.assertEqual(translation_gaps(self.menu, self.cache),
+                         {'entries': (key,), 'notices': ('New notice',)})
+
+    def test_bad_notice_is_omitted_without_blocking_dish_translation(self):
+        self.meals[0]['notices'] = ['Unknown source notice']
+        for bad in ('<0xED><0x95><0x9C>', 'Invalid\nnotice'):
+            with self.subTest(bad=bad):
+                def generate(source, config):
+                    if source.get('kind') == 'notice':
+                        return {lang: {'name': bad, 'components': []} for lang in ('en', 'ko')}
+                    return result()
+                cache = self.build({'schema_version': 1, 'entries': {},
+                    'notices': {'Unused notice': {'en': bad, 'ko': bad}}},
+                    config={'model': 'fixture'}, generate=generate)
+                self.assertEqual(cache['notices'], {})
+                self.assertEqual(len(cache['entries']), 2)

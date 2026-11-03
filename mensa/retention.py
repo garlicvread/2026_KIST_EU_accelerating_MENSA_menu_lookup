@@ -5,7 +5,7 @@ from datetime import date, timedelta
 
 from mensa.notice_contract import source_notices
 from mensa.releases import _json_bytes, _release_id
-from mensa.translation_contract import validate_cache
+from mensa.translation_contract import validate_cache, recover_cache
 
 
 _ENTRY_FIELDS = frozenset({
@@ -52,8 +52,8 @@ def retain_menu(menu, today, policy):
 
 
 def public_translations(menu, cache):
-    """public_translations가 전체 캐시를 검증하고 메뉴가 참조하는 기존 번역·안내만 공개 스키마로 복사합니다."""
-    validate_cache(cache)
+    """public_translations가 사용할 수 있는 참조 번역만 복사하고 손상된 항목은 원문 표시로 남깁니다."""
+    cache = recover_cache(cache)
     keys = {meal['translation_key'] for day in menu['days'] for meal in day['meals']}
     labels = source_notices(menu)
     keys &= cache['entries'].keys()

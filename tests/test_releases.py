@@ -73,14 +73,14 @@ class DirectoryPublisherTests(unittest.TestCase):
             self.assertEqual(sorted(path.name for path in (root / 'data').iterdir()), ['current.json', 'releases'])
 
 
-    def test_stored_notices_remain_readable_and_new_publication_uses_copied_glossary(self):
+    def test_changed_glossary_does_not_invalidate_stored_or_republished_wording(self):
         with TemporaryDirectory() as folder:
             root = Path(folder) / 'public'; old = self.publisher(root)
             old.publish(self.menu, self.cache)
             changed = copy.deepcopy(self.glossary); changed['vegan']['en'] = 'Reviewed vegan wording'
             publisher = self.publisher(root, changed)
             self.assertEqual(publisher.load_current(), (self.menu, self.cache))
-            with self.assertRaises(ValueError): publisher.publish(self.menu, self.cache)
+            publisher.publish(self.menu, self.cache)
             updated = copy.deepcopy(self.cache); updated['notices']['vegan']['en'] = 'Reviewed vegan wording'
             publisher.publish(self.menu, updated)
             self.assertEqual(publisher.load_current(), (self.menu, updated))

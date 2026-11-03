@@ -364,14 +364,11 @@ class ConfigureDriveTests(unittest.TestCase):
         self.assertEqual(self.state_files(), before)
         self.assertFalse(self.staging.exists())
 
-    def test_invalid_stale_or_wrong_glossary_pair_fails_before_upload(self):
+    def test_invalid_or_stale_pair_fails_before_upload(self):
         cases = []
         missing = copy.deepcopy(self.cache)
         del next(iter(missing['entries'].values()))['ko']
         cases.append((self.menu, missing))
-        wrong_notice = copy.deepcopy(self.cache)
-        wrong_notice['notices']['Weizen']['en'] = 'Unreviewed wheat'
-        cases.append((self.menu, wrong_notice))
         old_menu = parse_menu(page(date='20.09.2026'), '2026-09-20T10:00:00Z')
         cases.append((old_menu, self.cache))
         invalid = copy.deepcopy(self.menu)
@@ -386,6 +383,13 @@ class ConfigureDriveTests(unittest.TestCase):
                 self.assertEqual(self.command.commands, [])
                 self.assertEqual(self.state_files(), before)
                 self.assertFalse(self.staging.exists())
+
+    def test_alternative_notice_wording_does_not_block_configuration(self):
+        cache = copy.deepcopy(self.cache)
+        cache['notices']['Weizen']['en'] = 'Contains wheat'
+        self.write_source(self.menu, cache)
+        configured = self.configure()
+        self.assertEqual(configured['file_id'], FILE_ID)
 
     def test_pending_or_corrupt_queue_is_preserved_and_blocks_remote_operations(self):
         pending = reconcile({'schema_version': 1, 'completed_period': None, 'pending': None}, NOW)

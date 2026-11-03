@@ -70,7 +70,7 @@ class SparsePublicationTests(unittest.TestCase):
         result['notices']['vegan']['en'] = 'Changed copy'
         self.assertEqual((self.menu, self.cache), before)
 
-    def test_projection_validates_unreferenced_cache_data_before_discarding_it(self):
+    def test_projection_discards_unusable_history_but_rejects_invalid_container(self):
         second = self.menu['days'][0]['meals'][1]
         self.cache['entries'][self.missing_key] = translation_entry(source_for(second))
         for label in source_notices(self.menu):
@@ -79,9 +79,12 @@ class SparsePublicationTests(unittest.TestCase):
         malformed_entry['entries']['a' * 64] = {'source': {'name_de': 'Invalid', 'components': []}}
         malformed_notice = copy.deepcopy(self.cache)
         malformed_notice['notices']['Unused notice'] = {'en': 'Missing Korean'}
-        for invalid in (malformed_entry, malformed_notice, {'schema_version': 1, 'entries': []}):
-            with self.subTest(cache=invalid), self.assertRaises(ValueError):
-                public_translations(self.menu, invalid)
+        for invalid in (malformed_entry, malformed_notice):
+            with self.subTest(cache=invalid):
+                self.assertEqual(public_translations(self.menu, invalid),
+                                 public_translations(self.menu, self.cache))
+        with self.assertRaises(ValueError):
+            public_translations(self.menu, {'schema_version': 1, 'entries': []})
 
     def test_sparse_cache_does_not_hide_invalid_supplied_entries_or_price_associations(self):
         def entry(cache):
@@ -96,14 +99,12 @@ class SparsePublicationTests(unittest.TestCase):
             entry(cache)['en']['components'].pop()
         def byte_tokens(menu, cache):
             entry(cache)['ko']['name'] = '<0xEB><0xA0><0x9D>'
-        def reviewed_notice(menu, cache):
-            cache['notices']['vegan']['ko'] = '변조'
         def incomplete_notice(menu, cache):
             del cache['notices']['vegan']['ko']
         def price_association(menu, cache):
             menu['days'][0]['meals'][1]['price_source']['name'] = 'Other dish'
         for mutate in (missing_ko, wrong_source, wrong_key, components, byte_tokens,
-                       reviewed_notice, incomplete_notice, price_association):
+                       incomplete_notice, price_association):
             with self.subTest(mutation=mutate.__name__):
                 menu, cache = copy.deepcopy((self.menu, self.cache))
                 mutate(menu, cache)
