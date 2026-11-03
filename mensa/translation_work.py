@@ -201,7 +201,7 @@ def _needs_generation(menu, cache, settings, glossary, *, strict_identity):
 def run_translation_work(config, now, *, resources, current, load_prepared, publish,
                          confirm, generate, glossary, phrases, source_pending=False, strict_identity=True):
     """최신 공개 메뉴의 번역만 재개하고 별도 게시 준비본을 최신 공개 ID에 결합합니다."""
-    from mensa.publication import translation_gaps, validate_publication
+    from mensa.publication import validate_publication
     from mensa.retention import public_translations, retain_menu
     from mensa.schedule import BERLIN
     path = config.paths.state_dir / 'translation-work.json'
@@ -306,8 +306,7 @@ def run_translation_work(config, now, *, resources, current, load_prepared, publ
             save_translation_state(path, state)
             publish(improved, release_id, current_id, today)
             current_id = release_id
-        gaps = translation_gaps(menu, candidate)
-        if gaps['entries'] or gaps['notices']:
+        if _needs_generation(menu, candidate, config.inference, glossary, strict_identity=strict_identity):
             clear_prepared()
             state['target_release_id'] = current_id
             raise ValueError('Translation work is incomplete')

@@ -265,6 +265,47 @@ if __name__ == '__main__':
 class DriveTranslationLaneTests(unittest.TestCase):
     setup_drive = DriveRefreshTests.setup_drive
 
+    def test_malformed_identity_refresh_preserves_valid_fallback_and_backs_off(self):
+        from contextlib import contextmanager
+        from mensa.translation_contract import generation_identity
+        with directory_fixture.DirectoryRefreshTests().fixture() as f:
+            self.setup_drive(f)
+            fallback = f.cache(f.menu)
+            identity = generation_identity({'provider': f.config.inference.provider,
+                'model': f.config.inference.model, 'backend_revision': 'previous-revision'},
+                notice_glossary=f.glossary)
+            for entry in fallback['entries'].values():
+                entry.update(origin='model', model=f.config.inference.model,
+                             generation_identity=identity)
+            f.remote_pair = (copy.deepcopy(f.menu), copy.deepcopy(fallback))
+            requests = []
+            def generate(source, config):
+                requests.append(source['name_de'])
+                return {'en': {'name': 'Incomplete new model result', 'components': []}}
+            @contextmanager
+            def runtime(settings, *, key):
+                yield {'provider': settings.provider, 'model': settings.model,
+                       'backend_revision': settings.revision, 'url': 'http://fixture.invalid/api/chat', 'key': key}
+            f.job._translation_builder = None
+            f.job._translate = generate
+            f.job._runtime = runtime
+            result = f.run()
+            self.assertEqual(result['status'], 'completed')
+            self.assertEqual(result['translations']['status'], 'failed')
+            self.assertEqual(len(requests), 2)
+            self.assertEqual(f.remote_pair[1]['entries'], fallback['entries'])
+            path = f.state/'translation-work.json'
+            before = path.read_bytes()
+            state = json.loads(before)
+            self.assertEqual(state['attempts'], 1)
+            self.assertIsNotNone(state['next_attempt_at'])
+            f.remote.load_current = Mock(side_effect=AssertionError('Backoff must precede transport'))
+            f.now += timedelta(seconds=1)
+            result = f.run()
+            self.assertEqual(result['translations']['status'], 'waiting')
+            self.assertEqual(len(requests), 2)
+            self.assertEqual(path.read_bytes(), before)
+
     def test_idle_public_read_failure_records_translation_backoff(self):
         from unittest.mock import Mock
         with directory_fixture.DirectoryRefreshTests().fixture() as f:
