@@ -73,9 +73,11 @@ def _write_file(path, payload):
 
 
 class DirectoryPublisher:
-    def __init__(self, public_dir: Path, *, notice_glossary):
+    def __init__(self, public_dir: Path, *, notice_glossary, recover_translations=False):
         if not isinstance(public_dir, Path) or not public_dir.is_absolute():
             raise ValueError('An explicit absolute public directory Path is required')
+        if type(recover_translations) is not bool:
+            raise ValueError('recover_translations must be a boolean')
         validate_notice_translations(notice_glossary)
         # DirectoryPublisher는 검증된 안내 문구와 번역 문자열의 두 매핑 계층을 변경 불가능한 튜플로 보관합니다.
         self._glossary = tuple((label, tuple(text.items())) for label, text in notice_glossary.items())
@@ -83,6 +85,7 @@ class DirectoryPublisher:
         self._data = public_dir / 'data'
         self._releases = self._data / 'releases'
         self._pointer = self._data / 'current.json'
+        self._recover_translations = recover_translations
 
     def _selection(self):
         if not _kind(self._pointer, stat.S_ISREG, missing=True):
@@ -102,11 +105,16 @@ class DirectoryPublisher:
         if _release_id(*payloads) != release_id or (expected is not None and payloads != expected):
             raise ValueError('Release pair differs from its immutable identity')
         menu, cache = (json.loads(payload) for payload in payloads)
-        if not isinstance(cache, dict):
-            raise ValueError('Invalid published translation cache')
-        validate_publication(menu, cache, notice_glossary=cache.get('notices', {}))
         if tuple(_json_bytes(value) for value in (menu, cache)) != payloads:
             raise ValueError('Release pair is not canonical finite JSON')
+        if not isinstance(cache, dict):
+            raise ValueError('Invalid published translation cache')
+        checked = cache
+        if self._recover_translations:
+            from mensa.translation_contract import recover_cache
+            checked = recover_cache(cache)
+        validate_publication(menu, checked, notice_glossary=checked.get('notices', {}))
+        # 읽기 검사용 복구 사본으로 기존 불변 릴리스의 내용과 ID를 바꾸지 않습니다.
         return menu, cache
 
     def load_current(self):
