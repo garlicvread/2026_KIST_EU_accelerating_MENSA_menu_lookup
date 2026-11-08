@@ -92,6 +92,15 @@ def _identity(info, *, directory=False):
     return value
 
 
+def _same_recorded_identity(actual, recorded):
+    # Device numbers can change after a reboot/remount. Persistent ownership still
+    # checks every other field, including file hashes. Live plans retain device
+    # numbers and compare them exactly before any deletion or truncation.
+    return (isinstance(recorded, dict) and set(actual) == set(recorded) and
+            type(recorded.get('device')) is int and
+            all(name == 'device' or value == recorded[name] for name, value in actual.items()))
+
+
 def _dir_identity(path):
     with _directory(path) as descriptor:
         return _identity(os.fstat(descriptor), directory=True)
@@ -247,7 +256,7 @@ def _record_release(config, identifier, *, today, successful):
                             if _exists(release_root / key)}
     previous = registry['releases'].get(identifier)
     tree = {'directories': {'': pair['directory']}, 'files': pair['files']}
-    if previous is not None and previous['tree'] != tree:
+    if previous is not None and not _same_recorded_tree(tree, previous['tree']):
         raise ValueError('Recorded release ownership identity changed')
     if previous is not None and (previous['state'] == 'successful' or not successful):
         return
@@ -305,8 +314,14 @@ def _tree(path):
 def _owned_subset(actual, recorded):
     return (isinstance(recorded, dict) and set(recorded) == {'files', 'directories'} and
             all(isinstance(recorded[name], dict) and
-                all(recorded[name].get(path) == identity for path, identity in actual[name].items())
+                all(_same_recorded_identity(identity, recorded[name].get(path))
+                    for path, identity in actual[name].items())
                 for name in ('files', 'directories')))
+
+
+def _same_recorded_tree(actual, recorded):
+    return (_owned_subset(actual, recorded) and
+            all(set(actual[name]) == set(recorded[name]) for name in ('files', 'directories')))
 
 
 def _backup_manifest(backup_dir):
@@ -340,7 +355,8 @@ def record_migration_backup(backup_dir, backup_path, *, today):
     tree = _tree(backup_path)
     existing = manifest['backups'].get(backup_path.name)
     record = {'created_on': today.isoformat(), 'tree': tree}
-    if existing is not None and existing != record:
+    if existing is not None and (existing['created_on'] != record['created_on'] or
+                                 not _same_recorded_tree(tree, existing['tree'])):
         raise ValueError('Migration backup was already recorded with a different identity or date')
     manifest['backups'][backup_path.name] = record
     _atomic_json(backup_dir / _BACKUPS, manifest)
@@ -367,7 +383,7 @@ def _backup_root(config, explicit=None):
                 not isinstance(value['path'], str)):
             raise ValueError('Invalid registered migration backup root')
         bound = _absolute(Path(value['path']))
-        if _dir_identity(bound) != value['identity']:
+        if not _same_recorded_identity(_dir_identity(bound), value['identity']):
             raise ValueError('Registered migration backup root identity changed')
         _file_identity(bound / _BACKUPS)
     if explicit is not None:
@@ -562,7 +578,7 @@ def _plan(config, *, today, pinned=(), backup_dir=None, logs_only=False):
                 if complete:
                     pair = _pair(config, directory.name)
                     tree = {'directories': {'': pair['directory']}, 'files': pair['files']}
-                    if record is not None and record['tree'] != tree:
+                    if record is not None and not _same_recorded_tree(tree, record['tree']):
                         raise ValueError('Recorded release ownership identity changed')
                 elif record is not None and directory.name not in keep:
                     # A prior interrupted cleanup may have removed only part of the

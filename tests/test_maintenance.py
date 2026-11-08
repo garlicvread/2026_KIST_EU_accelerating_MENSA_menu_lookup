@@ -28,6 +28,21 @@ from test_publication import translation_entry
 TODAY = date(2026, 10, 28)
 
 
+def record_previous_mount(path):
+    """Keep recorded files unchanged while simulating a previous mount's device number."""
+    value = json.loads(path.read_text())
+
+    def change_device(record):
+        if isinstance(record, dict):
+            if 'device' in record:
+                record['device'] += 1
+            for child in record.values():
+                change_device(child)
+
+    change_device(value)
+    path.write_text(json.dumps(value))
+
+
 class MaintenanceTests(unittest.TestCase):
     def setUp(self):
         self.assertIsNotNone(maintenance, 'The guarded maintenance subsystem is required')
@@ -157,7 +172,7 @@ class MaintenanceTests(unittest.TestCase):
             self.plan()
 
     def test_stale_plan_pointer_file_and_path_replacements_fail_before_removal(self):
-        for mutation in ('pointer', 'file', 'directory', 'path'):
+        for mutation in ('pointer', 'file', 'directory', 'path', 'device'):
             with self.subTest(mutation=mutation):
                 self.state = self.root / mutation / 'state'
                 self.state.mkdir(parents=True, mode=0o700)
@@ -186,8 +201,10 @@ class MaintenanceTests(unittest.TestCase):
                     directory.mkdir()
                     for child in moved.iterdir():
                         (directory / child.name).write_bytes(child.read_bytes())
-                else:
+                elif mutation == 'path':
                     plan['actions'][0]['path'] = str(self.root)
+                else:
+                    plan['roots'][str(self.public / 'data/releases')]['device'] += 1
                 with self.assertRaises(ValueError):
                     maintenance.apply_maintenance(self.config, plan)
                 self.assertTrue(directory.exists())
@@ -419,6 +436,32 @@ else:
         with self.assertRaisesRegex(ValueError, 'backup root'):
             maintenance.generated_bytes(self.config)
 
+    def test_previous_mount_device_numbers_preserve_recorded_ownership(self):
+        identifiers = [self.release(index) for index in range(3)]
+        root = self.root / 'backups'
+        root.mkdir()
+        for index in range(2):
+            path = root / f'copy-{index}'
+            (path / 'nested').mkdir(parents=True)
+            (path / 'nested/owned').write_text('copy')
+            maintenance.record_migration_backup(root, path, today=date(2026, 9, index + 1))
+        maintenance.register_backup_root(self.config, root)
+        maintenance.confirm_migration_cutover(root, today=date(2026, 9, 3))
+        for path in (self.state / 'retention-backup-root.json',
+                     self.state / 'retention-releases.json', root / '.mensa-backups.json'):
+            record_previous_mount(path)
+
+        self.assertGreater(maintenance.generated_bytes(self.config), 0)
+        maintenance.register_backup_root(self.config, root)
+        maintenance.record_migration_backup(root, root / 'copy-1', today=date(2026, 9, 2))
+        maintenance.record_successful_release(self.config, identifiers[-1], today=TODAY)
+        maintenance.apply_maintenance(self.config, self.plan())
+
+        self.assertFalse(self.release_exists(identifiers[0]))
+        self.assertTrue(self.release_exists(identifiers[-1]))
+        self.assertFalse((root / 'copy-0').exists())
+        self.assertEqual((root / 'copy-1/nested/owned').read_text(), 'copy')
+
     def test_interrupted_release_deletion_can_resume_using_recorded_identity(self):
         first = self.release(1)
         self.release(2)
@@ -431,6 +474,7 @@ else:
             return actual_unlink(path, *args, **kwargs)
         with patch.object(os, 'unlink', interrupt), self.assertRaisesRegex(OSError, 'interrupted'):
             maintenance.apply_maintenance(self.config, plan)
+        record_previous_mount(self.state / 'retention-releases.json')
         maintenance.apply_maintenance(self.config, self.plan())
         self.assertFalse(self.release_exists(first))
 
