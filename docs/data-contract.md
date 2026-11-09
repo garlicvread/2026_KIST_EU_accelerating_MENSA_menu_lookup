@@ -2,7 +2,7 @@
 
 Drive의 공개 `current.json`은 독일어 메뉴 `menu`와 영어/한국어 번역 `translations`를 한 묶음에 담습니다. 두 분기는 기존 `menu.json`·`translations.json`과 같은 스키마를 사용합니다. 이 문서는 유지보수자가 필드나 번역 규칙을 바꿀 때 지켜야 할 규칙을 설명합니다. 검사 함수는 `mensa/*_contract.py`에 있습니다. 운영 JSON은 소스에서 추적하지 않으며 고정된 테스트 예제만 `tests/fixtures/menu-data`에 보관합니다.
 
-식단 갱신 프로그램은 완료되지 않은 작업과 개별 번역을 웹에 공개하지 않는 폴더에 따로 저장합니다. 브라우저는 작업 기록이 아니라 완성된 메뉴/번역 파일만 읽습니다. 이 프로젝트는 JSON을 데이터베이스 엔진 없이 파일로 저장합니다.
+수집기는 작업 상태와 비공개 재사용 캐시를 수집 호스트의 상태 디렉터리에 저장합니다. 공개 데이터에는 검증한 메뉴와 사용할 수 있는 참조 번역만 담습니다. 웹브라우저는 GitHub Pages에 배포된 JSON을 HTTP로 읽으며, 번역이 없는 항목은 독일어 원문으로 표시합니다. 이 프로젝트는 JSON을 데이터베이스 엔진 없이 파일로 저장합니다.
 
 ## 날짜별 식단을 갱신하고 보존하는 규칙
 
@@ -22,7 +22,9 @@ Drive 식단 갱신 프로그램은 새 원본에 나온 날짜의 메뉴와 가
 
 예제의 빈 객체는 구조 설명용입니다. 실제 게시물에는 아래 계약을 모두 통과한 메뉴와 번역이 들어 있어야 합니다. `schema_version`은 1이고 `release_id`는 소문자 SHA256 64자리입니다. Drive 파일 ID·폴더 ID와 릴리스 ID는 서로 다른 값입니다. 파일 ID는 설치에서 계속 유지하며 릴리스 ID는 내용이 달라지면 바뀝니다.
 
-익명 다운로드 주소는 `https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuser=0&confirm=t`입니다. 빌드 실행기가 Actions 변수 `MENSA_DRIVE_FILE_ID`로 이 주소를 구성하고 공개 JSON을 내려받습니다. API 키와 브라우저 CORS 허용은 필요하지 않습니다. `read_publication`은 envelope·중복 필드·메뉴·번역·해시를 검사하고 빌더는 현재 검토 사전으로 한 번 더 검증합니다. 실패한 묶음을 배포하지 않습니다.
+익명 다운로드 주소는 `https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuser=0&confirm=t`입니다. GitHub Actions 배포 실행기가 저장소 변수 `MENSA_DRIVE_FILE_ID`로 이 주소를 구성하고 공개 JSON을 내려받습니다. API 키와 브라우저 CORS 허용은 필요하지 않습니다. `read_publication`은 기본적으로 envelope·중복 필드·메뉴·번역·해시를 엄격하게 검사합니다. 빌더도 게시 계약과 검토 사전의 구조를 검사하며, 사전 문구와 번역 문장이 같아야 한다는 조건은 적용하지 않습니다. 이 검사를 통과하지 못한 묶음은 배포하지 않습니다.
+
+빌더는 `today=None`으로 검증하므로 배포 성공만으로 최신 원본을 수집했다고 판단할 수 없습니다. 최신성은 `menu.source.fetched_at`과 메뉴 날짜 범위를 확인해야 합니다. 번역만 보완해 새 릴리스를 게시해도 원본 수집 시각은 바뀌지 않습니다.
 
 검증한 묶음은 Pages 배포물의 `data/releases/<ID>/menu.json`·`translations.json`과 `data/current.json` 포인터로 설치합니다. [`createDataClient`](../frontend/data_client.ts)의 `loadManifest`는 같은 사이트의 포인터를 읽습니다. `loadMenu`와 `loadTranslations`는 그 ID의 두 파일을 각각 요청·검사합니다. 한 로드에서 서로 다른 ID의 메뉴·번역을 섞지 않습니다. 번역 분기 오류는 유효한 독일어 메뉴를 숨기지 않으며, 오래된 응답은 새 화면 상태를 덮어쓰지 못합니다.
 
@@ -45,7 +47,22 @@ data/
 
 로컬 포인터는 정확히 `{"schema_version":1,"release_id":"<64 lowercase hex>"}`이며 Drive의 네 필드 envelope와 다릅니다. 게시기는 검사를 통과한 두 파일을 저장한 뒤 포인터를 교체하고 이전 릴리스를 남깁니다. 같은 ID에 다른 내용을 덮어쓰지 않습니다. 기본 읽기는 전체 게시 조건을 검사합니다. 워커의 `recover_translations=True` 읽기는 원래 바이트·해시와 메뉴를 확인한 뒤 개별 번역을 복구할 수 있게 원래 쌍을 반환합니다. 정리한 번역을 옛 ID의 내용으로 취급하지 않으며 새 내용에는 새 게시 ID를 계산합니다.
 
-운영용 컴퓨터의 로컬 준비 폴더는 Drive 재시도의 입력이며 웹서버에 연결하지 않습니다. 별도로 Pages 빌더는 같은 공개 데이터 구조를 배포물에 설치합니다. `--drive-file-id`는 공개 Drive 묶음을, `--data-dir`는 로컬 예제를 입력으로 사용합니다. 비공개 상태·캐시는 배포물에 포함하지 않습니다.
+수집 호스트의 로컬 게시 준비 폴더는 Drive 재시도의 입력이며 웹서버에 연결하지 않습니다. 별도로 Pages 빌더는 같은 공개 데이터 구조를 배포물에 설치합니다. `--drive-file-id`는 공개 Drive 묶음을, `--data-dir`는 지정한 로컬 메뉴·번역을 입력으로 사용합니다. 비공개 상태·캐시는 배포물에 포함하지 않습니다.
+
+## 수집 호스트의 비공개 상태
+
+`paths.state_dir`에 저장하는 주요 파일은 다음과 같습니다. 실행 방식은 `--config /path/to/worker.toml`을 기준으로 하며, `--base BASE`도 `BASE/worker.toml`의 동일한 설정을 사용합니다.
+
+| 파일 | 역할 |
+| --- | --- |
+| `queue.json` | 수집 예약 슬롯, 완료 슬롯, 실패 후 대기와 재시도 상태 |
+| `translation-work.json` | 별도 번역 작업의 대상·준비 릴리스, 시도 횟수, 대기와 오류 상태 |
+| `translation-state.json` | 재사용할 번역 캐시와 항목별 사용 기록 |
+| `drive-publication.json` | 수집 게시의 이전 공개 릴리스·준비 릴리스·수집 예약 슬롯·목적지 복구 기록 |
+| `last-result.json` | 마지막 실행 결과와 별도로 기록한 번역 결과 |
+| `worker.lock` | 수집·번역·유지보수 작업의 동시 실행을 막는 잠금 |
+
+`queue.json`의 `completed_period`는 완료한 Berlin 기준 예약 슬롯입니다. 실제 HTTP 수집 시각은 공개 메뉴의 `source.fetched_at`에 기록합니다. `--status`는 이 로컬 상태를 읽으며 Drive나 모델에 연결하지 않습니다. 운영자가 원인을 해결한 뒤 사용하는 `--retry-translations`는 번역 오류와 대기를 해제하고 시도 횟수와 수집 큐를 보존합니다. 실제 번역 재개는 다음 일반 실행에서 처리합니다.
 
 ## menu.json의 필드
 
@@ -105,7 +122,7 @@ data/
 
 화면 코드는 첫 번째 ID로 카드와 열린 상세를 유지하지만 JSON과 앱의 원본 메뉴 목록은 바꾸지 않습니다. 다른 날짜의 같은 요리, 공통 곁들임 음식, 이름만 같은 변형 메뉴는 유지합니다. 선택한 가격 한 개나 번역 제목만으로 항목을 합치지 않습니다. 유지보수자가 메뉴 필드를 추가하면 Python/브라우저 형식 검사와 이 전체 내용 비교도 함께 검토해 주세요.
 
-## translations.json과 개별 완료 번역 파일
+## 공개 번역과 비공개 재사용 캐시
 
 번역 파일은 schema_version 1이며 entries에 요리별 번역, notices에 주의 표시 대응표를 저장합니다. 원문으로 번역 key를 계산하는 `source_key` 함수([`mensa/translation_contract.py`](../mensa/translation_contract.py))는 `{"name_de": ..., "components": [...]}`의 키를 정렬하고 공백 없는 UTF-8 JSON으로 직렬화해 SHA256을 계산합니다. components는 원본 순서의 구성품 이름입니다. 원문이나 순서가 바뀌면 key도 바뀝니다.
 
@@ -134,7 +151,7 @@ data/
 
 번역 생성 조건을 기록하는 generation_identity 함수와 재사용을 판단하는 reusable_translation 함수는 `mensa/translation_contract.py`에 있습니다. generation_identity는 모델 종류(provider), 이름(model), 운영자가 선언한 버전(revision)과 번역 규칙·주의 표시 표의 SHA256 지문을 만듭니다. 번역 항목의 같은 이름인 generation_identity 필드에 이 결과가 저장됩니다. reusable_translation은 모델이 만든 항목의 요청 규칙 버전·모델 이름·저장된 생성 조건을 확인해 다시 사용할 수 있는지 판단합니다. TOML 경로에서는 임시 URL/포트/API key가 바뀌어도 같은 모델 버전이면 재사용 판단을 유지할 수 있습니다. 운영자가 모델 내용을 바꾸면 revision도 관리해야 합니다. 환경변수로 실행하는 별도 수동 번역 경로에는 revision 선언이 없으므로 URL이 이 비교 기록에 들어갑니다.
 
-새 모델 번역의 요청 규칙 버전은 menu-v4이고 재사용 지원 버전은 menu-v3/menu-v4입니다. Drive의 `--config`·Mac `--base` 경로는 [`RetainedTranslationStore`](../mensa/retention_runtime.py)를 통해 비공개 `translation-state.json`에 `schema_version`, `cache`, `usage`를 함께 원자적으로 저장합니다. 사용 기록은 항목별 `last_used` 날짜와 `pinned` 여부이며 공개 JSON에 넣지 않습니다. 첫 이관에만 기존 `translation-checkpoint.json`을 읽고 새 파일이 생기면 옛 파일을 다시 병합하지 않습니다. 새 원본에서 실제 사용한 항목만 날짜를 갱신하므로 과거 메뉴를 보존하거나 복사한 것만으로 캐시 수명이 늘어나지 않습니다. 일부 메뉴의 번역만 완료됐을 수 있으므로 비공개 상태를 웹에 올리지 않습니다. 전체 표시 조건을 통과한 메뉴와 필요한 번역만 Drive envelope에 넣습니다. `drive-publication.json`은 준비한 릴리스·이전 공개 릴리스·수집 시각·목적지를 보존합니다.
+새 모델 번역의 요청 규칙 버전은 menu-v4이고 재사용 지원 버전은 menu-v3/menu-v4입니다. 사람의 편집·검토 번역은 모델의 요청 규칙 버전과 무관하게 재사용합니다. Drive 수집기는 [`RetainedTranslationStore`](../mensa/retention_runtime.py)를 통해 비공개 `translation-state.json`에 `schema_version`, `cache`, `usage`를 함께 원자적으로 저장합니다. 사용 기록은 항목별 `last_used` 날짜와 `pinned` 여부이며 공개 JSON에 넣지 않습니다. 첫 이관에만 기존 `translation-checkpoint.json`을 읽고 새 파일이 생기면 옛 파일을 다시 병합하지 않습니다. 새 원본에서 실제 사용한 항목만 날짜를 갱신하므로 과거 메뉴를 보존하거나 번역만 재시도한 것으로 캐시 수명이 늘어나지 않습니다. Drive envelope에는 검증한 메뉴와 사용할 수 있는 참조 번역을 담고, 사용 기록·모델 작업 상태·미사용 번역은 수집 호스트에 보관합니다.
 
 브라우저는 생성 기록이 아니라 정확한 원문 연결과 표시값을 검사해 번역을 사용합니다. 번역이 원문에 맞지 않으면 독일어 이름/구성품을 유지합니다. 유효한 메뉴 분기가 준비되면 독일어로 화면을 만들고 번역 분기가 준비되면 보완합니다. 번역 분기 실패는 메뉴 실패와 별도로 안내합니다.
 
@@ -148,6 +165,6 @@ data/
 
 이름 표현을 정리하는 코드는 이름을 바꾼 항목에 name_policy_version:"semantic-names-v1", 구성품을 바꾼 항목에 component_policy_version:"semantic-components-v1"을 기록합니다. 번역 요청 함수는 모델이 가격·주의 표시를 생성하지 못하게 결과 필드를 제한합니다. Ollama를 선택한 요청은 loopback /api/chat을 사용하고 thinking을 끄며 JSON schema로 결과를 제한합니다. 요청 함수는 정상 완료와 구성품 수를 다시 확인합니다.
 
-화면의 날짜/Today 계산은 Europe/Berlin 기준입니다. 화면 코드는 식단 날짜 범위와 수집 시각을 보여 주고 지난 식단/만료/오래된 자료를 안내합니다. 로컬 파일 작성 코드는 일반 파일시스템을 전제로 하며 Drive 게시기도 전원 손실이나 동시 원격 수정을 원자적으로 복구하지 않습니다. 같은 준비 폴더와 Drive 목적지에는 한 워커만 연결해 주세요.
+화면의 날짜/Today 계산은 Europe/Berlin 기준입니다. 화면 코드는 식단 날짜 범위와 수집 시각을 보여 주며, 현재 시각과 `source.fetched_at`의 차이가 48시간을 초과하면 오래된 수집 경고를 표시합니다. 지난 날짜 선택과 모든 식단 날짜의 만료는 각각 별도로 안내합니다. 로컬 파일 작성 코드는 일반 파일시스템을 전제로 하며 Drive 게시기도 전원 손실이나 동시 원격 수정을 원자적으로 복구하지 않습니다. 같은 준비 폴더와 Drive 목적지에는 한 워커만 연결해 주세요.
 
 가격 상태는 `source.fetched_at` 시점에 수집한 원본을 기준으로 합니다. `source_pending`은 그 시점에 적용할 개별 또는 공통 가격표가 없었다는 뜻입니다. 원본 사이트가 나중에 가격을 추가하면 다음 수집에서 가격을 반영합니다. 화면은 이 경우 “수집 당시 가격 미기재”라는 링크로 원본 식단을 안내합니다.
