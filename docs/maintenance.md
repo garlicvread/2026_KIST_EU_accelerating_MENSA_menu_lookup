@@ -8,12 +8,13 @@
 | --- | --- |
 | 소스 | `mensa/`, `scripts/`, `frontend/`, `site/`와 검토 번역 사전은 Git으로 관리합니다. |
 | 테스트 예제 | `tests/fixtures/menu-data`에 작고 고정된 메뉴·번역 쌍을 둡니다. |
-| 비공개 상태 | `state_dir`의 큐·결과·번역 체크포인트·Drive 준비 저널·설정과 모델·로그입니다. 웹에 공개하지 않습니다. |
-| 로컬 데이터 준비 | `public_dir/data/releases/<release_id>/`의 검증된 메뉴·번역과 로컬 `current.json`입니다. Drive 모드에서는 정적 웹사이트 루트가 아닙니다. |
-| 데이터 원본 | Drive의 안정된 파일 ID를 갖는 `current.json` 한 개입니다. |
+| 비공개 상태 | `paths.state_dir`의 큐·결과·비공개 재사용 캐시·번역 작업 상태·Drive 준비 저널입니다. 설정·모델·로그도 공개 경로 밖에 보관합니다. |
+| 로컬 게시 준비 폴더 | `paths.public_dir/data/releases/<release_id>/`의 검증된 메뉴·번역과 로컬 `data/current.json`입니다. |
+| 원본 식단 | 학생복지기관이 공개한 HTML에서 메뉴·날짜·가격·주의 표시를 수집합니다. |
+| Drive 게시본 | 안정된 파일 ID를 갖는 `current.json`에 메뉴·번역 묶음을 게시합니다. |
 | 공개 배포물 | Pages의 HTML/CSS/favicon·내용별 해시 경로의 JavaScript와 같은 게시본 ID의 메뉴·번역 JSON입니다. |
 
-일상 식단 갱신에서 워커는 코드 체크아웃을 읽기만 하며 데이터 커밋·PR을 만들지 않습니다. Actions는 30분 간격으로 Drive 게시본을 확인해 Pages에 반영하고 같은 ID이면 예약 배포를 생략합니다. 운영 JSON은 배포물에만 넣고 `site/data`에 다시 추적하지 않습니다. 기존 Git 이력·보관 기간 안의 메뉴·가격·번역·큐·모델을 전환 때문에 삭제하지 않습니다.
+일상 식단 갱신에서 수집기는 코드 체크아웃을 읽기만 하며 데이터 커밋·PR을 만들지 않습니다. GitHub Actions 배포 실행기는 매시 17분·47분 예약으로 Drive 게시본을 확인해 Pages에 반영하고 같은 게시본이면 예약 배포를 생략합니다. 예약 지연과 비활성화 가능성이 있으므로 30분 이내 반영을 보장하지 않습니다. 운영 JSON은 배포물에만 넣고 `site/data`에 다시 추적하지 않습니다. 기존 Git 이력·보관 기간 안의 메뉴·가격·번역·큐·모델을 보존합니다.
 
 ## 수정 대상을 찾는 지도
 
@@ -24,13 +25,16 @@
 | 번역 key·표현·모델 재사용 | [`mensa/translation_contract.py`](../mensa/translation_contract.py) |
 | 모델 요청·오류 분류 | [`mensa/generation.py`](../mensa/generation.py), [`errors.py`](../mensa/errors.py) |
 | 중간 번역·모델 프로세스 | [`mensa/translation_runtime.py`](../mensa/translation_runtime.py), [`checkpoints.py`](../mensa/checkpoints.py), [`model_runtime.py`](../mensa/model_runtime.py) |
+| 번역 작업 분리·재시도 | [`mensa/translation_work.py`](../mensa/translation_work.py), [`translation_runner.py`](../mensa/translation_runner.py) |
 | 전체 게시 검사·주의 표시 | [`mensa/publication.py`](../mensa/publication.py), [`notice_contract.py`](../mensa/notice_contract.py), [`scripts/notices.py`](../scripts/notices.py) |
 | 검토 문구 입력 | [`data/editorial-translations.json`](../data/editorial-translations.json), [`notice-translations.json`](../data/notice-translations.json) |
 | Drive 원격 게시·준비본 재개 | [`mensa/drive_publication.py`](../mensa/drive_publication.py), [`drive_refresh.py`](../mensa/drive_refresh.py) |
 | 로컬 릴리스·해시 | [`mensa/releases.py`](../mensa/releases.py) |
 | 설정·큐·자원 | [`mensa/config.py`](../mensa/config.py), [`jobs.py`](../mensa/jobs.py), [`queue.py`](../mensa/queue.py), [`resources.py`](../mensa/resources.py) |
+| 보관 한도·소유권·정리 | [`mensa/retention.py`](../mensa/retention.py), [`retention_runtime.py`](../mensa/retention_runtime.py), [`maintenance.py`](../mensa/maintenance.py) |
 | 최초 이관·실행 | [`scripts/configure_drive.py`](../scripts/configure_drive.py), [`local_refresh.py`](../scripts/local_refresh.py) |
 | Pages JSON 읽기·표시 계약 | [`frontend/data_client.ts`](../frontend/data_client.ts), [`contracts.ts`](../frontend/contracts.ts), [`display.ts`](../frontend/display.ts) |
+| 오래된 자료·날짜 안내 | [`frontend/selectors.ts`](../frontend/selectors.ts), [`render.ts`](../frontend/render.ts) |
 | 화면 상태·선택·초점 | [`frontend/controller.ts`](../frontend/controller.ts), [`state.ts`](../frontend/state.ts), [`selectors.ts`](../frontend/selectors.ts), [`app.ts`](../frontend/app.ts) |
 | 정적 화면 빌드·배포 | [`scripts/build_site.py`](../scripts/build_site.py), [`update-and-deploy.yml`](../.github/workflows/update-and-deploy.yml) |
 
@@ -42,7 +46,7 @@
 
 가격은 원본 S/M/G와 학생·교직원·방문객의 정수 센트를 모두 대조합니다. 라벨 순서·€/소수점 표기·HTML 꾸밈이 달라도 같은 금액을 해석합니다. 마지막 요리에 붙은 유일한 판매대 공통 가격은 `scope:counter`로 소유 원문을 기록합니다. 개별·공통 가격이 없는 항목은 이전 금액 유무와 관계없이 `null/source_pending`으로 두고 원본 링크로 안내합니다. 다른 날짜·판매대·PDF에서 임의로 채우지 않습니다. 정상 메뉴 추가·삭제·교체·중복 수 변화·빈 식단을 이전 개수와 비교해 차단하지 않으며 가격표 추출·날짜·원문 연결은 계속 검사합니다.
 
-새 원본의 유효성과 현재 날짜를 먼저 검사하고 Drive는 지난30일·오늘·원본의 미래 메뉴를 공개합니다. 원본 범위의 누락을 과거 메뉴로 메우지 않습니다. 공개 번역은 메뉴가 참조하는 정상 항목만 담고 운영용 Mac의 재사용 캐시는 별도 수명으로 관리합니다. 빠지거나 손상된 번역은 원문으로 표시하고 별도 번역 작업으로 보완합니다. `retention.py`, `retention_runtime.py`, `maintenance.py`와 [운영 한도](operations.md#데이터-보관-한도와-정리)를 함께 검토합니다. 원문 주의 표시를 삭제하거나 모델이 가격·알레르기를 만들게 하지 않습니다.
+새 원본의 유효성과 현재 날짜를 먼저 검사하고 Drive는 지난 30일·오늘·원본의 미래 메뉴를 공개합니다. 원본 범위의 누락을 과거 메뉴로 메우지 않습니다. 공개 번역은 메뉴가 참조하는 정상 항목만 담고 수집 호스트의 비공개 재사용 캐시는 별도 수명으로 관리합니다. 빠지거나 손상된 번역은 원문으로 표시하고 별도 번역 작업으로 보완합니다. `retention.py`, `retention_runtime.py`, `maintenance.py`와 [운영 한도](operations.md#데이터-보관-한도와-정리)를 함께 검토합니다. 원문 주의 표시를 삭제하거나 모델이 가격·알레르기를 만들게 하지 않습니다.
 
 원문 이름과 구성품 순서는 번역 key를 결정합니다. 모델 번역의 재사용은 provider/model/revision과 번역 정책·주의 표시 사전의 지문을 확인합니다. 임시 포트·URL·인증 값은 설정 기반 생성 정체성에 넣지 않습니다. 모델 내용을 바꾸면 운영자가 안정된 revision도 바꿉니다. 이름·구성품 표현을 정리해도 원래 사람/모델 출처를 바꾸지 않으며 해독되지 않은 바이트 토큰은 게시하지 않습니다.
 
@@ -50,21 +54,25 @@ Drive의 `current.json`은 정확히 `schema_version`, `release_id`, `menu`, `tr
 
 ## 설정과 모델을 바꿀 때
 
-Drive 전체 예제는 [`config/worker.drive.example.toml`](../config/worker.drive.example.toml)입니다. `--base BASE`는 `BASE/worker.toml`을 읽고 `--config PATH`는 명시한 전체 TOML을 읽습니다. 누락·알 수 없는 키를 허용하거나 설정 누락을 자동 Git 게시로 해석하지 않습니다. 코드·비공개 상태·로컬 준비 경로는 서로 겹치지 않아야 합니다. 상대 경로는 TOML 기준이며 `~`·환경변수는 확장하지 않습니다.
+Drive 전체 예제는 [`config/worker.drive.example.toml`](../config/worker.drive.example.toml)입니다. `--base BASE`는 `BASE/worker.toml`을 읽고 `--config PATH`는 명시한 전체 TOML을 읽습니다. 누락·알 수 없는 키를 허용하거나 설정 누락을 자동 Git 게시로 해석하지 않습니다. 코드·비공개 상태·로컬 게시 준비 경로는 서로 겹치지 않아야 합니다. 상대 경로는 TOML 기준이며 `~`·환경변수는 확장하지 않습니다.
 
-`publication.mode = "drive"`에는 rclone `remote`, `folder_id`, `file_id`가 모두 필요합니다. OAuth token/client secret은 rclone의 비공개 설정에만 두고 코드·TOML·사이트에 넣지 않습니다. 파일 ID를 바꾸면 Pages의 `MENSA_DRIVE_FILE_ID`도 설치 변경으로 한 번 갱신합니다. 평소 업로드는 이 변수를 바꾸지 않습니다. 인증 인계와 공용 OAuth client 종료 공지는 [운영 문서](operations.md#drive-연결과-후임자-인계)를 참고해 주세요.
+`publication.mode = "drive"`에는 rclone `remote`, `folder_id`, `file_id`가 모두 필요합니다. OAuth token/client secret은 rclone의 비공개 설정에만 두고 코드·TOML·사이트에 넣지 않습니다. 파일 ID를 바꾸면 Pages의 `MENSA_DRIVE_FILE_ID`도 설치 변경으로 한 번 갱신합니다. 평소 업로드는 이 변수를 바꾸지 않습니다. 인증과 계정 인계는 [운영 문서](operations.md#drive-연결과-후임자-인계)를 참고해 주세요.
 
-managed 모델은 준비된 실행 파일·모델·로그 경로를 사용하고 자신이 시작한 프로세스 그룹만 종료합니다. external 모델은 해당 운영자가 가동·인증을 책임집니다. 설정 CLI에는 API key 필드가 없으므로 인증 endpoint를 추가하려면 실제 key 전달 경로를 검토합니다. 기존 Mac `--base`의 Drive 전환은 설치된 모델·설정·캐시 파일을 보존하며 모델을 다시 받지 않습니다.
+managed 모델은 준비된 실행 파일·모델·로그 경로를 사용하고 자신이 시작한 프로세스 그룹만 종료합니다. external 모델은 해당 운영자가 가동·인증을 책임집니다. 설정 CLI에는 API key 필드가 없으므로 인증 endpoint를 추가하려면 실제 key 전달 경로를 검토합니다. Drive 전환은 설치한 모델·설정·캐시 파일을 보존하며 모델을 다시 받지 않습니다.
 
-Drive 실행에서는 `--base`·`--config`가 같은 번역·캐시 복구 경로를 사용해야 합니다. Mac의 기본 경로·모델명·메모리 값이 특정 값과 같다는 이유로 별도 번역기를 선택하지 않습니다. 기존 캐시 파일과 설정은 보존하며, 생성 조건이 현재 설정과 호환되지 않는 모델 번역은 별도 번역 작업에서 갱신합니다.
+Drive 실행의 `--base`·`--config`는 같은 설정 기반 번역·캐시 복구 경로를 사용합니다. 자원 측정은 `resources.platform`의 `macos`·`linux` 구현을 선택합니다. `configure_drive`가 생성하는 macOS 기본값을 다른 호스트에 그대로 활성화하지 않도록 [플랫폼별 설정](operations.md#새-환경에-설치할-때)을 확인합니다. 기존 캐시를 보존하며 생성 조건이 현재 설정과 호환되지 않는 모델 번역은 별도 작업에서 갱신합니다.
 
 ## 실패와 복구 코드를 바꿀 때
 
-JobRunner의 같은 `worker.lock` 아래에서 큐와 작업을 처리합니다. DriveRefreshJob은 완성된 묶음을 로컬에 먼저 저장하고 비공개 `drive-publication.json`에 수집 시각·릴리스·목적지를 기록한 뒤 원격 게시를 시도합니다. 업로드 응답이나 완료 기록이 사라져도 다음 시도는 같은 준비본을 읽고 원격을 확인합니다. 로컬 포인터의 준비본과 마지막 성공한 원격 게시본이 다를 수 있으므로 포인터 존재만으로 공개 성공을 기록하지 않습니다.
+JobRunner의 같은 `worker.lock` 아래에서 큐와 작업을 처리합니다. DriveRefreshJob은 완성된 묶음을 로컬에 먼저 저장하고 비공개 `drive-publication.json`에 수집 예약 슬롯·릴리스·목적지를 기록한 뒤 원격 게시를 시도합니다. 업로드 응답이나 완료 기록이 사라져도 다음 시도는 같은 준비본을 읽고 원격을 확인합니다. 로컬 포인터의 준비본과 마지막 성공한 원격 게시본이 다를 수 있으므로 포인터 존재만으로 공개 성공을 기록하지 않습니다.
 
 DrivePublisher는 목적지 폴더·안정된 파일 ID·기존 내용·중복 예약 이름을 확인하고 전체 공개 조건을 검사한 뒤 쓰며 업로드 후 읽어 확인합니다. 같은 내용의 업로드를 생략하고 알 수 없는 원격 내용을 덮어쓰지 않습니다. 같은 준비 폴더와 Drive 목적지에 여러 작성자를 연결하지 않습니다. 공유 변경·다른 파일 삭제·sync/purge·Git/gh 호출을 일상 경로에 추가하지 않습니다.
 
-운영자는 `--status`의 완료/대기 수집 시각, `translation_work`와 공개 수집 시각·릴리스 ID를 대조합니다. 설정·모델·인증·원문 문제를 먼저 고치고 큐·체크포인트·준비 저널·로컬 릴리스를 보존합니다. 백업·상태 수정·코드 fast-forward는 자동/수동 작업 중지 후 같은 잠금 안에서 수행합니다. 인증·설정 문제를 고친 뒤 `--retry-translations`로 번역 대기만 해제할 수 있습니다. Drive에는 최신 데이터가 있는데 Pages만 이전 상태라면 Actions 다운로드·검증·배포를 확인하고 재실행합니다. 데이터 커밋이나 이력 재작성은 필요하지 않습니다.
+운영자는 `--status`의 수집 큐와 번역 상태를 별도로 확인합니다. `queue.completed_period`는 완료한 예정 수집 시각, `last_result.at`는 최근 결과 기록 시각, 공개 `menu.source.fetched_at`는 실제 원본 수집 시각입니다. 수집의 `completed`와 번역의 `waiting`·`failed`·`blocked`는 함께 나타날 수 있습니다. 번역 실패가 새 원본·가격 게시를 막거나 성공한 수집을 실패로 바꾸지 않도록 유지합니다.
+
+설정·모델·인증·원문 문제를 먼저 고치고 큐·체크포인트·준비 저널·로컬 릴리스를 보존합니다. 백업·상태 수정·코드 fast-forward는 자동·수동 작업 중지 후 같은 잠금 안에서 수행합니다. `--retry-translations`는 번역 대기·오류만 해제하고 시도 이력을 유지합니다. 수집 큐를 초기화하거나 모델을 즉시 실행하지 않습니다. Drive에는 최신 데이터가 있는데 Pages만 이전 상태라면 Actions 다운로드·검증·배포를 확인합니다. 단계별 진단은 [실패 확인과 재시도](operations.md#실패-확인과-재시도)에 있습니다.
+
+`maintenance.py`는 저장된 소유권 기록을 읽을 때만 재부팅·재마운트로 달라질 수 있는 `st_dev`를 비교에서 제외합니다. inode·권한·파일 크기·수정 시각·링크 수·내용 해시는 계속 검사합니다. 새 정리 계획과 삭제·로그 절단 직전 검사는 장치 번호까지 정확히 비교합니다. 기존 기록을 재작성하거나 검사 전체를 완화하는 방식으로 복구하지 않습니다.
 
 기존 `directory`·명시적 `github` 설정과 `SnapshotRepository` 코드는 기존 설치 호환용입니다. 이전 Git 게시 번호·snapshot 저널·복구 참조는 전환 전에 확인하고 보존합니다. Drive의 평소 운영 절차와 구분해 주세요.
 
@@ -74,19 +82,20 @@ DrivePublisher는 목적지 폴더·안정된 파일 ID·기존 내용·중복 �
 
 | 정책 | 현재 값과 담당 코드 |
 | --- | --- |
-| 수집 일정 | Berlin 09:00·10:00·11:00, 미수집 과거 작업만 최신 시각으로 합침: `mensa/schedule.py` |
-| 일반 재시도 | 15 → 30 → 60 → 120 → 240 → 360분, 이후 상한: `mensa/queue.py` |
-| 모델 오류 | network/timeout/408·429·5xx 재시도, 유효한 Retry-After 반영; 잘못된 개별 응답은 생략 후 보완 재시도; 인증·설정 중지는 운영자 해제: `errors.py`, `translation_work.py` |
-| HTML | 최대 3회, 요청 20초, 최대 5,000,000바이트: `scripts/menu_source.py` |
-| 관리 모델 | 시작 30초·poll 0.25초, TERM 10초 후 필요 시 KILL 5초: `mensa/model_runtime.py` |
-| 생성 요청 | Ollama 180초 / OpenAI-compatible 90초, 최대 100,000바이트: `mensa/generation.py` |
+| 수집 일정 | `mensa/schedule.py`가 Berlin 09:00·10:00·11:00을 정의하고 `mensa/queue.py`가 미수집 과거 작업을 최신 시각으로 합칩니다. |
+| 일반 재시도 | `mensa/queue.py`가 15 → 30 → 60 → 120 → 240 → 360분을 적용하고 이후 360분으로 제한합니다. |
+| 모델 오류 | `errors.py`·`translation_work.py`가 network/timeout/408·429·5xx를 재시도하고 유효한 Retry-After를 반영합니다. 잘못된 개별 응답은 보완 재시도하며 인증·설정 중지는 운영자가 해제합니다. |
+| HTML | `scripts/menu_source.py`가 최대 3회, 요청 20초, 최대 5,000,000바이트로 제한합니다. |
+| 관리 모델 | `mensa/model_runtime.py`가 시작 30초·poll 0.25초, TERM 10초 후 필요 시 KILL 5초를 기다립니다. |
+| 생성 요청 | `mensa/generation.py`의 제한은 Ollama 180초, OpenAI-compatible 90초, 최대 100,000바이트입니다. |
 | Ollama | thinking/stream 꺼짐, temperature 0, num_ctx 8192, num_predict 4096, keep_alive 5m |
 | 번역 정책 | 새 요청 menu-v4, 재사용 menu-v3/menu-v4, semantic-names-v1·semantic-components-v1 |
-| 브라우저 | fetch와 JSON 읽기 포함 15초: `frontend/main.ts` |
+| 브라우저 | `frontend/main.ts`가 fetch와 JSON 읽기를 합쳐 15초로 제한합니다. |
+| 자료 최신성 | `frontend/selectors.ts`가 원본 수집 시각으로부터 48시간 초과 여부를 계산합니다. 번역 게시·Pages 재배포는 수집 시각을 갱신하지 않습니다. |
 
 ## 개발 검사와 반영
 
-운영 워커와 분리된 개발 체크아웃에서 관련 Python 회귀 검사·`npm test`·명시적 예제 검증을 실행합니다. 주요 변경은 [README의 전체 검사](../README.md#로컬에서-검사하고-화면-확인하기)를 적용합니다. 함수 이름·import 목록 같은 구현 모양 대신 가격 연결·날짜 보존·번역 재사용·같은 준비본 재시도·실패 시 공개본 보존처럼 실제 오류를 막는 검사를 유지합니다.
+운영 수집기와 분리된 개발 체크아웃에서 관련 Python 회귀 검사·`npm test`·명시적 예제 검증을 실행합니다. 주요 변경은 [README의 전체 검사](../README.md#로컬에서-검사하고-화면-확인하기)를 적용합니다. 함수 이름·import 목록 같은 구현 모양 대신 가격 연결·날짜 보존·번역 재사용·같은 준비본 재시도·실패 시 공개본 보존처럼 실제 오류를 막는 검사를 유지합니다.
 
 기존 LLM 문장이나 사전에 고정한 문장과 정확히 같아야 게시된다는 테스트는 작성하지 않습니다. 서로 다른 유효한 번역 표현이 통과하는지, 잘못된 구조·원문 연결을 가진 번역만 제외되는지, 정상 번역과 새 메뉴·가격은 게시되는지 검사합니다. 원문·센트 금액·날짜·릴리스 해시의 동일성이나 명시적으로 주입한 사전값의 전달을 확인하는 테스트는 해당 데이터 계약을 검사하므로 유지합니다. 문자열 비교를 번역 의미의 정확성 증명으로 해석하지 않습니다.
 
@@ -96,6 +105,6 @@ npm run build -- --data-dir tests/fixtures/menu-data --output .tmp/build-example
 npm run build -- --drive-file-id FILE_ID --output .tmp/build-drive
 ```
 
-빌드는 새 출력 폴더를 요구합니다. Drive 모드에는 JSON·비공개 상태·모델·로그가 없어야 하며, 로컬 예제 모드에는 선택된 같은 릴리스의 두 파일만 포함합니다. `site/`를 직접 서비스하지 않습니다. 화면 변경은 일간/주간·세 언어·가격·원문/상세·날짜 이동·초점·작은 화면을 확인합니다.
+빌드는 새 출력 폴더를 요구합니다. Drive·로컬 예제 모드 모두 검증한 메뉴·번역 JSON과 릴리스 포인터를 화면 배포물에 포함합니다. 비공개 상태·비공개 재사용 캐시·모델·로그는 포함하지 않습니다. 빌드의 묶음·해시 검증은 수집 최신성을 보장하지 않으므로 실제 `source.fetched_at`와 날짜 범위를 별도로 확인합니다. `site/`를 직접 서비스하지 않습니다. 화면 변경은 일간/주간·세 언어·가격·원문/상세·날짜 이동·초점·작은 화면을 확인합니다.
 
-실제 코드 배포와 운영 체크아웃 fast-forward·최초 Drive 활성화는 [배포 안내](deployment.md)를 따릅니다. 문서 검토를 위해 식단을 새로 수집하거나 모델을 실행하지 않습니다. 로컬 검사와 실제 공개 읽기·워커 재개를 구별하고 관찰하지 않은 전환 완료를 기록하지 않습니다.
+실제 코드 배포와 운영 체크아웃 fast-forward·최초 Drive 활성화는 [배포 안내](deployment.md)를 따릅니다. 문서 검토를 위해 식단을 새로 수집하거나 모델을 실행하지 않습니다. 로컬 검사와 실제 공개 읽기·수집기 재개를 구별하고 관찰하지 않은 전환 완료를 기록하지 않습니다.
