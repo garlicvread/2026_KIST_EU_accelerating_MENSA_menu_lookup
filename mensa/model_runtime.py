@@ -21,6 +21,7 @@ import urllib.request
 
 from mensa.config import InferenceSettings
 from mensa.errors import GenerationError
+from mensa.process_health import ProcessObservationError, process_activity
 
 
 MAX_TAG_BYTES = 1024 * 1024
@@ -102,7 +103,7 @@ def _positive_number(value):
         return False
 
 
-def _validate_settings(settings, key, startup_timeout, poll_interval):
+def _validate_settings(settings, key, idle_timeout, poll_interval, probe_timeout):
     # 전체 설정 선언과 URL 검증은 load_worker_config가 담당합니다. _validate_settings는 호출자가
     # 설정을 직접 구성한 경우에도 프로세스 경계를 보호하도록 필수 값과 모드를 검사합니다.
     if not isinstance(settings, InferenceSettings) or not isinstance(key, str):
@@ -110,7 +111,9 @@ def _validate_settings(settings, key, startup_timeout, poll_interval):
     if not all(isinstance(value, str) and value.strip()
                for value in (settings.mode, settings.provider, settings.model, settings.revision)):
         raise GenerationError('invalid_config')
-    if not _positive_number(startup_timeout) or not _positive_number(poll_interval):
+    if not all(_positive_number(value) for value in (idle_timeout, poll_interval, probe_timeout)):
+        raise GenerationError('invalid_config')
+    if type(settings.startup_restarts) is not int or settings.startup_restarts < 0:
         raise GenerationError('invalid_config')
     if settings.mode == 'external':
         if (settings.provider not in ('ollama', 'openai')
@@ -190,20 +193,22 @@ def _now(clock):
         raise GenerationError('invalid_config') from None
 
 
-def _readiness(process, settings, host, deadline, poll_interval, probe, clock, wait):
+def _readiness(process, settings, host, idle_timeout, poll_interval, probe_timeout,
+               probe, activity, log, clock, wait):
+    """준비 중인 소유 프로세스의 활동을 관찰하며, 활동이 끊긴 경우에만 기동 정지를 판정합니다."""
+    previous = None
+    last_activity = _now(clock)
     while True:
-        remaining = deadline - _now(clock)
-        if remaining <= 0:
-            raise GenerationError('timeout')
         try:
             exited = process.poll() is not None
         except Exception:
             raise GenerationError('network') from None
         if exited:
-            raise GenerationError('network')
+            raise GenerationError('model_process_exited')
         available = False
         try:
-            envelope = probe(host, remaining)
+            # 한 HTTP 요청이 무응답이어도 프로세스 종료·자식의 CPU 활동을 계속 확인합니다.
+            envelope = probe(host, probe_timeout)
             available = True
         except GenerationError as error:
             if error.code not in ('network', 'timeout'):
@@ -216,9 +221,6 @@ def _readiness(process, settings, host, deadline, poll_interval, probe, clock, w
             raise GenerationError('invalid_envelope') from None
         except Exception:
             raise GenerationError('network') from None
-        remaining = deadline - _now(clock)
-        if remaining <= 0:
-            raise GenerationError('timeout')
         if available:
             models = _models(envelope)
             if not any(model.get('name') == settings.model
@@ -231,13 +233,31 @@ def _readiness(process, settings, host, deadline, poll_interval, probe, clock, w
             except Exception:
                 raise GenerationError('network') from None
             if exited:
-                raise GenerationError('network')
+                raise GenerationError('model_process_exited')
             return
+        # 준비 API가 성공하면 별도 ps 관찰 실패를 이유로 정상 서버를 거부하지 않습니다.
+        observation_failed = False
+        try:
+            signature = activity(process)
+        except (ProcessObservationError, OSError, ValueError):
+            observation_failed = True
+            signature = previous[0] if previous is not None else None
+        try:
+            observed = signature, os.fstat(log.fileno()).st_size
+        except (OSError, ValueError):
+            raise GenerationError('model_health_unavailable') from None
+        if previous is None or observed != previous:
+            previous, last_activity = observed, _now(clock)
+        remaining = idle_timeout - (_now(clock) - last_activity)
+        if remaining <= 0:
+            code = 'model_health_unavailable' if observation_failed else 'model_startup_stalled'
+            raise GenerationError(code)
         wait(min(poll_interval, remaining))
 
 
 @contextmanager
-def model_session(settings, *, key='', startup_timeout=30, poll_interval=.25,
+def model_session(settings, *, key='', startup_idle_timeout=None, poll_interval=.25,
+                  probe_timeout=2, activity=None,
                   launch=subprocess.Popen, choose_port=choose_loopback_port,
                   probe=probe_models, clock=time.monotonic, wait=time.sleep,
                   stop=stop_model):
@@ -247,44 +267,60 @@ def model_session(settings, *, key='', startup_timeout=30, poll_interval=.25,
     제공하며, 사용이 끝나면 소유한 그룹을 정리합니다. 외부 모드에서는 프로세스를
     시작하거나 정리하지 않습니다.
     """
-    _validate_settings(settings, key, startup_timeout, poll_interval)
+    idle_timeout = getattr(settings, 'startup_idle_seconds', 120) if startup_idle_timeout is None else startup_idle_timeout
+    _validate_settings(settings, key, idle_timeout, poll_interval, probe_timeout)
     result = {'provider': settings.provider, 'model': settings.model, 'url': settings.url,
               'key': key, 'backend_revision': settings.revision}
     if settings.mode == 'external':
         yield result
         return
-    if not all(callable(port) for port in (launch, choose_port, probe, clock, wait, stop)):
+    activity = process_activity if activity is None else activity
+    if not all(callable(port) for port in (launch, choose_port, probe, activity, clock, wait, stop)):
         raise GenerationError('invalid_config')
     _validate_paths(settings)
-    try:
-        port = choose_port()
-        if type(port) is not int or not 1 <= port <= 65535:
-            raise GenerationError('invalid_config')
-    except Exception:
-        raise GenerationError('invalid_config') from None
-    deadline = _now(clock) + startup_timeout
-    if not math.isfinite(deadline):
-        raise GenerationError('invalid_config')
-    host = f'http://127.0.0.1:{port}'
-    result['url'] = host + '/api/chat'
-    env = dict(os.environ, OLLAMA_HOST=f'127.0.0.1:{port}',
-               OLLAMA_MODELS=str(settings.models_dir), OLLAMA_NO_CLOUD='1',
-               OLLAMA_NUM_PARALLEL='1', OLLAMA_MAX_LOADED_MODELS='1')
+    # 한 세션의 재시작 기록은 같은 로그에 남기며, 다음 작업 세션에서만 비웁니다.
     with _private_log(settings.log_dir) as log:
-        try:
-            process = launch([str(settings.binary), 'serve'], env=env, stdout=log,
-                             stderr=log, start_new_session=True)
-        except Exception:
-            raise GenerationError('network') from None
-        try:
-            _readiness(process, settings, host, deadline, poll_interval, probe, clock, wait)
-            yield result
-        except BaseException:
+        for attempt in range(settings.startup_restarts + 1):
             try:
-                stop(process)
+                port = choose_port()
+                if type(port) is not int or not 1 <= port <= 65535:
+                    raise GenerationError('invalid_config')
+            except Exception:
+                raise GenerationError('invalid_config') from None
+            host = f'http://127.0.0.1:{port}'
+            result['url'] = host + '/api/chat'
+            env = dict(os.environ, OLLAMA_HOST=f'127.0.0.1:{port}',
+                       OLLAMA_MODELS=str(settings.models_dir), OLLAMA_NO_CLOUD='1',
+                       OLLAMA_NUM_PARALLEL='1', OLLAMA_MAX_LOADED_MODELS='1')
+            try:
+                process = launch([str(settings.binary), 'serve'], env=env, stdout=log,
+                                 stderr=log, start_new_session=True)
+            except Exception:
+                raise GenerationError('network') from None
+            try:
+                _readiness(process, settings, host, idle_timeout, poll_interval, probe_timeout,
+                           probe, activity, log, clock, wait)
+            except BaseException as error:
+                # 정리 실패 시에는 새 프로세스를 겹쳐 시작하지 않습니다.
+                try:
+                    stop(process)
+                except BaseException:
+                    raise error
+                if (isinstance(error, GenerationError)
+                        and error.code in {'model_startup_stalled', 'model_process_exited'}
+                        and attempt < settings.startup_restarts):
+                    log.write(f'\nMensa startup recovery: {error.code}; restarting owned process group\n')
+                    log.flush()
+                    continue
+                raise
+            try:
+                yield result
             except BaseException:
-                # model_session은 종료 정리 실패가 주된 오류나 취소를 대체하지 않도록 합니다.
-                pass
-            raise
-        else:
-            stop(process)
+                try:
+                    stop(process)
+                except BaseException:
+                    pass
+                raise
+            else:
+                stop(process)
+            return

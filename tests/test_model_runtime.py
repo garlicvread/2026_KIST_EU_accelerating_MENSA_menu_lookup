@@ -52,7 +52,8 @@ class ModelRuntimeTests(unittest.TestCase):
     def session(self, settings=None, **overrides):
         ports = dict(launch=self.launch, choose_port=self.port, probe=self.probe,
                      clock=self.clock, wait=self.wait, stop=self.stop,
-                     startup_timeout=1, poll_interval=.25)
+                     startup_idle_timeout=1, poll_interval=.25,
+                     activity=lambda process: ((process.pid, 0),))
         ports.update(overrides)
         return runtime.model_session(settings if settings is not None else self.settings, **ports)
 
@@ -62,7 +63,8 @@ class ModelRuntimeTests(unittest.TestCase):
                 self.fail('Invalid runtime must not yield')
         error = raised.exception
         self.assertEqual(error.code, code)
-        self.assertEqual(error.retryable, code in ('network', 'timeout'))
+        self.assertEqual(error.retryable, code in ('network', 'timeout', 'model_startup_stalled',
+                                                  'model_process_exited', 'model_health_unavailable'))
         self.assertIsNone(error.__cause__)
         self.assertNotIn('SECRET', str(error))
         return error
@@ -115,11 +117,11 @@ class ModelRuntimeTests(unittest.TestCase):
         self.assertEqual(len(self.waits), 1)
         self.stop.assert_called_once_with(self.process)
 
-    def test_startup_timeout_bounds_waiting_and_cleans_up(self):
+    def test_inactive_startup_bounds_each_recovery_attempt_and_cleans_up(self):
         self.probe.side_effect = GenerationError('network')
-        self.assert_failure('timeout', startup_timeout=.6, poll_interval=.4)
-        self.assertAlmostEqual(sum(self.waits), .6)
-        self.stop.assert_called_once_with(self.process)
+        self.assert_failure('model_startup_stalled', startup_idle_timeout=.6, poll_interval=.4)
+        self.assertEqual(self.launch.call_count, self.settings.startup_restarts + 1)
+        self.assertEqual(self.stop.call_count, self.launch.call_count)
         self.assertTrue(self.launch.call_args.kwargs['stdout'].closed)
 
 
@@ -192,7 +194,7 @@ class ModelRuntimeTests(unittest.TestCase):
             process.wait(timeout=3)
             return process
         try:
-            self.assert_failure('network', launch=launch, stop=runtime.stop_model)
+            self.assert_failure('model_process_exited', launch=launch, stop=runtime.stop_model)
             self.assertIsNone(other.poll(), 'Unrelated process group must survive')
             child = int(marker.read_text())
             deadline = time.monotonic() + 3
@@ -223,7 +225,7 @@ class ModelRuntimeTests(unittest.TestCase):
             runtime.stop_model(process)
         try:
             with runtime.model_session(self.settings, probe=self.probe, choose_port=self.port,
-                            stop=stop, startup_timeout=2) as result:
+                            stop=stop, startup_idle_timeout=2) as result:
                 self.assertEqual(result['backend_revision'], self.settings.revision)
         finally:
             for process in processes:

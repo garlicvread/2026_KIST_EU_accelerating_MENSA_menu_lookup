@@ -67,6 +67,59 @@ class WorkerConfigTests(unittest.TestCase):
         self.assertEqual(result.resources.min_available_bytes, 1024)
         self.assertEqual(result.resources.max_load_per_cpu, 1.5)
 
+    def test_startup_defaults_preserve_existing_configs_and_positional_constructor(self):
+        self.write_config()
+        settings = self.load().inference
+        self.assertEqual(settings.startup_idle_seconds, 120)
+        self.assertEqual(settings.startup_restarts, 1)
+        legacy = config_module.InferenceSettings(
+            settings.mode, settings.provider, settings.model, settings.revision,
+            settings.url, settings.binary, settings.models_dir, settings.log_dir,
+        )
+        self.assertEqual(legacy, settings)
+
+    def test_managed_startup_settings_allow_independent_overrides(self):
+        original = dict(self.inference)
+        for declaration in ({'startup_idle_seconds': 2.5}, {'startup_idle_seconds': 1},
+                            {'startup_restarts': 0}, {'startup_restarts': 1000},
+                            {'startup_idle_seconds': 1000000000000, 'startup_restarts': 3}):
+            with self.subTest(declaration=declaration):
+                self.inference = {**original, **declaration}
+                self.write_config()
+                settings = self.load().inference
+                self.assertEqual(settings.startup_idle_seconds, declaration.get('startup_idle_seconds', 120))
+                self.assertEqual(settings.startup_restarts, declaration.get('startup_restarts', 1))
+
+    def test_startup_idle_seconds_rejects_nonpositive_nonfinite_and_non_numeric_values(self):
+        for literal in ('0', '-1', '0.0', '-0.5', 'inf', '-inf', 'nan', 'true', '"120"'):
+            with self.subTest(literal=literal):
+                self.write_config()
+                content = self.config_path.read_text().replace(
+                    '[resources]', f'startup_idle_seconds = {literal}\n[resources]',
+                )
+                self.config_path.write_text(content)
+                self.assert_invalid(r'inference\.startup_idle_seconds')
+
+    def test_startup_restarts_rejects_negative_noninteger_and_boolean_values(self):
+        for value in (-1, 1.5, 1.0, True, '1'):
+            with self.subTest(value=value):
+                self.inference['startup_restarts'] = value
+                self.write_config()
+                self.assert_invalid(r'inference\.startup_restarts')
+
+    def test_external_mode_rejects_managed_startup_settings(self):
+        self.external()
+        self.write_config()
+        settings = self.load().inference
+        self.assertEqual(settings.startup_idle_seconds, 120)
+        self.assertEqual(settings.startup_restarts, 1)
+        for name, value in (('startup_idle_seconds', 120), ('startup_restarts', 1)):
+            with self.subTest(name=name):
+                self.inference[name] = value
+                self.write_config()
+                self.assert_invalid('unknown keys/tables: ' + name)
+                del self.inference[name]
+
     def test_retention_defaults_preserve_existing_configs_and_constructor_callers(self):
         self.write_config()
         result = self.load()

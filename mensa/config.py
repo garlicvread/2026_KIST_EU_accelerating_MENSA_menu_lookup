@@ -30,6 +30,8 @@ class InferenceSettings:
     binary: Path | None
     models_dir: Path | None
     log_dir: Path | None
+    startup_idle_seconds: float = 120
+    startup_restarts: int = 1
 
 
 @dataclass(frozen=True)
@@ -91,9 +93,10 @@ def _read_toml(config_path: Path) -> dict:
         raise ValueError(f"Worker config {config_path} has invalid TOML: {error}") from error
 
 
-def _require_keys(values: dict, names: tuple[str, ...], config_path: Path, section: str) -> None:
+def _require_keys(values: dict, names: tuple[str, ...], config_path: Path, section: str,
+                  optional: tuple[str, ...] = ()) -> None:
     missing = set(names) - set(values)
-    unknown = set(values) - set(names)
+    unknown = set(values) - set(names) - set(optional)
     if missing or unknown:
         details = []
         if missing:
@@ -203,7 +206,9 @@ def _parse_inference(value: object, paths: WorkerPaths, config_path: Path) -> In
     if mode not in {"managed", "external"}:
         raise ValueError(f"Worker config {config_path}: inference.mode must be managed or external")
     managed_names = ("binary", "models_dir", "log_dir")
-    _require_keys(values, common + (managed_names if mode == "managed" else ("url",)), config_path, "[inference]")
+    startup_names = ("startup_idle_seconds", "startup_restarts")
+    _require_keys(values, common + (managed_names if mode == "managed" else ("url",)), config_path,
+                  "[inference]", optional=startup_names if mode == "managed" else ())
     identity = {name: _require_string(values, name, config_path, "inference") for name in common}
     providers = {"ollama"} if mode == "managed" else {"ollama", "openai"}
     if identity["provider"] not in providers:
@@ -212,6 +217,12 @@ def _parse_inference(value: object, paths: WorkerPaths, config_path: Path) -> In
         url = _validate_url(_require_string(values, "url", config_path, "inference"), config_path)
         return InferenceSettings(**identity, url=url, binary=None, models_dir=None, log_dir=None)
 
+    idle = values.get("startup_idle_seconds", InferenceSettings.startup_idle_seconds)
+    if type(idle) not in (int, float) or idle <= 0 or (isinstance(idle, float) and not math.isfinite(idle)):
+        raise ValueError(f"Worker config {config_path}: inference.startup_idle_seconds must be a positive finite number")
+    restarts = values.get("startup_restarts", InferenceSettings.startup_restarts)
+    if type(restarts) is not int or restarts < 0:
+        raise ValueError(f"Worker config {config_path}: inference.startup_restarts must be a nonnegative integer")
     resolved = {
         name: _resolve_path(_require_string(values, name, config_path, "inference"), config_path, f"inference.{name}", "file" if name == "binary" else "directory")
         for name in managed_names
@@ -227,7 +238,7 @@ def _parse_inference(value: object, paths: WorkerPaths, config_path: Path) -> In
     binary = resolved["binary"]
     if binary == paths.public_dir or paths.public_dir in binary.parents:
         raise ValueError(f"Worker config {config_path}: inference.binary ({binary}) must not be inside paths.public_dir ({paths.public_dir})")
-    return InferenceSettings(**identity, url=None, **resolved)
+    return InferenceSettings(**identity, url=None, **resolved, startup_idle_seconds=idle, startup_restarts=restarts)
 
 
 def _parse_resources(value: object, config_path: Path) -> ResourceSettings:

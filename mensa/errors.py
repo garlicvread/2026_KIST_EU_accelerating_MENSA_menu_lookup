@@ -11,6 +11,9 @@ _MESSAGES = {
     "http_retryable": "Translation endpoint is temporarily unavailable",
     "timeout": "Translation request timed out",
     "network": "Translation request was interrupted",
+    "model_startup_stalled": "Model startup stopped showing activity before becoming ready",
+    "model_process_exited": "Model process exited before becoming ready",
+    "model_health_unavailable": "Model process activity could not be observed",
     "redirect": "Translation endpoint redirected; use its final HTTPS URL",
     "invalid_config": "Invalid translation configuration",
     "invalid_ollama_endpoint": "Native Ollama requires a plain loopback /api/chat URL",
@@ -20,7 +23,8 @@ _MESSAGES = {
     "invalid_result": "Translation response does not match the required schema",
     "response_too_large": "Translation response too large",
 }
-_RETRYABLE = frozenset({"http_retryable", "timeout", "network"})
+_RETRYABLE = frozenset({"http_retryable", "timeout", "network", "model_startup_stalled",
+                        "model_process_exited", "model_health_unavailable"})
 
 
 class GenerationError(ValueError):

@@ -353,7 +353,7 @@ class DriveTranslationLaneTests(unittest.TestCase):
             self.assertEqual(f.run()['translations']['status'], 'idle')
             self.assertEqual(f.remote.load_current.call_count, 2)
             final = json.loads(path.read_text())
-            self.assertEqual(final['attempts'], 1)
+            self.assertEqual(final['attempts'], 0)
             self.assertIsNone(final['next_attempt_at'])
 
     def test_injected_native_builder_keeps_legacy_same_model_reuse_without_resource_probe(self):

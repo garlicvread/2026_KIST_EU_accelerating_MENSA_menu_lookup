@@ -63,6 +63,8 @@ flowchart TD
 
 새 번역이 필요하고 자원 조건을 충족하면 `model_session`이 모델 연결을 준비합니다. `managed`는 미리 설치한 Ollama를 별도 프로세스 그룹으로 시작하고 해당 그룹을 종료합니다. `external`은 운영자가 준비한 endpoint를 사용합니다. 요청 함수 `request_translation`은 완료 여부·응답 크기·두 언어·구성품 수와 바이트 토큰을 검사합니다. 번역 작업의 실패 종류에 따라 개별 항목을 보완하거나 대기 후 재시도하며, 인증·설정 문제는 운영자의 조치가 필요합니다. [모델 실행](../mensa/model_runtime.py), [생성 요청](../mensa/generation.py), [번역 상태](../mensa/translation_work.py)
 
+managed 시작 과정은 짧은 준비 확인 요청 사이에 프로세스 종료와 소유한 그룹의 CPU·로그 활동을 관찰합니다. 프로세스 종료는 `model_process_exited`, 준비 전 무활동이 `inference.startup_idle_seconds`(기본 120초) 동안 계속되면 `model_startup_stalled`로 분류합니다. 두 실패 모두 소유한 프로세스 그룹을 정리하고 `inference.startup_restarts`(기본 1) 범위에서 새로 시작합니다. 한도를 소진하면 재시도 가능한 번역 오류로 기존 대기·재개 경로에 전달합니다. 활동이 계속되는 시작에 총 경과 시간 제한을 두지는 않습니다. CPU·로그 활동은 준비 진행의 증거가 아니므로 이 감시는 모든 멈춤을 판별하지는 않습니다. external에는 적용하지 않습니다. [시작 상태 관찰](../mensa/process_health.py), [운영 진단](operations.md#모델-시작-실패와-자동-복구)
+
 ## 브라우저의 읽기와 화면 상태
 
 [`main.ts`](../frontend/main.ts)는 [`createDataClient(fetchPort)`](../frontend/data_client.ts)를 사용합니다. `loadManifest`는 같은 사이트의 `data/current.json`을 읽고 64자리 릴리스 ID를 검사합니다. `loadMenu`와 `loadTranslations`는 `data/releases/<ID>/`의 두 JSON을 독립적으로 읽고 검사합니다. 한 로드는 같은 ID를 사용합니다. 브라우저에 Drive 파일 ID·API 키를 전달하지 않습니다.
