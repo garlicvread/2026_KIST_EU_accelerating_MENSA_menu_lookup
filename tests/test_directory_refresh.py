@@ -257,7 +257,9 @@ class IndependentTranslationLaneTests(unittest.TestCase):
             self.assertEqual(result['translations']['status'], 'completed')
             self.assertEqual(f.opened, 1)
             state = json.loads((f.state/'translation-work.json').read_text())
-            self.assertEqual(state['attempts'], 1)
+            self.assertEqual(state['attempts'], 0)
+            self.assertIsNone(state['generation_failure'])
+            self.assertIsNone(state['next_attempt_at'])
     def test_model_deferral_publishes_source_then_idle_tick_translates_without_source(self):
         with self.fixture() as f:
             job = f.job()

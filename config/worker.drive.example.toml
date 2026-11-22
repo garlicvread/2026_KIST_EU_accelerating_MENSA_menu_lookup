@@ -16,6 +16,10 @@ revision = "REPLACE_WITH_EXACT_OLLAMA_MODEL_DIGEST"
 binary = "../worker-private/runtime/ollama"
 models_dir = "../worker-private/models"
 log_dir = "../worker-private/logs"
+# managed 전용 선택 값입니다. 시작 중 CPU·로그 활동이 관찰되지 않는 연속 시간이며 전체 시작 시간 제한이 아닙니다.
+startup_idle_seconds = 120
+# 감지한 시작 실패 후 소유한 프로세스 그룹을 정리하고 다시 시작할 최대 횟수입니다. 0은 즉시 재시작을 끕니다.
+startup_restarts = 1
 
 [resources]
 # Mac 정책 예제입니다. Linux 설치는 플랫폼과 실제 자원 기준을 조정해 주세요.

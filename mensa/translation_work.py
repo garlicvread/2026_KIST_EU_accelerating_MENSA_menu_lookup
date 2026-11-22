@@ -251,7 +251,7 @@ def run_translation_work(config, now, *, resources, current, load_prepared, publ
 
     def success(release_id):
         clear_prepared()
-        state.update(target_release_id=release_id, next_attempt_at=None,
+        state.update(target_release_id=release_id, attempts=0, next_attempt_at=None,
                      last_error=None, generation_failure=None)
         save_translation_state(path, state)
 
