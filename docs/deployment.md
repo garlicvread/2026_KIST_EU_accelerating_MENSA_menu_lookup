@@ -29,7 +29,11 @@ npm run build -- --drive-file-id FILE_ID --output .tmp/deploy-example
 gh workflow run update-and-deploy.yml --ref main --repo garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup
 ```
 
-배포 작업은 Python 3.12·Node.js 24·잠금 파일의 컴파일러를 사용하고 검사 후 `MENSA_DRIVE_FILE_ID`로 빌드합니다. `.tmp/pages`를 기존 GitHub Pages 주소에 배포하며 `mensa-pages` 그룹의 진행 중인 배포를 취소하지 않습니다. 실패하면 해당 코드 실행을 확인하여 수정·재실행합니다. Drive 수집기 큐에서 Pages 실행 번호를 찾거나 일일 게시를 다시 요청하지 않습니다.
+`build` 작업은 Python 3.12·Node.js 24·잠금 파일의 컴파일러를 사용하고 검사 후 `MENSA_DRIVE_FILE_ID`로 빌드합니다. 변경된 게시본이 있거나 코드 변경·수동 요청이면 `.tmp/pages`를 `github-pages` 배포 파일로 업로드합니다. `deploy` 작업은 `build`가 성공한 뒤에만 이 파일을 기존 GitHub Pages 주소에 배포합니다. 같은 게시본인 예약 실행에서는 업로드와 `deploy`를 생략합니다. `mensa-pages` 그룹은 진행 중인 배포를 취소하지 않습니다.
+
+업로드와 배포를 같은 작업에서 연달아 실행하면 업로드 완료 직후에도 GitHub의 파일 조회가 빈 목록을 반환할 수 있습니다([배포 도구의 오류 보고](https://github.com/actions/deploy-pages/issues/451)). 두 작업을 분리하여 업로드 작업 종료 후 배포를 시작합니다. 고정 시간 대기를 추가하지 않으며 GitHub 내부 오류가 모두 사라진다고 보장하지는 않습니다.
+
+`deploy`만 실패하면 `Publish` 로그를 확인하고 Actions의 **Re-run failed jobs** 또는 `gh run rerun RUN_ID --failed --repo garlicvread/2026_KIST_EU_accelerating_MENSA_menu_lookup`로 실패 작업만 다시 실행합니다. 이때 성공한 `build`는 다시 실행하지 않아 같은 실행에 배포 파일이 중복 업로드되지 않습니다. 배포 파일의 보관 기간은 1일이므로 만료됐다면 위 수동 명령으로 새 실행을 시작해 현재 Drive 데이터를 빌드합니다. `build` 자체가 실패했다면 해당 단계의 원인을 먼저 확인합니다. Drive 수집기 큐에서 Pages 실행 번호를 찾거나 일일 게시를 다시 요청하지 않습니다.
 
 성공한 실행의 코드 SHA와 공개 주소를 확인합니다. Pages의 `data/current.json`과 Drive 묶음의 `release_id`가 같아야 합니다. 웹브라우저 Network에서는 같은 Pages 사이트의 `data/current.json`, `data/releases/<ID>/menu.json`, `translations.json`을 읽는지 확인합니다. 실제 원본 수집 시각과 날짜 범위도 대조합니다. 번역만 보완해도 릴리스 ID가 바뀔 수 있으며 Pages 재배포는 `source.fetched_at`를 새로 만들지 않습니다.
 

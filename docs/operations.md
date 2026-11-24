@@ -230,6 +230,8 @@ https://drive.usercontent.google.com/download?id=FILE_ID&export=download&authuse
 
 Actions의 `Deploy Pages and menu data`는 매시 17분·47분 예약으로 확인하고 Drive 게시본이 현재 Pages와 다르면 배포합니다. 같은 게시본이면 예약 배포를 생략합니다. main push·수동 요청은 코드와 데이터를 함께 배포합니다. 예약은 지연되거나 비활성화될 수 있어 30분 이내 반영을 보장하지 않습니다. 다음 예약을 기다리지 않고 요청하려면 [수동 실행 명령](deployment.md#github-pages에-화면-코드-게시하기)을 사용합니다. 다운로드·검증·빌드가 실패하면 기존 Pages 배포를 유지합니다. Drive 게시 완료와 Pages 반영 완료는 별도 단계이므로 두 릴리스 ID를 대조합니다.
 
+배포 실행은 `build`(검사·Drive 읽기·빌드·업로드)와 그 성공을 기다리는 `deploy`(Pages 게시)로 나뉩니다. `deploy`만 실패했다면 [실패 작업만 재실행하는 절차](deployment.md#github-pages에-화면-코드-게시하기)로 이미 올린 파일을 재사용합니다. 파일이 만료됐으면 새 실행을 시작합니다. 업로드 성공 직후 `No artifacts named "github-pages"`가 발생한 로그를 메뉴·번역 검증 실패로 해석하지 마세요.
+
 폴더 안의 예약 이름은 `current.json` 한 개입니다. 수집기는 기존 파일의 ID와 내용을 확인하고 같은 파일을 갱신합니다. 이름 중복·ID 불일치·유효하지 않은 기존 묶음은 오류로 처리합니다. 폴더의 다른 파일을 삭제·동기화하지 않습니다. 인계 기록에는 코드 버전, 설정·비공개 상태·로컬 게시 준비 경로, remote 이름, 폴더/파일 ID, 모델/revision, 마지막 검증·완료 시각을 남기며 인증 비밀은 제외합니다.
 
 이 구조는 기존 Drive·GitHub Pages의 저장 공간과 사용 한도를 이용합니다. 추가 유료 호스팅·용량 구매·결제 계정 연결은 운영 절차에 포함하지 않습니다. 한도·인증·통신 오류가 나면 기존 공개 묶음을 보존하고 원인을 해결합니다.

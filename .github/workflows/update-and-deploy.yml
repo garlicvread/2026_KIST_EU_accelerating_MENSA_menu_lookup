@@ -15,17 +15,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
+  build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      pages: read
+    outputs:
+      changed: ${{ steps.publication.outputs.changed }}
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -85,11 +83,28 @@ jobs:
         with:
           path: .tmp/pages
           retention-days: 1
+      - name: Explain rejected build
+        if: failure()
+        run: |
+          echo 'Build or upload failed. Inspect the failing step: tests, Drive download, data validation, or artifact upload. The previous Pages deployment stays active.' >> "$GITHUB_STEP_SUMMARY"
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # Finish the upload job before looking up its artifact. Retrying this job reuses that upload.
       - name: Publish
         id: deployment
-        if: steps.publication.outputs.changed == 'true'
         uses: actions/deploy-pages@v4
       - name: Explain rejected deployment
         if: failure()
         run: |
-          echo 'Deployment failed. Check the tests, MENSA_DRIVE_FILE_ID and anonymous Drive JSON download, then retry. The previous Pages deployment stays active; no data commit is required.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Pages deployment failed after a successful build and upload. Inspect the Publish log. Re-run only failed jobs to reuse the uploaded artifact; if it has expired, start a new workflow run. The previous Pages deployment stays active.' >> "$GITHUB_STEP_SUMMARY"
